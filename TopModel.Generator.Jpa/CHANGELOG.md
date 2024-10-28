@@ -1,13 +1,16 @@
+## 1.0.11
+- [d31beb](https://github.com/klee-contrib/topmodel/commit/d31beb5e0d42178e62f6b19316abcbbccde8884d) Fix Initialisation enum dans le cas d'alias ou d'association : cas null
+
 ## 1.0.10
-- [acddcfe](https://github.com/klee-contrib/topmodel/commit/acddcfe1ed07577a7188768d674ee805764da6d4) [JPA] Fix Initialisation enum dans le cas d'alias ou d'association
+- [acddcfe](https://github.com/klee-contrib/topmodel/commit/acddcfe1ed07577a7188768d674ee805764da6d4) Fix Initialisation enum dans le cas d'alias ou d'association
 
 ## 1.0.9
 
-- [`e01da3f`](https://github.com/klee-contrib/topmodel/commit/e01da3f1d3b8c0dc39fe1eb8e206b953efb4b882) [JPA] Problème import java entre deux classes générées Fix #398
+- [`e01da3f`](https://github.com/klee-contrib/topmodel/commit/e01da3f1d3b8c0dc39fe1eb8e206b953efb4b882) Problème import java entre deux classes générées Fix #398
 
 ## 1.0.8
 
-- [`ab967cd`](https://github.com/klee-contrib/topmodel/commit/ab967cd621e914618d141d62d5182f113fbc306c) [JPA] Correction converter dans le cas de composition
+- [`ab967cd`](https://github.com/klee-contrib/topmodel/commit/ab967cd621e914618d141d62d5182f113fbc306c) Correction converter dans le cas de composition
 
 ## 1.0.7
 
