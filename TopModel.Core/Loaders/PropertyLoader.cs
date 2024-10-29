@@ -83,18 +83,18 @@ public class PropertyLoader : ILoader<IProperty>
                 while (parser.Current is not MappingEnd)
                 {
                     var prop = parser.Consume<Scalar>().Value;
-                    var value = parser.Consume<Scalar>();
+                    _ = parser.TryConsume<Scalar>(out var value);
 
                     switch (prop)
                     {
                         case "association":
-                            ap.Reference = new ClassReference(value);
+                            ap.Reference = new ClassReference(value!);
                             break;
                         case "role":
-                            ap.Role = value.Value;
+                            ap.Role = value!.Value;
                             break;
                         case "type":
-                            ap.Type = value.Value switch
+                            ap.Type = value!.Value switch
                             {
                                 "oneToOne" => AssociationType.OneToOne,
                                 "manyToOne" => AssociationType.ManyToOne,
@@ -103,28 +103,28 @@ public class PropertyLoader : ILoader<IProperty>
                             };
                             break;
                         case "as":
-                            ap.As = value.Value;
+                            ap.As = value!.Value;
                             break;
                         case "label":
-                            ap.Label = value.Value;
+                            ap.Label = value!.Value;
                             break;
                         case "required":
-                            ap.Required = value.Value == "true";
+                            ap.Required = value!.Value == "true";
                             break;
                         case "primaryKey":
-                            ap.PrimaryKey = value.Value == "true";
+                            ap.PrimaryKey = value!.Value == "true";
                             break;
                         case "readonly":
-                            ap.Readonly = value.Value == "true";
+                            ap.Readonly = value!.Value == "true";
                             break;
                         case "defaultValue":
-                            ap.DefaultValue = value.Value;
+                            ap.DefaultValue = value!.Value;
                             break;
                         case "comment":
-                            ap.Comment = value.Value;
+                            ap.Comment = value!.Value;
                             break;
                         case "property":
-                            ap.PropertyReference = new Reference(value);
+                            ap.PropertyReference = new Reference(value!);
                             break;
                         case "trigram":
                             ap.Trigram = new LocatedString(value);
