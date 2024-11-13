@@ -95,7 +95,7 @@
               "type": "object",
               "description": "Propriétés de propriété personnalisées, pour utilisation dans un générateur personnalisé.",
               "additionalProperties": {
-                "type": "string"
+                "type": [ "string", "boolean", "integer", "number" ]
               }
             }
           }
@@ -166,7 +166,7 @@
               "type": "object",
               "description": "Propriétés de propriété personnalisées, pour utilisation dans un générateur personnalisé.",
               "additionalProperties": {
-                "type": "string"
+                "type": [ "string", "boolean", "integer", "number" ]
               }
             }
           }
@@ -333,7 +333,7 @@
               "type": "object",
               "description": "Propriétés de propriété personnalisées, pour utilisation dans un générateur personnalisé. Elles s'ajouteront à celles de la propriété originale (avec remplacement si conflit).",
               "additionalProperties": {
-                "type": "string"
+                "type": [ "string", "boolean", "integer", "number" ]
               }
             }
           }
@@ -383,7 +383,7 @@
               "type": "object",
               "description": "Propriétés de propriété personnalisées, pour utilisation dans un générateur personnalisé.",
               "additionalProperties": {
-                "type": "string"
+                "type": [ "string", "boolean", "integer", "number" ]
               }
             }
           }
@@ -849,7 +849,7 @@
               "type": "object",
               "description": "Propriétés de classe personnalisées, pour utilisation dans un générateur personnalisé.",
               "additionalProperties": {
-                "type": "string"
+                "type": [ "string", "boolean", "integer", "number" ]
               }
             },
             "mappers": {
@@ -1055,7 +1055,7 @@
               "type": "object",
               "description": "Propriétés d'endpoint personnalisées, pour utilisation dans un générateur personnalisé.",
               "additionalProperties": {
-                "type": "string"
+                "type": [ "string", "boolean", "integer", "number" ]
               }
             },
             "decorators": {
