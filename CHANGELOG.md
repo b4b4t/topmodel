@@ -8,6 +8,11 @@ Changelogs des modules :
 - [`sql`](./TopModel.Generator.Sql/CHANGELOG.md)
 - [`translation`](./TopModel.Generator.Translation/CHANGELOG.md)
 
+## 2.1.3
+
+- [`#403`](https://github.com/klee-contrib/topmodel/pull/403) - [Core] Autoriser types integer, boolean et number dans customProperties
+- [`#405`](https://github.com/klee-contrib/topmodel/pull/405) - [Core] Ajout support des mappings dans les associations
+
 ## 2.1.2
 
 - [`a59d49aa`](https://github.com/klee-contrib/topmodel/commit/a59d49aa9fab7eb072799daa74f3d9c34971378c) - [modgen] Fix retour du bug du hash sur les dossiers de modules vide
