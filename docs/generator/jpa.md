@@ -228,7 +228,7 @@ Il en va de même pour les mappers `to`. A la différence qu'ils s'appellent `to
 
 Si un paramètre d'entrée obligatoire n'est pas renseigné, l'exception `IllegalArgumentException` est lancée.
 
-Par ailleurs, dans les classes qui définissent le `mapper`, des constructeurs sont générés pour tous les mappers `to`. Une méthode `toXXX` est générée pour chacun des mappers `to`.
+Par ailleurs, dans les classes qui définissent le `mapper`, des constructeurs sont générés pour tous les mappers `from`. Une méthode `toXXX` est générée pour chacun des mappers `to`.
 
 ## Génération de l'Api Server (Spring)
 
