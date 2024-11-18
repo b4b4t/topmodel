@@ -19,7 +19,18 @@ public class GeneratorRegistration : IGeneratorRegistration<JpaConfig>
 
         config.Language ??= "java";
 
-        services.AddGenerator<JpaModelGenerator, JpaConfig>(config, number);
+        services.AddGenerator<JavaDtoGenerator, JpaConfig>(config, number);
+        if (config.UseJdbc)
+        {
+            services.AddGenerator<JdbcEntityGenerator, JpaConfig>(config, number);
+        }
+        else
+        {
+            services.AddGenerator<JpaEnumEntityGenerator, JpaConfig>(config, number);
+            services.AddGenerator<JavaEnumDtoGenerator, JpaConfig>(config, number);
+            services.AddGenerator<JpaEntityGenerator, JpaConfig>(config, number);
+        }
+
         services.AddGenerator<JpaModelInterfaceGenerator, JpaConfig>(config, number);
         services.AddGenerator<JpaMapperGenerator, JpaConfig>(config, number);
         services.AddGenerator<JpaEnumGenerator, JpaConfig>(config, number);

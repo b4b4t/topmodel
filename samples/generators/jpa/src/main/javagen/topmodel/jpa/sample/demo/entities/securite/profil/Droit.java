@@ -130,9 +130,9 @@ public class Droit {
         LIBELLE(String.class), //
         TYPE_DROIT(TypeDroit.class);
 
-		private Class<?> type;
+		private final Class<?> type;
 
-		private Fields(Class<?> type) {
+		Fields(Class<?> type) {
 			this.type = type;
 		}
 

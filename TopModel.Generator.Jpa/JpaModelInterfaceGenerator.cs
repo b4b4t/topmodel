@@ -33,7 +33,7 @@ public class JpaModelInterfaceGenerator : ClassGeneratorBase<JpaConfig>
     {
         var packageName = Config.GetPackageName(classe, tag);
         using var fw = new JavaWriter(fileName, _logger, packageName, null);
-        var javaOrJakarta = Config.PersistenceMode.ToString().ToLower();
+        var javaxOrJakarta = Config.PersistenceMode.ToString().ToLower();
 
         WriteImports(fw, classe, tag);
         fw.WriteLine();
@@ -43,7 +43,7 @@ public class JpaModelInterfaceGenerator : ClassGeneratorBase<JpaConfig>
 
         if (Config.GeneratedHint)
         {
-            fw.AddImport($"{javaOrJakarta}.annotation.Generated");
+            fw.AddImport($"{javaxOrJakarta}.annotation.Generated");
             fw.WriteLine("@Generated(\"TopModel : https://github.com/klee-contrib/topmodel\")");
         }
 
@@ -61,7 +61,7 @@ public class JpaModelInterfaceGenerator : ClassGeneratorBase<JpaConfig>
 
     private void WriteGetters(JavaWriter fw, Class classe, string tag)
     {
-        foreach (var property in classe.Properties.Where(p => !Config.EnumShortcutMode || !(p is AssociationProperty apo && apo.Association.Reference && (apo.Type == AssociationType.OneToOne || apo.Type == AssociationType.ManyToOne))))
+        foreach (var property in classe.Properties.Where(p => !(p is AssociationProperty apo && apo.Association.Reference && (apo.Type == AssociationType.OneToOne || apo.Type == AssociationType.ManyToOne))))
         {
             var getterPrefix = Config.GetType(property) == "boolean" ? "is" : "get";
             fw.WriteLine();
@@ -76,7 +76,7 @@ public class JpaModelInterfaceGenerator : ClassGeneratorBase<JpaConfig>
     {
         var properties = classe.Properties
             .Where(p => !p.Readonly)
-            .Where(p => !Config.EnumShortcutMode || !(p is AssociationProperty apo && apo.Association.Reference && (apo.Type == AssociationType.OneToOne || apo.Type == AssociationType.ManyToOne)));
+            .Where(p => !(p is AssociationProperty apo && apo.Association.Reference && (apo.Type == AssociationType.OneToOne || apo.Type == AssociationType.ManyToOne)));
 
         if (!properties.Any())
         {

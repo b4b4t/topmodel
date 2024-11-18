@@ -55,11 +55,6 @@ public class JpaConfig : GeneratorConfigBase
     public ResourcesEncoding? ResourcesEncoding { get; set; } = Jpa.ResourcesEncoding.Latin1;
 
     /// <summary>
-    /// Option pour générer des getters et setters vers l'enum des références plutôt que sur la table
-    /// </summary>
-    public bool EnumShortcutMode { get; set; }
-
-    /// <summary>
     /// Nom du schéma sur lequel les entités sont sauvegardées
     /// </summary>
     public string? DbSchema { get; set; }

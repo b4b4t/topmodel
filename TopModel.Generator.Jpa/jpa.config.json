@@ -180,11 +180,6 @@
       "type": "string",
       "description": "Nom du schéma sur lequel les entités sont sauvegardées"
     },
-    "enumShortcutMode": {
-      "type": "boolean",
-      "description": "Option pour générer des getters et setters vers l'enum des références plutôt que sur la table",
-      "default": "false"
-    },
     "associationAdders": {
       "type": "boolean",
       "description": "Option pour générer des méthodes d'ajouts pour les associations oneToMany et manyToMany. Ces méthodes permettent de synchroniser les objets ajoutés",
