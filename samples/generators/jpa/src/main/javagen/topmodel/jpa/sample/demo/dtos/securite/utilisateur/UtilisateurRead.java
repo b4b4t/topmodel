@@ -49,8 +49,8 @@ public class UtilisateurRead implements Serializable {
 	 * Email de l'utilisateur.
 	 * Alias of {@link topmodel.jpa.sample.demo.entities.securite.utilisateur.Utilisateur#getEmail() Utilisateur#getEmail()} 
 	 */
-	@NotNull
 	@Email
+	@NotNull
 	private String email;
 
 	/**
@@ -74,14 +74,14 @@ public class UtilisateurRead implements Serializable {
 
 	/**
 	 * Profil de l'utilisateur.
-	 * Alias of {@link topmodel.jpa.sample.demo.entities.securite.utilisateur.Utilisateur#getProfilId() Utilisateur#getProfilId()} 
+	 * Alias of {@link topmodel.jpa.sample.demo.entities.securite.utilisateur.Utilisateur#getProfil() Utilisateur#getProfil()} 
 	 */
 	@NotNull
 	private Integer profilId;
 
 	/**
 	 * Type d'utilisateur.
-	 * Alias of {@link topmodel.jpa.sample.demo.entities.securite.utilisateur.Utilisateur#getTypeUtilisateurCode() Utilisateur#getTypeUtilisateurCode()} 
+	 * Alias of {@link topmodel.jpa.sample.demo.entities.securite.utilisateur.Utilisateur#getTypeUtilisateur() Utilisateur#getTypeUtilisateur()} 
 	 */
 	@NotNull
 	private TypeUtilisateurCode typeUtilisateurCode = TypeUtilisateurCode.GEST;
@@ -319,9 +319,9 @@ public class UtilisateurRead implements Serializable {
         DATE_CREATION(LocalDateTime.class), //
         DATE_MODIFICATION(LocalDateTime.class);
 
-		private Class<?> type;
+		private final Class<?> type;
 
-		private Fields(Class<?> type) {
+		Fields(Class<?> type) {
 			this.type = type;
 		}
 

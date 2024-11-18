@@ -1,3 +1,10 @@
+## 1.1.0
+
+Breaking changes :
+- Suppression du mode `enumShortcut`
+- Les DAO des listes de références ne sont plus générés. La première génération risque de les supprimer
+  - Annuler la suppression des DAO utilisés. Normalement, il y en a peu, d'où la suppression de la génération automatique...
+
 ## 1.0.11
 - [d31beb](https://github.com/klee-contrib/topmodel/commit/d31beb5e0d42178e62f6b19316abcbbccde8884d) Fix Initialisation enum dans le cas d'alias ou d'association : cas null
 

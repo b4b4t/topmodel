@@ -303,10 +303,10 @@ public class SpringDataFlowGenerator : GeneratorBase<JpaConfig>
         fw.AddImport("org.springframework.context.annotation.Configuration");
         fw.WriteLine();
         fw.WriteLine("@Configuration");
-        var javaOrJakarta = Config.PersistenceMode.ToString().ToLower();
+        var javaxOrJakarta = Config.PersistenceMode.ToString().ToLower();
         if (Config.GeneratedHint)
         {
-            fw.AddImport($"{javaOrJakarta}.annotation.Generated");
+            fw.AddImport($"{javaxOrJakarta}.annotation.Generated");
             fw.WriteLine("@Generated(\"TopModel : https://github.com/klee-contrib/topmodel\")");
         }
 
@@ -352,10 +352,10 @@ public class SpringDataFlowGenerator : GeneratorBase<JpaConfig>
         fw.AddImport("org.springframework.context.annotation.Import");
         fw.WriteLine();
         fw.WriteLine("@Configuration");
-        var javaOrJakarta = Config.PersistenceMode.ToString().ToLower();
+        var javaxOrJakarta = Config.PersistenceMode.ToString().ToLower();
         if (Config.GeneratedHint)
         {
-            fw.AddImport($"{javaOrJakarta}.annotation.Generated");
+            fw.AddImport($"{javaxOrJakarta}.annotation.Generated");
             fw.WriteLine("@Generated(\"TopModel : https://github.com/klee-contrib/topmodel\")");
         }
 

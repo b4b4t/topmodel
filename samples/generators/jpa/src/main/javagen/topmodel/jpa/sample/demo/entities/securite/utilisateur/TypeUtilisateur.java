@@ -101,9 +101,9 @@ public class TypeUtilisateur {
         CODE(TypeUtilisateurCode.class), //
         LIBELLE(String.class);
 
-		private Class<?> type;
+		private final Class<?> type;
 
-		private Fields(Class<?> type) {
+		Fields(Class<?> type) {
 			this.type = type;
 		}
 

@@ -9,26 +9,6 @@ public static class ImportsJpaExtensions
         return $"{config.GetPackageName(classe, config.GetBestClassTag(classe, tag))}.{classe.NamePascal}";
     }
 
-    public static List<string> GetImports(this Class classe, JpaConfig config, string tag, IEnumerable<Class> availableClasses)
-    {
-        var imports = new List<string>();
-
-        if (classe.Extends != null)
-        {
-            imports.Add(classe.GetImport(config, config.GetBestClassTag(classe, tag)));
-        }
-
-        if (config.MappersInClass)
-        {
-            imports
-                .AddRange(classe.FromMappers.Where(fm => fm.ClassParams.All(fmp => availableClasses.Contains(fmp.Class))).SelectMany(fm => fm.ClassParams).Select(fmp => fmp.Class.GetImport(config, tag)));
-            imports
-                .AddRange(classe.ToMappers.Where(tm => availableClasses.Contains(tm.Class)).Select(fmp => fmp.Class.GetImport(config, config.GetBestClassTag(classe, tag))));
-        }
-
-        return imports;
-    }
-
     public static List<string> GetKindImports(this CompositionProperty cp, JpaConfig config, string tag)
     {
         return config.GetDomainImports(cp, config.GetBestClassTag(cp.Composition, tag)).ToList();
