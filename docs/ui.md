@@ -2,7 +2,7 @@
 
 **/!\ Expérimental /!\\**
 
-**TopModel.UI** (TMUI) est un outil de visualisation d'un modèle TopModel. Il s'agit également d'une application .NET 6, mais qui n'est à ce jour pas publiée. Vous pouvez néanmoins l'utiliser en téléchargeant les sources et en utilisant la commande `dotnet run` sur le projet C#, en lui passant le fichier de config du générateur.
+**TopModel.UI** (TMUI) est un outil de visualisation d'un modèle TopModel. Il s'agit également d'une application .NET 8 ou 9, mais qui n'est à ce jour pas publiée. Vous pouvez néanmoins l'utiliser en téléchargeant les sources et en utilisant la commande `dotnet run` sur le projet C#, en lui passant le fichier de config du générateur.
 
 Une fois l'application lancée, elle est accessible par défaut sous [https://localhost:5001](https://localhost:5001) (le lien apparaît dans la console et sera cliquable depuis VSCode, si jamais).
 

@@ -4,7 +4,7 @@ La modélisation TopModel est le point d'entrée de son générateur `modgen`. L
 
 ## Installer `modgen`
 
-`TopModel.Generator` est une application .NET 6, packagée comme un [outil .NET](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools).
+`TopModel.Generator` est une application .NET 8 ou 9, packagée comme un [outil .NET](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools).
 
 Pour l'utiliser, il faut avoir le [SDK .NET](https://dotnet.microsoft.com/download) installé sur votre machine, puis lancer la commande
 

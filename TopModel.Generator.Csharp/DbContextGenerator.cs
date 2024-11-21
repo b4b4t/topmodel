@@ -50,7 +50,7 @@ public class DbContextGenerator : ClassGroupGeneratorBase<CsharpConfig>
     {
         using var cw = new CSharpWriter(fileName, _logger);
 
-        cw.WriteUsings(usings.ToArray());
+        cw.WriteUsings([.. usings]);
 
         cw.WriteLine();
         cw.WriteNamespace(contextNs);
@@ -156,7 +156,7 @@ public class DbContextGenerator : ClassGroupGeneratorBase<CsharpConfig>
             if (Config.CanClassUseEnums(classe, Classes, targetProp))
             {
                 hasPropConfig = true;
-                w.WriteLine(2, $"modelBuilder.Entity<{fp.Class}>().Property(p => p.{fp.NamePascal}).HasConversion<{Config.GetImplementation(fp.Domain)?.Type ?? string.Empty}>(){(fp.Domain.Length != null ? $".HasMaxLength({fp.Domain.Length})" : string.Empty)};");
+                w.WriteLine(2, $"modelBuilder.Entity<{fp.Class}>().Property(p => p.{fp.NamePascal}).HasConversion<{Config.GetImplementation(fp.Domain)?.Type ?? string.Empty}>(){(fp.Domain?.Length != null ? $".HasMaxLength({fp.Domain.Length})" : string.Empty)};");
             }
 
             if (fp.Domain?.Length != null && fp.Domain?.Scale != null)
@@ -224,7 +224,7 @@ public class DbContextGenerator : ClassGroupGeneratorBase<CsharpConfig>
             }
 
             var hasData = false;
-            foreach (var classe in classes.Distinct().Where(c => c.Values.Any()).OrderBy(c => c.NamePascal))
+            foreach (var classe in classes.Distinct().Where(c => c.Values.Count > 0).OrderBy(c => c.NamePascal))
             {
                 hasData = true;
                 w.WriteLine(2, $"modelBuilder.Entity<{classe.NamePascal}>().HasData(");
