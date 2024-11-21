@@ -306,7 +306,7 @@ for (var i = 0; i < configs.Count; i++)
             });
 
             await build!.StandardOutput.ReadToEndAsync();
-            await build!.StandardOutput.ReadToEndAsync();
+            await build!.StandardError.ReadToEndAsync();
             await build!.WaitForExitAsync();
 
             if (build.ExitCode != 0)
