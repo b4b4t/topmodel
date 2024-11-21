@@ -59,12 +59,12 @@ export class Application {
         const stdout = await execute("dotnet --list-runtimes");
         const runtimeVersion = stdout.includes("Microsoft.NETCore.App 8.0")
             ? "net8.0"
-            : stdout.includes("Microsoft.NETCore.App 6.0")
-            ? "net6.0"
+            : stdout.includes("Microsoft.NETCore.App 9.0")
+            ? "net9.0"
             : undefined;
 
         if (!runtimeVersion) {
-            window.showErrorMessage("Aucun runtime .NET trouvé pour lancer l'extension TopModel (net6.0 ou net8.0)");
+            window.showErrorMessage("Aucun runtime .NET trouvé pour lancer l'extension TopModel (net8.0 ou net9.0)");
             return;
         }
 
