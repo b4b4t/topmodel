@@ -214,6 +214,11 @@
             "type": "string",
             "description": "Url ou chemin relatif du fichier json ou yaml de spécification openapi"
           },
+          "outputDirectory": {
+            "type": "string",
+            "description": "Dossier dans lequel doivent être placés les fichiers et modules générés. Ce chemin est relatif au modelRoot. Accepte le templating avec {module}",
+            "default": "{module}"
+          },
           "module": {
             "type": "string",
             "description": "Module des fichiers de modèle générés. Par défaut : 'module'."

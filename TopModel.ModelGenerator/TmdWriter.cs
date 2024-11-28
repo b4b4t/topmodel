@@ -12,11 +12,11 @@ public class TmdWriter : IDisposable
     private readonly string _modelRoot;
     private readonly FileWriter _writer;
 
-    public TmdWriter(string path, TmdFile file, ILogger logger, string modelRoot)
+    public TmdWriter(string fileName, TmdFile file, ILogger logger, string modelRoot)
     {
         _file = file;
-        _writer = new FileWriter(path + '/' + file.Module + '/' + file.Name + ".tmd", logger) { StartCommentToken = "####" };
-        _modelRoot = Path.GetRelativePath(modelRoot, path);
+        _writer = new FileWriter(fileName, logger) { StartCommentToken = "####" };
+        _modelRoot = Path.GetRelativePath(modelRoot, string.Join("/", fileName.Split('/').SkipLast(1)));
         if (_modelRoot == ".")
         {
             _modelRoot = string.Empty;
@@ -50,7 +50,7 @@ public class TmdWriter : IDisposable
             _writer.WriteLine($"uses:");
             foreach (var u in _file.Uses.OrderBy(u => u.Name).Where(u => u.Name != _file.Name))
             {
-                _writer.WriteLine($"  - {_modelRoot.Replace('\\', '/')}{u.Module}/{u.Name}");
+                _writer.WriteLine($"  - {u.Path.Replace('\\', '/')}");
             }
         }
 
