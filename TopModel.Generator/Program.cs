@@ -300,8 +300,13 @@ for (var i = 0; i < configs.Count; i++)
                 Arguments = "build -v q",
                 WorkingDirectory = customDir,
                 RedirectStandardOutput = true,
-                StandardOutputEncoding = Encoding.UTF8
+                RedirectStandardError = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8
             });
+
+            await build!.StandardOutput.ReadToEndAsync();
+            await build!.StandardError.ReadToEndAsync();
             await build!.WaitForExitAsync();
 
             if (build.ExitCode != 0)
