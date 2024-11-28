@@ -12,5 +12,7 @@ public class TmdFile
 
     public string? Module { get; set; }
 
+    public string? Path { get; set; }
+
     public List<TmdFile> Uses => Classes.SelectMany(c => c.Dependencies).Concat(Endpoints.SelectMany(e => e.Dependencies)).Where(c => c.File != null).Select(f => f!.File!).Distinct().OrderBy(u => u.Name).ToList();
 }

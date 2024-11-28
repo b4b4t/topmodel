@@ -60,15 +60,16 @@ public class OpenApiTmdGenerator : ModelGenerator
         var modelFileName = $"{Path.Combine(ModelRoot, _config.OutputDirectory, _config.ModelFileName)}.tmd";
         yield return modelFileName;
 
+        var rootPath = Path.Combine(ModelRoot, _config.OutputDirectory);
         var tmdFile = new TmdFile()
         {
             Module = _config.Module,
             Name = _config.ModelFileName,
-            Tags = _config.ModelTags.ToList()
+            Tags = _config.ModelTags.ToList(),
+            Path = Path.Combine(_config.OutputDirectory, _config.ModelFileName)
         };
-        var rootPath = Path.Combine(ModelRoot, _config.OutputDirectory);
-        var fileName = Path.Combine(rootPath, tmdFile.Module!, tmdFile.Name + ".tmd");
-        using var tmdFileWriter = new TmdWriter(ModelRoot, tmdFile, _logger, ModelRoot);
+        var fileName = Path.Combine(rootPath, tmdFile.Name + ".tmd");
+        using var tmdFileWriter = new TmdWriter(modelFileName, tmdFile, _logger, Path.GetFullPath(ModelRoot));
 
         var references = new HashSet<string>(referenceMap.SelectMany(r => r.Value).Select(r => r.Id).Distinct());
 
@@ -184,10 +185,11 @@ public class OpenApiTmdGenerator : ModelGenerator
             {
                 Module = _config.Module,
                 Name = module.Key,
-                Tags = _config.EndpointTags.ToList()
+                Tags = _config.EndpointTags.ToList(),
+                Path = Path.Combine(_config.OutputDirectory, module.Key)
             };
 
-            using var tmdEndpointFileWriter = new TmdWriter(ModelRoot, tmdFileEnpoint, _logger, ModelRoot);
+            using var tmdEndpointFileWriter = new TmdWriter(endpointFileName, tmdFileEnpoint, _logger, ModelRoot);
 
             if (referenceMap[module.Key].Any())
             {
