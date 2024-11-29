@@ -205,10 +205,7 @@ public abstract class GeneratorConfigBase
                 yield return import;
             }
 
-            foreach (var import in GetImplementation(property.Domain)!.Annotations
-                .Where(a => FilterAnnotations(a, property, tag))
-                .SelectMany(a => a.Imports)
-                .Select(u => u.ParseTemplate(property, this, tag)))
+            foreach (var import in GetDomainAnnotations(property, tag).SelectMany(a => a.Imports))
             {
                 yield return import;
             }
