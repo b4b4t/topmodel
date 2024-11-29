@@ -163,7 +163,7 @@ public class JpaModelPropertyGenerator
         fw.WriteAnnotations(1, annotations);
         string defaultValue = GetDefaultValue(property);
         fw.AddImports(GetDefaultValueImports(property, tag));
-        fw.WriteLine(1, $"private {GetPropertyType(property)} {GetPropertyName(property)}{defaultValue};"); ;
+        fw.WriteLine(1, $"private {GetPropertyType(property)} {GetPropertyName(property)}{defaultValue};");
     }
 
     public void WriteSetter(JavaWriter fw, string tag, IProperty property, int indentLevel = 1)
