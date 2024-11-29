@@ -116,7 +116,7 @@ public static class ModelUtils
     /// <returns>Le texte en sortie.</returns>
     public static string ToPascalCase(this string text, bool strict = false, bool strictIfUppercase = false)
     {
-        if (strictIfUppercase && text == text.ToUpperInvariant())
+        if (strictIfUppercase && text.Equals(text, StringComparison.InvariantCultureIgnoreCase))
         {
             strict = true;
         }
@@ -134,7 +134,7 @@ public static class ModelUtils
             invalidCharsRgx.Replace(whiteSpace.Replace(text.Replace("-", "_"), "_"), string.Empty)
 
             // split by underscores
-            .Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries)
+            .Split(['_'], StringSplitOptions.RemoveEmptyEntries)
 
             // set first letter to uppercase
             .Select(w => startsWithLowerCaseChar.Replace(w, m => m.Value.ToUpper()));
@@ -160,7 +160,7 @@ public static class ModelUtils
     public static string ToRelative(this string path, string? relativeTo = null)
     {
         var relative = Path.GetRelativePath(relativeTo ?? Directory.GetCurrentDirectory(), path);
-        if (!relative.StartsWith("."))
+        if (!relative.StartsWith('.'))
         {
             relative = $".\\{relative}";
         }
