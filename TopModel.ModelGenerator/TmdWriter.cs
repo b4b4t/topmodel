@@ -48,9 +48,9 @@ public class TmdWriter : IDisposable
         if (_file.Uses.Where(u => u.Name != _file.Name).Any())
         {
             _writer.WriteLine($"uses:");
-            foreach (var u in _file.Uses.OrderBy(u => u.Name).Where(u => u.Name != _file.Name))
+            foreach (var u in _file.Uses.OrderBy(u => u.Name).Where(u => u.Name != _file.Name && u.Path != null))
             {
-                _writer.WriteLine($"  - {u.Path.Replace('\\', '/')}");
+                _writer.WriteLine($"  - {u.Path!.Replace('\\', '/')}");
             }
         }
 
@@ -111,7 +111,7 @@ public class TmdWriter : IDisposable
             }
         }
 
-        if (classe.Unique.Any())
+        if (classe.Unique.Count > 0)
         {
             _writer.WriteLine();
             _writer.WriteLine($"  unique:");
@@ -121,7 +121,7 @@ public class TmdWriter : IDisposable
             }
         }
 
-        if (classe.Values.Any())
+        if (classe.Values.Count > 0)
         {
             _writer.WriteLine();
             _writer.WriteLine($"  values:");
@@ -146,7 +146,7 @@ public class TmdWriter : IDisposable
             _writer.WriteLine($"  preservePropertyCasing: {endpoint.PreservePropertyCasing.ToString().ToLower()}");
         }
 
-        if (endpoint.Params.Any())
+        if (endpoint.Params.Count > 0)
         {
             _writer.WriteLine($"  params:");
             var isFirst = true;
