@@ -1,5 +1,4 @@
 ﻿using TopModel.Core;
-using TopModel.Core.Model.Implementation;
 using TopModel.Generator.Core;
 using TopModel.Utils;
 
@@ -182,10 +181,14 @@ public class JpaModelPropertyGenerator
     {
         if (property.Class.IsPersistent)
         {
-            return [GetConvertAnnotation(property, tag), GetColumnAnnotation(property)];
+            yield return GetConvertAnnotation(property, tag);
+            yield return GetColumnAnnotation(property);
         }
 
-        return [];
+        foreach (var a in GetDomainAnnotations(property, tag))
+        {
+            yield return a;
+        }
     }
 
     protected string GetPropertyName(IProperty property)
