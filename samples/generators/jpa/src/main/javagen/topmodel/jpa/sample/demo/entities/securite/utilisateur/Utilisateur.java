@@ -31,10 +31,10 @@ import topmodel.jpa.sample.demo.enums.securite.utilisateur.TypeUtilisateurCode;
  * Utilisateur de l'application.
  */
 @Generated("TopModel : https://github.com/klee-contrib/topmodel")
+@EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "UTILISATEUR", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"UTI_EMAIL"})})
-@EntityListeners(AuditingEntityListener.class)
 public class Utilisateur {
 
 	/**
@@ -98,15 +98,15 @@ public class Utilisateur {
 	/**
 	 * Date de création de l'utilisateur.
 	 */
-	@Column(name = "UTI_DATE_CREATION", nullable = false, columnDefinition = "date")
 	@CreatedDate
+	@Column(name = "UTI_DATE_CREATION", nullable = false, columnDefinition = "date")
 	private LocalDateTime dateCreation = LocalDateTime.now();
 
 	/**
 	 * Date de modification de l'utilisateur.
 	 */
-	@Column(name = "UTI_DATE_MODIFICATION", columnDefinition = "date")
 	@LastModifiedDate
+	@Column(name = "UTI_DATE_MODIFICATION", columnDefinition = "date")
 	private LocalDateTime dateModification = LocalDateTime.now();
 
 	/**
@@ -312,9 +312,9 @@ public class Utilisateur {
         DATE_CREATION(LocalDateTime.class), //
         DATE_MODIFICATION(LocalDateTime.class);
 
-		private Class<?> type;
+		private final Class<?> type;
 
-		private Fields(Class<?> type) {
+		Fields(Class<?> type) {
 			this.type = type;
 		}
 

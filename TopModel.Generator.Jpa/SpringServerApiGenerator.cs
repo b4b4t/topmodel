@@ -45,10 +45,10 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
             fw.AddImport("org.springframework.web.bind.annotation.RequestMapping");
         }
 
-        var javaOrJakarta = Config.PersistenceMode.ToString().ToLower();
+        var javaxOrJakarta = Config.PersistenceMode.ToString().ToLower();
         if (Config.GeneratedHint)
         {
-            fw.AddImport($"{javaOrJakarta}.annotation.Generated");
+            fw.AddImport($"{javaxOrJakarta}.annotation.Generated");
             fw.WriteLine("@Generated(\"TopModel : https://github.com/klee-contrib/topmodel\")");
         }
 
@@ -136,7 +136,7 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
 
             fw.AddImport("org.springframework.web.bind.annotation.PathVariable");
             fw.AddImports(Config.GetDomainImports(param, tag));
-            var decoratorAnnotations = string.Join(' ', Config.GetDomainAnnotations(param, tag).Select(a => a.StartsWith('@') ? a : "@" + a));
+            var decoratorAnnotations = string.Join(' ', Config.GetDomainAnnotations(param, tag).Select(a => a.Annotation).Select(a => a.StartsWith('@') ? a : "@" + a));
             methodParams.Add($"{(pathParamAnnotation.Length > 0 ? $"{pathParamAnnotation} " : string.Empty)}{(decoratorAnnotations.Length > 0 ? $"{decoratorAnnotations} " : string.Empty)}{Config.GetType(param)} {param.GetParamName()}");
         }
 
@@ -146,7 +146,7 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
             ann += @$"@RequestParam(value = ""{param.GetParamName()}"", required = {param.Required.ToString().ToFirstLower()}) ";
             fw.AddImport("org.springframework.web.bind.annotation.RequestParam");
             fw.AddImports(Config.GetDomainImports(param, tag));
-            var decoratorAnnotations = string.Join(' ', Config.GetDomainAnnotations(param, tag).Select(a => a.StartsWith("@") ? a : "@" + a));
+            var decoratorAnnotations = string.Join(' ', Config.GetDomainAnnotations(param, tag).Select(a => a.Annotation).Select(a => a.StartsWith("@") ? a : "@" + a));
             methodParams.Add($"{ann}{(decoratorAnnotations.Length > 0 ? $" {decoratorAnnotations}" : string.Empty)}{Config.GetType(param)} {param.GetParamName()}");
         }
 

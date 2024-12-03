@@ -98,30 +98,6 @@ Par ailleurs, si la classe possède une association avec une classe qui contient
 
 Cette `enum` possède les différents attributs de la classe. Elle définit également une méthode `getEntity`, qui renvoit l'instance de la classe de référence correspondante.
 
-##### EnumShortcutMode
-
-Il peut être laborieux de toujours passer par la classe de référence lorsqu'on ne manipule le plus souvent que leurs clés primaires. CTopModel - JPA permet de créer des raccoucis pour rendre cette approche possible. Si la configuration `enumShortcutMode` est activée :
-
-```yaml
-enumShortcutMode: true
-```
-
-Alors les getters et setters des références statiques ne considèreront plus le type de la table de référence, mais uniquement celui de sa clé primaire.
-
-Exemple :
-
-```java
-  private TypeUtilisateur.Values getTypeUtilisateurCode() {
-    return this.typeUtilisateur.getCode();
-  }
-
-  private void setTypeUtilisateurCode(TypeUtilisateur.Values typeUtilisateurCode) {
-    this.typeUtilisateur = new TypeUtilisateur(typeUtilisateurCode, typeUtilisateurCode.getLibelle());
-  }
-```
-
-En effet, pour les références dont toutes les valeurs sont connues à l'avance et identifiées par un code, celui-ci est beaucoup plus utilisé dans le code java. L'existence de la table correspondante en base de donnée n'est utile que pour la création d'une contrainte de valeur sur les tables qui la référencent.
-
 #### Classes non persistées
 
 Les classes non persistées sont générées de la même manière que les classes persistées, mais ne reçoivent pas les annotations JPA.
@@ -616,10 +592,6 @@ Le générateur créé un fichier de configuration de job par module. Ce job ord
   - `UTF8`
 
   _Variables par tag_: **non**
-
-- `enumShortcutMode`
-
-  Option pour générer des getters et setters vers l'enum des références plutôt que sur la table
 
 - `fieldsEnum`
 

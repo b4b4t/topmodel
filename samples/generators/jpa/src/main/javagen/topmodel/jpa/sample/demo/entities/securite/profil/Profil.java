@@ -34,9 +34,9 @@ import topmodel.jpa.sample.demo.entities.securite.utilisateur.Utilisateur;
  * Profil des utilisateurs.
  */
 @Generated("TopModel : https://github.com/klee-contrib/topmodel")
+@EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "PROFIL")
-@EntityListeners(AuditingEntityListener.class)
 public class Profil {
 
 	/**
@@ -64,15 +64,15 @@ public class Profil {
 	/**
 	 * Date de création de l'utilisateur.
 	 */
-	@Column(name = "PRO_DATE_CREATION", nullable = false, columnDefinition = "date")
 	@CreatedDate
+	@Column(name = "PRO_DATE_CREATION", nullable = false, columnDefinition = "date")
 	private LocalDateTime dateCreation = LocalDateTime.now();
 
 	/**
 	 * Date de modification de l'utilisateur.
 	 */
-	@Column(name = "PRO_DATE_MODIFICATION", columnDefinition = "date")
 	@LastModifiedDate
+	@Column(name = "PRO_DATE_MODIFICATION", columnDefinition = "date")
 	private LocalDateTime dateModification = LocalDateTime.now();
 
 	/**
@@ -207,9 +207,9 @@ public class Profil {
         DATE_MODIFICATION(LocalDateTime.class), //
         UTILISATEURS(Utilisateur.class);
 
-		private Class<?> type;
+		private final Class<?> type;
 
-		private Fields(Class<?> type) {
+		Fields(Class<?> type) {
 			this.type = type;
 		}
 

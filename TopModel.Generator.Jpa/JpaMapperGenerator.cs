@@ -36,11 +36,11 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
             ? Config.GetMapperLocation(sampleFromMapper)
             : Config.GetMapperLocation(sampleToMapper);
 
-        var package = Config.GetPackageName(mapperNs, modelPath, GetBestClassTag(fromMappers.FirstOrDefault().Classe, tag));
+        var package = Config.GetPackageName(mapperNs, modelPath, GetBestClassTag(sampleFromMapper.Classe != null ? sampleFromMapper.Classe : sampleToMapper.Classe, tag));
 
         using var fw = new JavaWriter(fileName, _logger, package, null);
 
-        var imports = fromMappers.SelectMany(m => m.Mapper.ClassParams.Select(p => p.Class).Concat(new[] { m.Classe }))
+        var imports = fromMappers.SelectMany(m => m.Mapper.ClassParams.Select(p => p.Class).Concat([m.Classe]))
             .Concat(toMappers.SelectMany(m => new[] { m.Classe, m.Mapper.Class }))
             .Where(c => Classes.Contains(c))
             .Select(c => c.GetImport(Config, c.Tags.Contains(tag) ? tag : c.Tags.Intersect(Config.Tags).First()))
@@ -53,10 +53,10 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
             fw.WriteLine();
         }
 
-        var javaOrJakarta = Config.PersistenceMode.ToString().ToLower();
+        var javaxOrJakarta = Config.PersistenceMode.ToString().ToLower();
         if (Config.GeneratedHint)
         {
-            fw.AddImport($"{javaOrJakarta}.annotation.Generated");
+            fw.AddImport($"{javaxOrJakarta}.annotation.Generated");
             fw.WriteLine("@Generated(\"TopModel : https://github.com/klee-contrib/topmodel\")");
         }
 

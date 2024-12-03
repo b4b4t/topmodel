@@ -127,6 +127,30 @@ public class JavaWriter : IDisposable
     }
 
     /// <summary>
+    /// Ecrit l'annotation avec le niveau indenté.
+    /// </summary>
+    /// <param name="indentationLevel">Niveau d'indentation.</param>
+    /// <param name="javaAnnotation">Valeur à écrire dans le flux.</param>
+    public void WriteAnnotation(int indentationLevel, JavaAnnotation javaAnnotation)
+    {
+        AddImports(javaAnnotation.Imports);
+        _toWrite.Add(new WriterLine() { Line = javaAnnotation.ToString(), Indent = indentationLevel });
+    }
+
+    /// <summary>
+    /// Ecrit l'annotation avec le niveau indenté.
+    /// </summary>
+    /// <param name="indentationLevel">Niveau d'indentation.</param>
+    /// <param name="javaAnnotations">Valeurs à écrire dans le flux.</param>
+    public void WriteAnnotations(int indentationLevel, IEnumerable<JavaAnnotation> javaAnnotations)
+    {
+        foreach (var annotation in javaAnnotations.DistinctBy(e => e.Name.Split('(').First()))
+        {
+            WriteAnnotation(indentationLevel, annotation);
+        }
+    }
+
+    /// <summary>
     /// Ecrit la chaine de caractère dans le flux.
     /// </summary>
     /// <param name="value">Valeur à écrire dans le flux.</param>

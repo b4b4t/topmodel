@@ -184,15 +184,14 @@ public abstract class GeneratorConfigBase
             .Distinct();
     }
 
-    public IEnumerable<string> GetDomainAnnotations(IProperty property, string tag)
+    public IEnumerable<(string Annotation, IEnumerable<string> Imports)> GetDomainAnnotations(IProperty property, string tag)
     {
         if (property.Domain is not null)
         {
             foreach (var annotation in GetImplementation(property.Domain)!.Annotations
-               .Where(a => FilterAnnotations(a, property, tag))
-               .Select(a => a.Text.ParseTemplate(property, this, tag)))
+               .Where(a => FilterAnnotations(a, property, tag)))
             {
-                yield return annotation;
+                yield return (Annotation: annotation.Text.ParseTemplate(property, this, tag), Imports: annotation.Imports.Select(i => i.ParseTemplate(property, this, tag)));
             }
         }
     }
@@ -206,21 +205,10 @@ public abstract class GeneratorConfigBase
                 yield return import;
             }
 
-            foreach (var import in GetImplementation(property.Domain)!.Annotations
-                .Where(a => FilterAnnotations(a, property, tag))
-                .SelectMany(a => a.Imports)
-                .Select(u => u.ParseTemplate(property, this, tag)))
+            foreach (var import in GetDomainAnnotations(property, tag).SelectMany(a => a.Imports))
             {
                 yield return import;
             }
-
-            var op = property switch
-            {
-                AssociationProperty ap => ap.Property,
-                AliasProperty { OriginalProperty: AssociationProperty ap } => ap.Property,
-                AliasProperty alp => alp.OriginalProperty,
-                _ => property
-            };
         }
     }
 
