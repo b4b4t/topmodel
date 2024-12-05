@@ -116,7 +116,7 @@ public static class ModelUtils
     /// <returns>Le texte en sortie.</returns>
     public static string ToPascalCase(this string text, bool strict = false, bool strictIfUppercase = false)
     {
-        if (strictIfUppercase && text.Equals(text, StringComparison.InvariantCultureIgnoreCase))
+        if (strictIfUppercase && text == text.ToUpperInvariant())
         {
             strict = true;
         }
