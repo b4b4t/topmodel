@@ -13,8 +13,6 @@ public class JpaModelPropertyGenerator
     private readonly JpaConfig _config;
     private readonly Dictionary<string, string> _newableTypes;
 
-    private string JavaxOrJakarta => _config.PersistenceMode.ToString().ToLower();
-
     public JpaModelPropertyGenerator(JpaConfig config, IEnumerable<Class> classes, Dictionary<string, string> newableTypes)
     {
         _classes = classes;
@@ -22,75 +20,11 @@ public class JpaModelPropertyGenerator
         _newableTypes = newableTypes;
     }
 
-    public void WriteCompositePrimaryKeyClass(JavaWriter fw, Class classe, string tag)
-    {
-        if (classe.PrimaryKey.Count() <= 1 || !classe.IsPersistent)
-        {
-            return;
-        }
+    private string JavaxOrJakarta => _config.PersistenceMode.ToString().ToLower();
 
-        fw.WriteLine();
-        fw.WriteLine(1, @$"public static class {classe.NamePascal}Id {{");
-        foreach (var pk in classe.PrimaryKey)
-        {
-            fw.WriteLine();
-            var annotations = new List<JavaAnnotation>();
-            annotations.AddRange(GetDomainAnnotations(pk, tag));
-            if (pk is AssociationProperty ap)
-            {
-                annotations.AddRange(GetJpaAssociationAnnotations(ap, tag));
-            }
-            else if (ShouldWriteColumnAnnotation(pk))
-            {
-                annotations.Add(GetColumnAnnotation(pk));
-            }
-
-            fw.WriteAnnotations(2, annotations);
-            fw.WriteLine(2, $"private {GetPropertyType(pk)} {GetPropertyName(pk)};");
-        }
-
-        foreach (var pk in classe.PrimaryKey)
-        {
-            WriteGetter(fw, tag, pk, 2);
-            WriteSetter(fw, tag, pk, 2);
-        }
-
-        fw.WriteLine();
-        fw.WriteLine(2, "public boolean equals(Object o) {");
-        fw.WriteLine(3, "if(o == this) {");
-        fw.WriteLine(4, "return true;");
-        fw.WriteLine(3, "}");
-        fw.WriteLine();
-        fw.WriteLine(3, "if(o == null) {");
-        fw.WriteLine(4, "return false;");
-        fw.WriteLine(3, "}");
-        fw.WriteLine();
-        fw.WriteLine(3, "if(this.getClass() != o.getClass()) {");
-        fw.WriteLine(4, "return false;");
-        fw.WriteLine(3, "}");
-        fw.WriteLine();
-        fw.WriteLine(3, $"{classe.NamePascal}Id oId = ({classe.NamePascal}Id) o;");
-        var associations = classe.PrimaryKey.Where(p => p is AssociationProperty || p is AliasProperty ap && ap.Property is AssociationProperty);
-        if (associations.Any())
-        {
-            fw.WriteLine();
-            fw.WriteLine(3, @$"if({string.Join(" || ", associations.Select(pk => pk.NameByClassCamel).Select(pk => $"this.{pk} == null || oId.{pk} == null"))}) {{");
-            fw.WriteLine(4, "return false;");
-            fw.WriteLine(3, "}");
-        }
-
-        fw.WriteLine();
-        fw.WriteLine(3, $@"return {string.Join("\n && ", classe.PrimaryKey.Select(pk => $@"Objects.equals(this.{pk.NameByClassCamel}{GetterToCompareCompositePkPk(pk)}, oId.{pk.NameByClassCamel}{GetterToCompareCompositePkPk(pk)})"))};");
-        fw.WriteLine(2, "}");
-
-        fw.WriteLine();
-        fw.WriteLine(2, "@Override");
-        fw.WriteLine(2, "public int hashCode() {");
-        fw.WriteLine(3, $"return Objects.hash({string.Join(", ", classe.PrimaryKey.Select(pk => $"{(pk is AssociationProperty || pk is AliasProperty ap && ap.Property is AssociationProperty ? $"{pk.NameByClassCamel} == null ? null : " : string.Empty)}{pk.NameByClassCamel}{GetterToCompareCompositePkPk(pk)}"))});");
-        fw.AddImport("java.util.Objects");
-        fw.WriteLine(2, "}");
-        fw.WriteLine(1, "}");
-    }
+    private JavaAnnotation EnumAnnotation =>
+        new JavaAnnotation("Enumerated", $"{JavaxOrJakarta}.persistence.Enumerated")
+            .AddAttribute("value", "EnumType.STRING", $"{JavaxOrJakarta}.persistence.EnumType");
 
     public void WriteGetter(JavaWriter fw, string tag, IProperty property, int indentLevel = 1)
     {
@@ -132,6 +66,16 @@ public class JpaModelPropertyGenerator
         return propertyName.ToPascalCase().WithPrefix(getterPrefix);
     }
 
+    public string GetSetterName(IProperty property)
+    {
+        var propertyName = GetPropertyName(property);
+        if (property.Class.PreservePropertyCasing)
+        {
+            return propertyName.ToFirstUpper().WithPrefix("set");
+        }
+        return propertyName.WithPrefix("set");
+    }
+
     public void WriteProperties(JavaWriter fw, Class classe, string tag)
     {
         var properties = _config.UseJdbc ? classe.Properties.Where(p => !(p is AssociationProperty ap && (ap.Type == AssociationType.OneToMany || ap.Type == AssociationType.ManyToMany))) : classe.GetProperties(_classes);
@@ -154,7 +98,7 @@ public class JpaModelPropertyGenerator
 
         fw.WriteDocEnd(1);
 
-        if (property.Domain != null && !property.PrimaryKey || property.Class.PrimaryKey.Count() <= 1)
+        if (!property.PrimaryKey || property.Class.PrimaryKey.Count() <= 1)
         {
             annotations = GetDomainAnnotations(property, tag).Concat(annotations).ToList();
         }
@@ -172,9 +116,90 @@ public class JpaModelPropertyGenerator
         fw.WriteDocStart(indentLevel, $"Set the value of {{@link {property.Class.GetImport(_config, tag)}#{propertyName} {propertyName}}}");
         fw.WriteLine(indentLevel, $" * @param {propertyName} value to set");
         fw.WriteDocEnd(indentLevel);
-        fw.WriteLine(indentLevel, @$"public void {propertyName.WithPrefix("set")}({GetPropertyType(property)} {propertyName}) {{");
+        fw.WriteLine(indentLevel, @$"public void {GetSetterName(property)}({GetPropertyType(property)} {propertyName}) {{");
         fw.WriteLine(indentLevel + 1, @$"this.{propertyName} = {propertyName};");
         fw.WriteLine(indentLevel, "}");
+    }
+
+    public string GetPropertyName(IProperty property)
+    {
+        var isAssociationNotPersistent = property is AssociationProperty apr && !apr.Association.IsPersistent;
+        return _config.UseJdbc || isAssociationNotPersistent ? property.NameCamel : property.NameByClassCamel;
+    }
+
+    public string GetPropertyType(IProperty property)
+    {
+        var isAssociationNotPersistent = property is AssociationProperty apr && !apr.Association.IsPersistent;
+        var useClassForAssociation = property.Class.IsPersistent && !isAssociationNotPersistent && !_config.UseJdbc;
+        return _config.GetType(property, useClassForAssociation: useClassForAssociation);
+    }
+
+    public IEnumerable<JavaAnnotation> GetJpaAssociationAnnotations(AssociationProperty property, string tag)
+    {
+        return property.Type switch
+        {
+            AssociationType.ManyToOne => GetManyToOneAnnotations(property, tag),
+            AssociationType.OneToMany => GetOneToManyAnnotations(property),
+            AssociationType.ManyToMany => GetManyToManyAnnotations(property),
+            AssociationType.OneToOne => GetOneToOneAnnotations(property),
+            _ => [],
+        };
+    }
+
+    public JavaAnnotation GetColumnAnnotation(IProperty property)
+    {
+        JavaAnnotation column;
+        if (!_config.UseJdbc)
+        {
+            column = new JavaAnnotation("Column", $"{JavaxOrJakarta}.persistence.Column");
+            column.AddAttribute("name", $@"""{property.SqlName}""");
+            if (property.Required)
+            {
+                column.AddAttribute("nullable", "false");
+            }
+
+            if (property.Domain != null)
+            {
+                if (property.Domain.Length != null)
+                {
+                    if (_config.GetImplementation(property.Domain)?.Type?.ToUpper() == "STRING")
+                    {
+                        column.AddAttribute("length", $"{property.Domain.Length}");
+                    }
+                    else
+                    {
+                        column.AddAttribute("precision", $"{property.Domain.Length}");
+                    }
+                }
+
+                if (property.Domain.Scale != null)
+                {
+                    column.AddAttribute("scale", $"{property.Domain.Scale}");
+                }
+
+                column.AddAttribute("columnDefinition", @$"""{property.Domain.Implementations["sql"].Type}""");
+            }
+
+            if (property is CompositionProperty && property.Domain is null)
+            {
+                column.AddAttribute("columnDefinition", @$"""jsonb""");
+            }
+        }
+        else
+        {
+            column = new JavaAnnotation("Column", "org.springframework.data.relational.core.mapping.Column");
+            column.AddAttribute("value", $@"""{property.SqlName.ToLower()}""");
+        }
+
+        return column;
+    }
+
+    public IEnumerable<JavaAnnotation> GetDomainAnnotations(IProperty property, string tag)
+    {
+        foreach (var annotation in _config.GetDomainAnnotations(property, tag))
+        {
+            yield return new JavaAnnotation(annotation.Annotation, annotation.Imports);
+        }
     }
 
     protected IEnumerable<JavaAnnotation> GetAnnotations(CompositionProperty property, string tag)
@@ -189,39 +214,6 @@ public class JpaModelPropertyGenerator
         {
             yield return a;
         }
-    }
-
-    protected string GetPropertyName(IProperty property)
-    {
-        var isAssociationNotPersistent = property is AssociationProperty apr && !apr.Association.IsPersistent;
-        return _config.UseJdbc || isAssociationNotPersistent ? property.NameCamel : property.NameByClassCamel;
-    }
-
-    protected string GetPropertyType(IProperty property)
-    {
-        var isAssociationNotPersistent = property is AssociationProperty apr && !apr.Association.IsPersistent;
-        var useClassForAssociation = property.Class.IsPersistent && !isAssociationNotPersistent && !_config.UseJdbc;
-        return _config.GetType(property, useClassForAssociation: useClassForAssociation);
-    }
-
-    private JavaAnnotation GetEnumAnnotation()
-    {
-        return new JavaAnnotation("Enumerated", $"{JavaxOrJakarta}.persistence.Enumerated")
-            .AddAttribute("value", "EnumType.STRING", $"{JavaxOrJakarta}.persistence.EnumType");
-    }
-
-    private string GetterToCompareCompositePkPk(IProperty pk)
-    {
-        if (pk is AssociationProperty ap)
-        {
-            return $".{GetGetterName(ap.Property)}()";
-        }
-        else if (pk is AliasProperty al && al.Property is AssociationProperty asp)
-        {
-            return $".get{GetGetterName(asp.Property)}()";
-        }
-
-        return string.Empty;
     }
 
     private bool ShouldWriteColumnAnnotation(IProperty property)
@@ -264,20 +256,8 @@ public class JpaModelPropertyGenerator
 
         if (_config.CanClassUseEnums(property.Property.Class) && property.Property.PrimaryKey && property.Class.IsPersistent && !_config.UseJdbc)
         {
-            yield return GetEnumAnnotation();
+            yield return EnumAnnotation;
         }
-    }
-
-    private IEnumerable<JavaAnnotation> GetJpaAssociationAnnotations(AssociationProperty property, string tag)
-    {
-        return property.Type switch
-        {
-            AssociationType.ManyToOne => GetManyToOneAnnotations(property, tag),
-            AssociationType.OneToMany => GetOneToManyAnnotations(property),
-            AssociationType.ManyToMany => GetManyToManyAnnotations(property),
-            AssociationType.OneToOne => GetOneToOneAnnotations(property),
-            _ => [],
-        };
     }
 
     private IEnumerable<JavaAnnotation> GetAnnotations(IProperty property, string tag)
@@ -366,54 +346,6 @@ public class JpaModelPropertyGenerator
         yield return autoGenerated;
     }
 
-    private JavaAnnotation GetColumnAnnotation(IProperty property)
-    {
-        JavaAnnotation column;
-        if (!_config.UseJdbc)
-        {
-            column = new JavaAnnotation("Column", $"{JavaxOrJakarta}.persistence.Column");
-            column.AddAttribute("name", $@"""{property.SqlName}""");
-            if (property.Required)
-            {
-                column.AddAttribute("nullable", "false");
-            }
-
-            if (property.Domain != null)
-            {
-                if (property.Domain.Length != null)
-                {
-                    if (_config.GetImplementation(property.Domain)?.Type?.ToUpper() == "STRING")
-                    {
-                        column.AddAttribute("length", $"{property.Domain.Length}");
-                    }
-                    else
-                    {
-                        column.AddAttribute("precision", $"{property.Domain.Length}");
-                    }
-                }
-
-                if (property.Domain.Scale != null)
-                {
-                    column.AddAttribute("scale", $"{property.Domain.Scale}");
-                }
-
-                column.AddAttribute("columnDefinition", @$"""{property.Domain.Implementations["sql"].Type}""");
-            }
-
-            if (property is CompositionProperty && property.Domain is null)
-            {
-                column.AddAttribute("columnDefinition", @$"""jsonb""");
-            }
-        }
-        else
-        {
-            column = new JavaAnnotation("Column", "org.springframework.data.relational.core.mapping.Column");
-            column.AddAttribute("value", $@"""{property.SqlName.ToLower()}""");
-        }
-
-        return column;
-    }
-
     private JavaAnnotation GetConvertAnnotation(CompositionProperty property, string tag)
     {
         var convert = new JavaAnnotation("Convert", $"{JavaxOrJakarta}.persistence.Convert");
@@ -422,14 +354,6 @@ public class JpaModelPropertyGenerator
             .Replace("{package}", _config.GetPackageName(property.Composition, _config.GetBestClassTag(property.Composition, tag)));
         convert.AddAttribute("converter", $"{_config.CompositionConverterSimpleName.Replace("{class}", property.Composition.Name)}.class", import);
         return convert;
-    }
-
-    private IEnumerable<JavaAnnotation> GetDomainAnnotations(IProperty property, string tag)
-    {
-        foreach (var annotation in _config.GetDomainAnnotations(property, tag))
-        {
-            yield return new JavaAnnotation(annotation.Annotation, annotation.Imports);
-        }
     }
 
     private string GetDefaultValue(IProperty property)
@@ -498,7 +422,7 @@ public class JpaModelPropertyGenerator
 
         if (_config.CanClassUseEnums(property.Class) && property.PrimaryKey && !_config.UseJdbc)
         {
-            yield return GetEnumAnnotation();
+            yield return EnumAnnotation;
         }
     }
 

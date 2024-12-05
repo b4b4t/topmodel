@@ -1,5 +1,3 @@
 {
   "dotnet.defaultSolution": "TopModel.sln",
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "java.compile.nullAnalysis.mode": "disabled"
 }
