@@ -26,126 +26,6 @@ public class JpaModelPropertyGenerator
         new JavaAnnotation("Enumerated", $"{JavaxOrJakarta}.persistence.Enumerated")
             .AddAttribute("value", "EnumType.STRING", $"{JavaxOrJakarta}.persistence.EnumType");
 
-    public void WriteGetter(JavaWriter fw, string tag, IProperty property, int indentLevel = 1)
-    {
-        var propertyName = GetPropertyName(property);
-        var propertyType = GetPropertyType(property);
-        fw.WriteLine();
-        fw.WriteDocStart(indentLevel, $"Getter for {propertyName}");
-        fw.WriteReturns(indentLevel, $"value of {{@link {property.Class.GetImport(_config, tag)}#{propertyName} {propertyName}}}");
-        fw.WriteDocEnd(indentLevel);
-        string getterName = GetGetterName(property);
-
-        fw.WriteLine(indentLevel, @$"public {propertyType} {getterName}() {{");
-        if (property is AssociationProperty ap && ap.Type.IsToMany())
-        {
-            var type = propertyType.Split('<').First();
-            if (_newableTypes.TryGetValue(type, out var newableType))
-            {
-                fw.WriteLine(indentLevel + 1, $"if(this.{propertyName} == null) {{");
-                fw.AddImport($"java.util.{newableType}");
-                fw.WriteLine(indentLevel + 2, $"this.{propertyName} = new {newableType}<>();");
-                fw.WriteLine(indentLevel + 1, $"}}");
-            }
-        }
-
-        fw.WriteLine(indentLevel + 1, @$"return this.{propertyName};");
-        fw.WriteLine(indentLevel, "}");
-    }
-
-    public string GetGetterName(IProperty property)
-    {
-        var propertyName = GetPropertyName(property);
-        var propertyType = GetPropertyType(property);
-        var getterPrefix = propertyType == "boolean" ? "is" : "get";
-        if (property.Class.PreservePropertyCasing)
-        {
-            return propertyName.ToFirstUpper().WithPrefix(getterPrefix);
-        }
-
-        return propertyName.ToPascalCase().WithPrefix(getterPrefix);
-    }
-
-    public string GetSetterName(IProperty property)
-    {
-        var propertyName = GetPropertyName(property);
-        if (property.Class.PreservePropertyCasing)
-        {
-            return propertyName.ToFirstUpper().WithPrefix("set");
-        }
-        return propertyName.WithPrefix("set");
-    }
-
-    public void WriteProperties(JavaWriter fw, Class classe, string tag)
-    {
-        var properties = _config.UseJdbc ? classe.Properties.Where(p => !(p is AssociationProperty ap && (ap.Type == AssociationType.OneToMany || ap.Type == AssociationType.ManyToMany))) : classe.GetProperties(_classes);
-        foreach (var property in properties)
-        {
-            WriteProperty(fw, property, tag);
-        }
-    }
-
-    public void WriteProperty(JavaWriter fw, IProperty property, string tag)
-    {
-        fw.WriteLine();
-        fw.AddImports(property.GetTypeImports(_config, tag));
-        fw.WriteDocStart(1, property.Comment);
-        IEnumerable<JavaAnnotation> annotations = GetAnnotations(property, tag);
-        if (property is AliasProperty ap && _classes.Contains(ap.Property.Class))
-        {
-            fw.WriteLine(1, $" * Alias of {{@link {ap.Property.Class.GetImport(_config, tag)}#get{GetPropertyName(ap.Property).ToFirstUpper()}() {ap.Property.Class.NamePascal}#get{GetPropertyName(ap.Property).ToFirstUpper()}()}} ");
-        }
-
-        fw.WriteDocEnd(1);
-
-        if (!property.PrimaryKey || property.Class.PrimaryKey.Count() <= 1)
-        {
-            annotations = GetDomainAnnotations(property, tag).Concat(annotations).ToList();
-        }
-
-        fw.WriteAnnotations(1, annotations);
-        string defaultValue = GetDefaultValue(property);
-        fw.AddImports(GetDefaultValueImports(property, tag));
-        fw.WriteLine(1, $"private {GetPropertyType(property)} {GetPropertyName(property)}{defaultValue};");
-    }
-
-    public void WriteSetter(JavaWriter fw, string tag, IProperty property, int indentLevel = 1)
-    {
-        var propertyName = GetPropertyName(property);
-        fw.WriteLine();
-        fw.WriteDocStart(indentLevel, $"Set the value of {{@link {property.Class.GetImport(_config, tag)}#{propertyName} {propertyName}}}");
-        fw.WriteLine(indentLevel, $" * @param {propertyName} value to set");
-        fw.WriteDocEnd(indentLevel);
-        fw.WriteLine(indentLevel, @$"public void {GetSetterName(property)}({GetPropertyType(property)} {propertyName}) {{");
-        fw.WriteLine(indentLevel + 1, @$"this.{propertyName} = {propertyName};");
-        fw.WriteLine(indentLevel, "}");
-    }
-
-    public string GetPropertyName(IProperty property)
-    {
-        var isAssociationNotPersistent = property is AssociationProperty apr && !apr.Association.IsPersistent;
-        return _config.UseJdbc || isAssociationNotPersistent ? property.NameCamel : property.NameByClassCamel;
-    }
-
-    public string GetPropertyType(IProperty property)
-    {
-        var isAssociationNotPersistent = property is AssociationProperty apr && !apr.Association.IsPersistent;
-        var useClassForAssociation = property.Class.IsPersistent && !isAssociationNotPersistent && !_config.UseJdbc;
-        return _config.GetType(property, useClassForAssociation: useClassForAssociation);
-    }
-
-    public IEnumerable<JavaAnnotation> GetJpaAssociationAnnotations(AssociationProperty property, string tag)
-    {
-        return property.Type switch
-        {
-            AssociationType.ManyToOne => GetManyToOneAnnotations(property, tag),
-            AssociationType.OneToMany => GetOneToManyAnnotations(property),
-            AssociationType.ManyToMany => GetManyToManyAnnotations(property),
-            AssociationType.OneToOne => GetOneToOneAnnotations(property),
-            _ => [],
-        };
-    }
-
     public JavaAnnotation GetColumnAnnotation(IProperty property)
     {
         JavaAnnotation column;
@@ -196,10 +76,131 @@ public class JpaModelPropertyGenerator
 
     public IEnumerable<JavaAnnotation> GetDomainAnnotations(IProperty property, string tag)
     {
-        foreach (var annotation in _config.GetDomainAnnotations(property, tag))
+        foreach (var annotation in _config.GetDomainAnnotationsAndImports(property, tag))
         {
             yield return new JavaAnnotation(annotation.Annotation, annotation.Imports);
         }
+    }
+
+    public string GetGetterName(IProperty property)
+    {
+        var propertyName = GetPropertyName(property);
+        var propertyType = GetPropertyType(property);
+        var getterPrefix = propertyType == "boolean" ? "is" : "get";
+        if (property.Class.PreservePropertyCasing)
+        {
+            return propertyName.ToFirstUpper().WithPrefix(getterPrefix);
+        }
+
+        return propertyName.ToPascalCase().WithPrefix(getterPrefix);
+    }
+
+    public IEnumerable<JavaAnnotation> GetJpaAssociationAnnotations(AssociationProperty property, string tag)
+    {
+        return property.Type switch
+        {
+            AssociationType.ManyToOne => GetManyToOneAnnotations(property, tag),
+            AssociationType.OneToMany => GetOneToManyAnnotations(property),
+            AssociationType.ManyToMany => GetManyToManyAnnotations(property),
+            AssociationType.OneToOne => GetOneToOneAnnotations(property),
+            _ => [],
+        };
+    }
+
+    public string GetPropertyName(IProperty property)
+    {
+        var isAssociationNotPersistent = property is AssociationProperty apr && !apr.Association.IsPersistent;
+        return _config.UseJdbc || isAssociationNotPersistent ? property.NameCamel : property.NameByClassCamel;
+    }
+
+    public string GetPropertyType(IProperty property)
+    {
+        var isAssociationNotPersistent = property is AssociationProperty apr && !apr.Association.IsPersistent;
+        var useClassForAssociation = property.Class.IsPersistent && !isAssociationNotPersistent && !_config.UseJdbc;
+        return _config.GetType(property, useClassForAssociation: useClassForAssociation);
+    }
+
+    public string GetSetterName(IProperty property)
+    {
+        var propertyName = GetPropertyName(property);
+        if (property.Class.PreservePropertyCasing)
+        {
+            return propertyName.ToFirstUpper().WithPrefix("set");
+        }
+
+        return propertyName.WithPrefix("set");
+    }
+
+    public void WriteGetter(JavaWriter fw, string tag, IProperty property, int indentLevel = 1)
+    {
+        var propertyName = GetPropertyName(property);
+        var propertyType = GetPropertyType(property);
+        fw.WriteLine();
+        fw.WriteDocStart(indentLevel, $"Getter for {propertyName}");
+        fw.WriteReturns(indentLevel, $"value of {{@link {property.Class.GetImport(_config, tag)}#{propertyName} {propertyName}}}");
+        fw.WriteDocEnd(indentLevel);
+        string getterName = GetGetterName(property);
+
+        fw.WriteLine(indentLevel, @$"public {propertyType} {getterName}() {{");
+        if (property is AssociationProperty ap && ap.Type.IsToMany())
+        {
+            var type = propertyType.Split('<').First();
+            if (_newableTypes.TryGetValue(type, out var newableType))
+            {
+                fw.WriteLine(indentLevel + 1, $"if(this.{propertyName} == null) {{");
+                fw.AddImport($"java.util.{newableType}");
+                fw.WriteLine(indentLevel + 2, $"this.{propertyName} = new {newableType}<>();");
+                fw.WriteLine(indentLevel + 1, $"}}");
+            }
+        }
+
+        fw.WriteLine(indentLevel + 1, @$"return this.{propertyName};");
+        fw.WriteLine(indentLevel, "}");
+    }
+
+    public void WriteProperties(JavaWriter fw, Class classe, string tag)
+    {
+        var properties = _config.UseJdbc ? classe.Properties.Where(p => !(p is AssociationProperty ap && (ap.Type == AssociationType.OneToMany || ap.Type == AssociationType.ManyToMany))) : classe.GetProperties(_classes);
+        foreach (var property in properties)
+        {
+            WriteProperty(fw, property, tag);
+        }
+    }
+
+    public void WriteProperty(JavaWriter fw, IProperty property, string tag)
+    {
+        fw.WriteLine();
+        fw.AddImports(property.GetTypeImports(_config, tag));
+        fw.WriteDocStart(1, property.Comment);
+        IEnumerable<JavaAnnotation> annotations = GetAnnotations(property, tag);
+        if (property is AliasProperty ap && _classes.Contains(ap.Property.Class))
+        {
+            fw.WriteLine(1, $" * Alias of {{@link {ap.Property.Class.GetImport(_config, tag)}#get{GetPropertyName(ap.Property).ToFirstUpper()}() {ap.Property.Class.NamePascal}#get{GetPropertyName(ap.Property).ToFirstUpper()}()}} ");
+        }
+
+        fw.WriteDocEnd(1);
+
+        if (!property.PrimaryKey || property.Class.PrimaryKey.Count() <= 1)
+        {
+            annotations = GetDomainAnnotations(property, tag).Concat(annotations).ToList();
+        }
+
+        fw.WriteAnnotations(1, annotations);
+        string defaultValue = GetDefaultValue(property);
+        fw.AddImports(GetDefaultValueImports(property, tag));
+        fw.WriteLine(1, $"private {GetPropertyType(property)} {GetPropertyName(property)}{defaultValue};");
+    }
+
+    public void WriteSetter(JavaWriter fw, string tag, IProperty property, int indentLevel = 1)
+    {
+        var propertyName = GetPropertyName(property);
+        fw.WriteLine();
+        fw.WriteDocStart(indentLevel, $"Set the value of {{@link {property.Class.GetImport(_config, tag)}#{propertyName} {propertyName}}}");
+        fw.WriteLine(indentLevel, $" * @param {propertyName} value to set");
+        fw.WriteDocEnd(indentLevel);
+        fw.WriteLine(indentLevel, @$"public void {GetSetterName(property)}({GetPropertyType(property)} {propertyName}) {{");
+        fw.WriteLine(indentLevel + 1, @$"this.{propertyName} = {propertyName};");
+        fw.WriteLine(indentLevel, "}");
     }
 
     protected IEnumerable<JavaAnnotation> GetAnnotations(CompositionProperty property, string tag)
@@ -214,11 +215,6 @@ public class JpaModelPropertyGenerator
         {
             yield return a;
         }
-    }
-
-    private bool ShouldWriteColumnAnnotation(IProperty property)
-    {
-        return property.Class.IsPersistent || _config.UseJdbc;
     }
 
     private IEnumerable<JavaAnnotation> GetAnnotations(AliasProperty property, string tag)
@@ -317,6 +313,32 @@ public class JpaModelPropertyGenerator
         }
     }
 
+    private IEnumerable<JavaAnnotation> GetAnnotations(IProperty property)
+    {
+        if (property.PrimaryKey && property.Class.IsPersistent)
+        {
+            foreach (var a in GetIdAnnotations(property))
+            {
+                yield return a;
+            }
+        }
+
+        if (ShouldWriteColumnAnnotation(property) && (_config.UseJdbc || !(property.PrimaryKey && property.Class.PrimaryKey.Count() > 1)))
+        {
+            yield return GetColumnAnnotation(property);
+        }
+
+        if (property.Required && !property.PrimaryKey && (!property.Class.IsPersistent || _config.UseJdbc))
+        {
+            yield return new JavaAnnotation("NotNull", $"{JavaxOrJakarta}.validation.constraints.NotNull");
+        }
+
+        if (_config.CanClassUseEnums(property.Class) && property.PrimaryKey && !_config.UseJdbc)
+        {
+            yield return EnumAnnotation;
+        }
+    }
+
     private IEnumerable<JavaAnnotation> GetAutogeneratedAnnotations(Class classe)
     {
         var autoGenerated = new JavaAnnotation("GeneratedValue", $"{JavaxOrJakarta}.persistence.GeneratedValue");
@@ -397,32 +419,6 @@ public class JpaModelPropertyGenerator
         else
         {
             return _config.GetValueImports(property, tag);
-        }
-    }
-
-    private IEnumerable<JavaAnnotation> GetAnnotations(IProperty property)
-    {
-        if (property.PrimaryKey && property.Class.IsPersistent)
-        {
-            foreach (var a in GetIdAnnotations(property))
-            {
-                yield return a;
-            }
-        }
-
-        if (ShouldWriteColumnAnnotation(property) && (_config.UseJdbc || !(property.PrimaryKey && property.Class.PrimaryKey.Count() > 1)))
-        {
-            yield return GetColumnAnnotation(property);
-        }
-
-        if (property.Required && !property.PrimaryKey && (!property.Class.IsPersistent || _config.UseJdbc))
-        {
-            yield return new JavaAnnotation("NotNull", $"{JavaxOrJakarta}.validation.constraints.NotNull");
-        }
-
-        if (_config.CanClassUseEnums(property.Class) && property.PrimaryKey && !_config.UseJdbc)
-        {
-            yield return EnumAnnotation;
         }
     }
 
@@ -545,5 +541,10 @@ public class JpaModelPropertyGenerator
             .AddAttribute("referencedColumnName", $@"""{apk}""")
             .AddAttribute("unique", "true");
         yield return joinColumn;
+    }
+
+    private bool ShouldWriteColumnAnnotation(IProperty property)
+    {
+        return property.Class.IsPersistent || _config.UseJdbc;
     }
 }

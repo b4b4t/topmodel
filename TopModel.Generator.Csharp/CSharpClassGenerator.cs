@@ -368,7 +368,7 @@ public class CSharpClassGenerator : ClassGeneratorBase<CsharpConfig>
                 && !sameColumnSet.Contains(property.SqlName))
             {
                 var sqlName = Config.UseLowerCaseSqlNames ? property.SqlName.ToLower() : property.SqlName;
-                if (!Config.GetDomainAnnotations(property, tag).Any(a => a.Annotation.TrimStart('[').StartsWith("Column")))
+                if (!Config.GetDomainAnnotations(property, tag).Any(a => a.TrimStart('[').StartsWith("Column")))
                 {
                     w.WriteAttribute(1, "Column", $@"""{sqlName}""");
                 }
@@ -404,7 +404,7 @@ public class CSharpClassGenerator : ClassGeneratorBase<CsharpConfig>
 
             foreach (var annotation in Config.GetDomainAnnotations(property, tag))
             {
-                w.WriteAttribute(1, annotation.Annotation);
+                w.WriteAttribute(1, annotation);
             }
 
             if (Config.IsPersistent(property.Class, tag) && property is AssociationProperty { Type: AssociationType.OneToMany or AssociationType.ManyToMany })

@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using TopModel.Core;
 using TopModel.Core.Model.Implementation;
 using TopModel.Generator.Core;
@@ -73,22 +73,6 @@ public class JpaEntityGenerator : JavaClassGeneratorBase
         }
 
         fw.WriteLine("}");
-    }
-
-    protected virtual void WriteConstructors(Class classe, string tag, JavaWriter fw)
-    {
-        if (Config.MappersInClass && classe.FromMappers.Any(c => c.ClassParams.All(p => Classes.Contains(p.Class)))
-            || classe.Extends != null
-            || Classes.Any(c => c.Extends == classe)
-            || classe.Decorators.Any(d => Config.GetImplementation(d.Decorator)?.Extends is not null))
-        {
-            ConstructorGenerator.WriteNoArgConstructor(fw, classe);
-        }
-
-        if (Config.MappersInClass)
-        {
-            ConstructorGenerator.WriteFromMappers(fw, classe, Classes, tag);
-        }
     }
 
     protected override void WriteAnnotations(JavaWriter fw, Class classe, string tag)
@@ -166,6 +150,67 @@ public class JpaEntityGenerator : JavaClassGeneratorBase
         }
     }
 
+    protected virtual void WriteConstructors(Class classe, string tag, JavaWriter fw)
+    {
+        if (Config.MappersInClass && classe.FromMappers.Any(c => c.ClassParams.All(p => Classes.Contains(p.Class)))
+            || classe.Extends != null
+            || Classes.Any(c => c.Extends == classe)
+            || classe.Decorators.Any(d => Config.GetImplementation(d.Decorator)?.Extends is not null))
+        {
+            ConstructorGenerator.WriteNoArgConstructor(fw, classe);
+        }
+
+        if (Config.MappersInClass)
+        {
+            ConstructorGenerator.WriteFromMappers(fw, classe, Classes, tag);
+        }
+    }
+
+    private string GetterToCompareCompositePkPk(IProperty pk)
+    {
+        if (pk is AssociationProperty ap)
+        {
+            return $".{JpaModelPropertyGenerator.GetGetterName(ap.Property)}()";
+        }
+        else if (pk is AliasProperty al && al.Property is AssociationProperty asp)
+        {
+            return $".get{JpaModelPropertyGenerator.GetGetterName(asp.Property)}()";
+        }
+
+        return string.Empty;
+    }
+
+    private void WriteAdders(JavaWriter fw, Class classe, string tag)
+    {
+        if (classe.IsPersistent && Config.AssociationAdders)
+        {
+            foreach (var ap in classe.GetProperties(Classes).OfType<AssociationProperty>().Where(t => t.Type.IsToMany()))
+            {
+                var reverse = ap is ReverseAssociationProperty rap ? rap.ReverseProperty : ap.Association.GetProperties(Classes).OfType<ReverseAssociationProperty>().FirstOrDefault(r => r.ReverseProperty == ap);
+                if (reverse != null)
+                {
+                    var propertyName = ap.NameByClassCamel;
+                    fw.WriteLine();
+                    fw.WriteDocStart(1, $"Add a value to {{@link {classe.GetImport(Config, tag)}#{propertyName} {propertyName}}}");
+                    fw.WriteLine(1, $" * @param {ap.Association.NameCamel} value to add");
+                    fw.WriteDocEnd(1);
+                    fw.WriteLine(1, @$"public void add{ap.Association.NamePascal}{ap.Role}({ap.Association.NamePascal} {ap.Association.NameCamel}) {{");
+                    fw.WriteLine(2, @$"this.{propertyName}.add({ap.Association.NameCamel});");
+                    if (reverse.Type.IsToMany())
+                    {
+                        fw.WriteLine(2, @$"{ap.Association.NameCamel}.get{reverse.NameByClassPascal}().add(this);");
+                    }
+                    else
+                    {
+                        fw.WriteLine(2, @$"{ap.Association.NameCamel}.set{reverse.NameByClassPascal}(this);");
+                    }
+
+                    fw.WriteLine(1, "}");
+                }
+            }
+        }
+    }
+
     private void WriteCompositePrimaryKeyClass(JavaWriter fw, Class classe, string tag)
     {
         if (classe.PrimaryKey.Count() <= 1)
@@ -232,51 +277,6 @@ public class JpaEntityGenerator : JavaClassGeneratorBase
         fw.AddImport("java.util.Objects");
         fw.WriteLine(2, "}");
         fw.WriteLine(1, "}");
-    }
-
-    private string GetterToCompareCompositePkPk(IProperty pk)
-    {
-        if (pk is AssociationProperty ap)
-        {
-            return $".{JpaModelPropertyGenerator.GetGetterName(ap.Property)}()";
-        }
-        else if (pk is AliasProperty al && al.Property is AssociationProperty asp)
-        {
-            return $".get{JpaModelPropertyGenerator.GetGetterName(asp.Property)}()";
-        }
-
-        return string.Empty;
-    }
-
-    private void WriteAdders(JavaWriter fw, Class classe, string tag)
-    {
-        if (classe.IsPersistent && Config.AssociationAdders)
-        {
-            foreach (var ap in classe.GetProperties(Classes).OfType<AssociationProperty>().Where(t => t.Type.IsToMany()))
-            {
-                var reverse = ap is ReverseAssociationProperty rap ? rap.ReverseProperty : ap.Association.GetProperties(Classes).OfType<ReverseAssociationProperty>().FirstOrDefault(r => r.ReverseProperty == ap);
-                if (reverse != null)
-                {
-                    var propertyName = ap.NameByClassCamel;
-                    fw.WriteLine();
-                    fw.WriteDocStart(1, $"Add a value to {{@link {classe.GetImport(Config, tag)}#{propertyName} {propertyName}}}");
-                    fw.WriteLine(1, $" * @param {ap.Association.NameCamel} value to add");
-                    fw.WriteDocEnd(1);
-                    fw.WriteLine(1, @$"public void add{ap.Association.NamePascal}{ap.Role}({ap.Association.NamePascal} {ap.Association.NameCamel}) {{");
-                    fw.WriteLine(2, @$"this.{propertyName}.add({ap.Association.NameCamel});");
-                    if (reverse.Type.IsToMany())
-                    {
-                        fw.WriteLine(2, @$"{ap.Association.NameCamel}.get{reverse.NameByClassPascal}().add(this);");
-                    }
-                    else
-                    {
-                        fw.WriteLine(2, @$"{ap.Association.NameCamel}.set{reverse.NameByClassPascal}(this);");
-                    }
-
-                    fw.WriteLine(1, "}");
-                }
-            }
-        }
     }
 
     private void WriteRemovers(JavaWriter fw, Class classe, string tag)

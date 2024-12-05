@@ -1,8 +1,7 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using TopModel.Core;
 using TopModel.Core.Model.Implementation;
 using TopModel.Generator.Core;
-using TopModel.Utils;
 
 namespace TopModel.Generator.Jpa;
 
@@ -128,6 +127,14 @@ public class JdbcEntityGenerator : JavaClassGeneratorBase
         fw.WriteLine("}");
     }
 
+    protected override void WriteAnnotations(JavaWriter fw, Class classe, string tag)
+    {
+        base.WriteAnnotations(fw, classe, tag);
+        var table = @$"@Table(name = ""{classe.SqlName.ToLower()}"")";
+        fw.AddImport($"org.springframework.data.relational.core.mapping.Table");
+        fw.WriteLine(table);
+    }
+
     protected override void WriteGetters(JavaWriter fw, Class classe, string tag)
     {
         var properties = Config.UseJdbc ? classe.Properties.Where(p => !(p is AssociationProperty ap && (ap.Type == AssociationType.OneToMany || ap.Type == AssociationType.ManyToMany))) : classe.GetProperties(Classes);
@@ -149,13 +156,5 @@ public class JdbcEntityGenerator : JavaClassGeneratorBase
         {
             JpaModelPropertyGenerator!.WriteSetter(fw, tag, property);
         }
-    }
-
-    protected override void WriteAnnotations(JavaWriter fw, Class classe, string tag)
-    {
-        base.WriteAnnotations(fw, classe, tag);
-        var table = @$"@Table(name = ""{classe.SqlName.ToLower()}"")";
-        fw.AddImport($"org.springframework.data.relational.core.mapping.Table");
-        fw.WriteLine(table);
     }
 }

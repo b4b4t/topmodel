@@ -1,5 +1,4 @@
 ﻿using TopModel.Core;
-using TopModel.Generator.Core;
 
 namespace TopModel.Generator.Jpa;
 
@@ -8,7 +7,6 @@ namespace TopModel.Generator.Jpa;
 /// </summary>
 public class JavaConstructorGenerator
 {
-
     public JavaConstructorGenerator(JpaConfig config)
     {
         Config = config;

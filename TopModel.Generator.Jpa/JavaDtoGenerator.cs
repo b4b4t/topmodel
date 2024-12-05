@@ -1,8 +1,6 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using TopModel.Core;
 using TopModel.Core.Model.Implementation;
-using TopModel.Generator.Core;
-using TopModel.Utils;
 
 namespace TopModel.Generator.Jpa;
 
@@ -34,28 +32,6 @@ public class JavaDtoGenerator : JavaClassGeneratorBase
             Config.OutputDirectory,
             Config.ResolveVariables(Config.DtosPath, tag, module: classe.Namespace.Module).ToFilePath(),
             $"{classe.NamePascal}.java");
-    }
-
-    protected virtual void WriteConstuctors(JavaWriter fw, Class classe, string tag)
-    {
-        if (Config.MappersInClass && classe.FromMappers.Any(c => c.ClassParams.All(p => Classes.Contains(p.Class)))
-            || classe.Extends != null
-            || Classes.Any(c => c.Extends == classe)
-            || classe.Decorators.Any(d => Config.GetImplementation(d.Decorator)?.Extends is not null))
-        {
-            ConstructorGenerator.WriteNoArgConstructor(fw, classe);
-        }
-
-        if (Config.MappersInClass)
-        {
-            ConstructorGenerator.WriteFromMappers(fw, classe, AvailableClasses, tag);
-        }
-    }
-
-    protected virtual void WriteStaticMembers(JavaWriter fw, Class classe)
-    {
-        fw.WriteLine("	/** Serial ID */");
-        fw.WriteLine(1, "private static final long serialVersionUID = 1L;");
     }
 
     protected override void HandleClass(string fileName, Class classe, string tag)
@@ -98,5 +74,27 @@ public class JavaDtoGenerator : JavaClassGeneratorBase
         }
 
         fw.WriteLine("}");
+    }
+
+    protected virtual void WriteConstuctors(JavaWriter fw, Class classe, string tag)
+    {
+        if (Config.MappersInClass && classe.FromMappers.Any(c => c.ClassParams.All(p => Classes.Contains(p.Class)))
+            || classe.Extends != null
+            || Classes.Any(c => c.Extends == classe)
+            || classe.Decorators.Any(d => Config.GetImplementation(d.Decorator)?.Extends is not null))
+        {
+            ConstructorGenerator.WriteNoArgConstructor(fw, classe);
+        }
+
+        if (Config.MappersInClass)
+        {
+            ConstructorGenerator.WriteFromMappers(fw, classe, AvailableClasses, tag);
+        }
+    }
+
+    protected virtual void WriteStaticMembers(JavaWriter fw, Class classe)
+    {
+        fw.WriteLine("	/** Serial ID */");
+        fw.WriteLine(1, "private static final long serialVersionUID = 1L;");
     }
 }
