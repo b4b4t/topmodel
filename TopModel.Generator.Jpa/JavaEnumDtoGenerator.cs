@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using TopModel.Core;
-using TopModel.Core.Model.Implementation;
 
 namespace TopModel.Generator.Jpa;
 
@@ -9,7 +8,6 @@ namespace TopModel.Generator.Jpa;
 /// </summary>
 public class JavaEnumDtoGenerator : JavaDtoGenerator
 {
-
     private JavaEnumConstructorGenerator? _jpaModelConstructorGenerator;
 
     public JavaEnumDtoGenerator(ILogger<JavaEnumDtoGenerator> logger)
@@ -39,6 +37,11 @@ public class JavaEnumDtoGenerator : JavaDtoGenerator
         ConstructorGenerator.WriteEnumConstructor(fw, classe, Classes, tag);
     }
 
+    protected override void WriteSetters(JavaWriter fw, Class classe, string tag)
+    {
+        return;
+    }
+
     protected override void WriteStaticMembers(JavaWriter fw, Class classe)
     {
         base.WriteStaticMembers(fw, classe);
@@ -49,10 +52,5 @@ public class JavaEnumDtoGenerator : JavaDtoGenerator
             var code = refValue.Value[codeProperty];
             fw.WriteLine(1, $@"public static final {classe.NamePascal} {code} = new {classe.NamePascal}({Config.GetEnumName(codeProperty, classe)}.{code});");
         }
-    }
-
-    protected override void WriteSetters(JavaWriter fw, Class classe, string tag)
-    {
-        return;
     }
 }

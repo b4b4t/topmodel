@@ -184,7 +184,7 @@ public class PhpModelPropertyGenerator
 
         foreach (var annotation in _config.GetDomainAnnotations(property, tag))
         {
-            fw.WriteLine(1, annotation.Annotation);
+            fw.WriteLine(1, annotation);
         }
 
         var defaultValue = _config.GetValue(property, _classes);
