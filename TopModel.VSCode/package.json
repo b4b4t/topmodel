@@ -20,7 +20,7 @@
     "directory": "TopModel.VSCode",
     "type": "git"
   },
-  "version": "2.2.0",
+  "version": "2.2.1",
   "engines": {
     "vscode": "^1.84.1"
   },
@@ -81,15 +81,15 @@
     "yamlValidation": [
       {
         "fileMatch": "topmodel*.config",
-        "url": "./language-server-net8.0/schema.config.json"
+        "url": "./language-server/schema.config.json"
       },
       {
         "fileMatch": "tmdgen*.config",
-        "url": "./language-server-net8.0/schema.tmdgen.config.json"
+        "url": "./language-server/schema.tmdgen.config.json"
       },
       {
         "fileMatch": "*.tmd",
-        "url": "./language-server-net8.0/schema.json"
+        "url": "./language-server/schema.json"
       }
     ],
     "languages": [
