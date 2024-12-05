@@ -9,6 +9,8 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
 {
     private readonly ILogger<JpaMapperGenerator> _logger;
 
+    private JpaModelPropertyGenerator? _jpaModelPropertyGenerator;
+
     public JpaMapperGenerator(ILogger<JpaMapperGenerator> logger)
         : base(logger)
     {
@@ -16,6 +18,15 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
     }
 
     public override string Name => "JpaMapperGenerator";
+
+    protected JpaModelPropertyGenerator JpaModelPropertyGenerator
+    {
+        get
+        {
+            _jpaModelPropertyGenerator ??= new JpaModelPropertyGenerator(Config, Classes, []);
+            return _jpaModelPropertyGenerator;
+        }
+    }
 
     protected override string GetFileName((Class Classe, FromMapper Mapper) mapper, string tag)
     {
@@ -82,8 +93,8 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
 
     private (string Getter, bool CheckSourceNull) GetSourceGetter(IProperty propertySource, IProperty propertyTarget, Class classe, JavaWriter fw, string sourceName, string tag)
     {
-        var getterPrefix = Config.GetType(propertyTarget!) == "boolean" ? "is" : "get";
         var getter = string.Empty;
+        var getterName = JpaModelPropertyGenerator.GetGetterName(propertySource);
         var converter = Config.GetConverter(propertySource.Domain, propertyTarget.Domain);
         if (converter != null && Config.GetImplementation(converter) != null)
         {
@@ -96,7 +107,7 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
 
         if (Config.UseJdbc)
         {
-            getter = $"{sourceName}.{getterPrefix}{propertySource.NamePascal.ToFirstUpper()}()";
+            getter = $"{sourceName}.{getterName}()";
             return (Getter: Config.GetConvertedValue(
                 getter,
                 propertySource.Domain,
@@ -110,7 +121,7 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
                 || propertyTarget is AssociationProperty
                 || propertySource is AliasProperty ptAlp && ptAlp.Property is AssociationProperty))
         {
-            getter = $"{sourceName}.{propertySource.NameByClassPascal.WithPrefix(getterPrefix)}()";
+            getter = $"{sourceName}.{getterName}()";
         }
         else if (propertySource.Class.IsPersistent && (!propertyTarget.Class.IsPersistent || !(propertyTarget is AssociationProperty)) && (propertySource is AssociationProperty apSource && apSource.Association.IsPersistent || propertySource is AliasProperty alpSource && alpSource.Property is AssociationProperty apSource2 && apSource2.Association.IsPersistent))
         {
@@ -123,7 +134,7 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
                     var cpMapper = propertySource.Class.ToMappers.Find(t => t.Class == cp.Composition)!;
                     var (cpMapperNs, cpMapperModelPath) = Config.GetMapperLocation((cpMapper.Class, cpMapper));
 
-                    getter = $"{Config.GetMapperName(cpMapperNs, cpMapperModelPath)}.{cpMapper.Name.Value.ToCamelCase()}({sourceName}.{cp.NameByClassPascal.WithPrefix(getterPrefix)}(), target.get{apSource.NameByClassPascal}())";
+                    getter = $"{Config.GetMapperName(cpMapperNs, cpMapperModelPath)}.{cpMapper.Name.Value.ToCamelCase()}({sourceName}.{getterName}(), target.get{apSource.NameByClassPascal}())";
                     fw.AddImport(Config.GetMapperImport(cpMapperNs, cpMapperModelPath, tag)!);
                 }
                 else if (cp.Composition.FromMappers.Any(f => f.Params.Count == 1 && f.ClassParams.First().Class == apSource.Association))
@@ -131,7 +142,7 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
                     var cpMapper = cp.Composition.FromMappers.Find(f => f.Params.Count == 1 && f.ClassParams.First().Class == apSource.Association)!;
                     var (cpMapperNs, cpMapperModelPath) = Config.GetMapperLocation((cp.Composition, cpMapper));
 
-                    getter = $"{sourceName}.{apSource.NameByClassPascal.WithPrefix(getterPrefix)}()";
+                    getter = $"{sourceName}.{getterName}()";
                     if (apSource.Type.IsToMany())
                     {
                         getter = $"{getter}.stream().map(item -> {Config.GetMapperName(cpMapperNs, cpMapperModelPath)}.create{cp.Composition}(item, null)).collect(Collectors.toList())";
@@ -153,11 +164,11 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
             {
                 if (apSource.Type == AssociationType.OneToOne || apSource.Type == AssociationType.ManyToOne)
                 {
-                    getter = $"{sourceName}.{propertySource.NameByClassPascal.WithPrefix(getterPrefix)}().get{apSource.Property.NameByClassPascal}()";
+                    getter = $"{sourceName}.{getterName}().get{apSource.Property.NameByClassPascal}()";
                 }
                 else
                 {
-                    getter = $"{sourceName}.{propertySource.NameByClassPascal.WithPrefix(getterPrefix)}().stream().filter(Objects::nonNull).map({apSource.Association.NamePascal}::get{apSource.Property.NameByClassPascal}).collect(Collectors.toList())";
+                    getter = $"{sourceName}.{getterName}().stream().filter(Objects::nonNull).map({apSource.Association.NamePascal}::get{apSource.Property.NameByClassPascal}).collect(Collectors.toList())";
                     fw.AddImport("java.util.stream.Collectors");
                     fw.AddImport("java.util.Objects");
                     fw.AddImport(apSource.Association.GetImport(Config, tag));
@@ -173,33 +184,28 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
                 {
                     if (apTarget.Type.IsToMany())
                     {
-                        getter = $@"{sourceName}.{propertySource.NameByClassPascal.WithPrefix(getterPrefix)}().stream().map({apTarget.Association.NamePascal}::new).collect(Collectors.toList())";
+                        getter = $@"{sourceName}.{getterName}().stream().map({apTarget.Association.NamePascal}::new).collect(Collectors.toList())";
                         fw.AddImport("java.util.stream.Collectors");
                     }
                     else
                     {
-                        getter = $"new {apTarget.Association.NamePascal}({sourceName}.{propertySource.NameByClassPascal.WithPrefix(getterPrefix)}())";
+                        getter = $"new {apTarget.Association.NamePascal}({sourceName}.{getterName}())";
                         fw.AddImport(apTarget.Association.GetImport(Config, tag));
                         checkSourceNull = true;
                     }
                 }
                 else
                 {
-                    if (apTarget.Type.IsToMany())
+                    getter = $@"{sourceName}.{getterName}()";
+                    if (!apTarget.Type.IsToMany())
                     {
-                        getter = $@"{sourceName}.{propertySource.NameByClassPascal.WithPrefix(getterPrefix)}()";
-                        fw.AddImport("java.util.stream.Collectors");
-                    }
-                    else
-                    {
-                        getter = $"{sourceName}.{propertySource.NameByClassPascal.WithPrefix(getterPrefix)}()";
                         checkSourceNull = true;
                     }
                 }
             }
             else if (propertyTarget.Class.IsPersistent && propertySource.Class.IsPersistent)
             {
-                getter = $"{sourceName}.{propertySource.NameByClassPascal.WithPrefix(getterPrefix)}()";
+                getter = $"{sourceName}.{getterName}()";
             }
             else if (propertySource is CompositionProperty cp)
             {
@@ -211,12 +217,12 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
                     var isMultiple = apTarget.Type == AssociationType.OneToMany || apTarget.Type == AssociationType.ManyToMany;
                     if (isMultiple)
                     {
-                        getter = $@"{sourceName}.{propertySource.NameByClassPascal.WithPrefix(getterPrefix)}(){(!propertySource.Class.IsPersistent ? $".stream().map(src -> {Config.GetMapperName(cpMapperNs, cpMapperModelPath)}.{cpMapper.Name.ToCamelCase()}(src, null)).collect(Collectors.toList())" : string.Empty)}";
+                        getter = $@"{sourceName}.{getterName}(){(!propertySource.Class.IsPersistent ? $".stream().map(src -> {Config.GetMapperName(cpMapperNs, cpMapperModelPath)}.{cpMapper.Name.ToCamelCase()}(src, null)).collect(Collectors.toList())" : string.Empty)}";
                         fw.AddImport("java.util.stream.Collectors");
                     }
                     else
                     {
-                        getter = $"{Config.GetMapperName(cpMapperNs, cpMapperModelPath)}.{cpMapper.Name.Value.ToCamelCase()}({sourceName}.{cp.NameByClassPascal.WithPrefix(getterPrefix)}(), target.get{apTarget.NameByClassPascal}())";
+                        getter = $"{Config.GetMapperName(cpMapperNs, cpMapperModelPath)}.{cpMapper.Name.Value.ToCamelCase()}({sourceName}.{getterName}(), target.get{apTarget.NameByClassPascal}())";
                         checkSourceNull = true;
                         fw.AddImport(Config.GetMapperImport(cpMapperNs, cpMapperModelPath, tag)!);
                     }
@@ -229,14 +235,7 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
         }
         else
         {
-            if (propertySource is AssociationProperty ap && !ap.Association.IsPersistent)
-            {
-                getter = $"{sourceName}.{propertySource.NamePascal.WithPrefix(getterPrefix)}()";
-            }
-            else
-            {
-                getter = $"{sourceName}.{propertySource.NameByClassPascal.WithPrefix(getterPrefix)}()";
-            }
+            getter = $"{sourceName}.{getterName}()";
         }
 
         return (Getter: Config.GetConvertedValue(

@@ -45,14 +45,16 @@ public abstract class JavaClassGeneratorBase : ClassGeneratorBase<JpaConfig>
         }
     }
 
+    private JavaAnnotation GeneratedAnnotation => new JavaAnnotation("Generated", $"{JavaxOrJakarta}.annotation.Generated")
+                .AddAttribute("value", "\"TopModel : https://github.com/klee-contrib/topmodel\"");
+
     protected virtual void WriteAnnotations(JavaWriter fw, Class classe, string tag)
     {
         fw.WriteDocStart(0, classe.Comment);
         fw.WriteDocEnd(0);
         if (Config.GeneratedHint)
         {
-            fw.AddImport($"{JavaxOrJakarta}.annotation.Generated");
-            fw.WriteLine("@Generated(\"TopModel : https://github.com/klee-contrib/topmodel\")");
+            fw.WriteAnnotation(0, GeneratedAnnotation);
         }
 
         fw.AddImports(Config.GetDecoratorImports(classe, tag).ToList());

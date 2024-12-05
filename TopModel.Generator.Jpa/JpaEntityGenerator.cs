@@ -53,7 +53,7 @@ public class JpaEntityGenerator : JavaClassGeneratorBase
         fw.WriteClassDeclaration(classe.NamePascal, null, extends, implements);
 
         JpaModelPropertyGenerator.WriteProperties(fw, classe, tag);
-        JpaModelPropertyGenerator.WriteCompositePrimaryKeyClass(fw, classe, tag);
+        WriteCompositePrimaryKeyClass(fw, classe, tag);
 
         WriteConstructors(classe, tag, fw);
 
@@ -164,6 +164,88 @@ public class JpaEntityGenerator : JavaClassGeneratorBase
                 fw.WriteLine("@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)");
             }
         }
+    }
+
+    private void WriteCompositePrimaryKeyClass(JavaWriter fw, Class classe, string tag)
+    {
+        if (classe.PrimaryKey.Count() <= 1)
+        {
+            return;
+        }
+
+        fw.WriteLine();
+        fw.WriteLine(1, @$"public static class {classe.NamePascal}Id {{");
+        foreach (var pk in classe.PrimaryKey)
+        {
+            fw.WriteLine();
+            var annotations = new List<JavaAnnotation>();
+            annotations.AddRange(JpaModelPropertyGenerator.GetDomainAnnotations(pk, tag));
+            if (pk is AssociationProperty ap)
+            {
+                annotations.AddRange(JpaModelPropertyGenerator.GetJpaAssociationAnnotations(ap, tag));
+            }
+
+            annotations.Add(JpaModelPropertyGenerator.GetColumnAnnotation(pk));
+
+            fw.WriteAnnotations(2, annotations);
+            fw.WriteLine(2, $"private {JpaModelPropertyGenerator.GetPropertyType(pk)} {JpaModelPropertyGenerator.GetPropertyName(pk)};");
+        }
+
+        foreach (var pk in classe.PrimaryKey)
+        {
+            JpaModelPropertyGenerator.WriteGetter(fw, tag, pk, 2);
+            JpaModelPropertyGenerator.WriteSetter(fw, tag, pk, 2);
+        }
+
+        fw.WriteLine();
+        fw.WriteLine(2, "public boolean equals(Object o) {");
+        fw.WriteLine(3, "if(o == this) {");
+        fw.WriteLine(4, "return true;");
+        fw.WriteLine(3, "}");
+        fw.WriteLine();
+        fw.WriteLine(3, "if(o == null) {");
+        fw.WriteLine(4, "return false;");
+        fw.WriteLine(3, "}");
+        fw.WriteLine();
+        fw.WriteLine(3, "if(this.getClass() != o.getClass()) {");
+        fw.WriteLine(4, "return false;");
+        fw.WriteLine(3, "}");
+        fw.WriteLine();
+        fw.WriteLine(3, $"{classe.NamePascal}Id oId = ({classe.NamePascal}Id) o;");
+        var associations = classe.PrimaryKey.Where(p => p is AssociationProperty || p is AliasProperty ap && ap.Property is AssociationProperty);
+        if (associations.Any())
+        {
+            fw.WriteLine();
+            fw.WriteLine(3, @$"if({string.Join(" || ", associations.Select(pk => pk.NameByClassCamel).Select(pk => $"this.{pk} == null || oId.{pk} == null"))}) {{");
+            fw.WriteLine(4, "return false;");
+            fw.WriteLine(3, "}");
+        }
+
+        fw.WriteLine();
+        fw.WriteLine(3, $@"return {string.Join("\n && ", classe.PrimaryKey.Select(pk => $@"Objects.equals(this.{pk.NameByClassCamel}{GetterToCompareCompositePkPk(pk)}, oId.{pk.NameByClassCamel}{GetterToCompareCompositePkPk(pk)})"))};");
+        fw.WriteLine(2, "}");
+
+        fw.WriteLine();
+        fw.WriteLine(2, "@Override");
+        fw.WriteLine(2, "public int hashCode() {");
+        fw.WriteLine(3, $"return Objects.hash({string.Join(", ", classe.PrimaryKey.Select(pk => $"{(pk is AssociationProperty || pk is AliasProperty ap && ap.Property is AssociationProperty ? $"{pk.NameByClassCamel} == null ? null : " : string.Empty)}{pk.NameByClassCamel}{GetterToCompareCompositePkPk(pk)}"))});");
+        fw.AddImport("java.util.Objects");
+        fw.WriteLine(2, "}");
+        fw.WriteLine(1, "}");
+    }
+
+    private string GetterToCompareCompositePkPk(IProperty pk)
+    {
+        if (pk is AssociationProperty ap)
+        {
+            return $".{JpaModelPropertyGenerator.GetGetterName(ap.Property)}()";
+        }
+        else if (pk is AliasProperty al && al.Property is AssociationProperty asp)
+        {
+            return $".get{JpaModelPropertyGenerator.GetGetterName(asp.Property)}()";
+        }
+
+        return string.Empty;
     }
 
     private void WriteAdders(JavaWriter fw, Class classe, string tag)
