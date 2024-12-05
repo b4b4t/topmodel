@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-    <LangVersion>12</LangVersion>
+    <TargetFramework>net8.0</TargetFramework>
+    <RollForward>Major</RollForward>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PublishDir>../TopModel.VSCode/language-server-$(TargetFramework)</PublishDir>
+    <PublishDir>../TopModel.VSCode/language-server</PublishDir>
     <ResourceLanguages>en</ResourceLanguages>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>

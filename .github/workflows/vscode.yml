@@ -22,11 +22,7 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - run: dotnet publish -f net8.0
-        name: Build LS
-        working-directory: TopModel.LanguageServer
-
-      - run: dotnet publish -f net9.0
+      - run: dotnet publish
         name: Build LS
         working-directory: TopModel.LanguageServer
 

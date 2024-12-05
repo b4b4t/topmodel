@@ -19,13 +19,13 @@ jobs:
           dotnet-version: 9.0.x
 
       - name: build
-        run: dotnet build -f net9.0
+        run: dotnet build
 
       - name: modgen
-        run: dotnet run --project TopModel.Generator/TopModel.Generator.csproj -f net9.0 -- -c
+        run: dotnet run --project TopModel.Generator/TopModel.Generator.csproj -- -c
 
       - name: tmdgen
-        run: dotnet run --project TopModel.ModelGenerator/TopModel.ModelGenerator.csproj -f net9.0 -- -f samples/generators/open-api/tmdgen.config -c
+        run: dotnet run --project TopModel.ModelGenerator/TopModel.ModelGenerator.csproj -- -f samples/generators/open-api/tmdgen.config -c
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
