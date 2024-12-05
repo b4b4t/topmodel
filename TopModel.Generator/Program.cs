@@ -231,7 +231,7 @@ static (Type Type, string Name) GetIGenRegInterfaceAndName(Type generator)
     return (configType, configName);
 }
 
-var framework = $"net{Environment.Version.Major}.{Environment.Version.Minor}";
+var dotnetMajor = Environment.Version.Major;
 var disposables = new List<IDisposable>();
 var loggerProvider = new LoggerProvider();
 var hasErrors = Enumerable.Range(0, configs.Count).Select(_ => false).ToArray();
@@ -392,7 +392,7 @@ for (var i = 0; i < configs.Count; i++)
         {
             var assemblies = new DirectoryInfo(Path.Combine(Path.GetFullPath(cg, new FileInfo(fullName).DirectoryName!), "bin"))
                 .GetFiles($"*.dll", SearchOption.AllDirectories)
-                .Where(a => a.FullName.Contains(framework) && !modgenAssemblies.Contains(a.Name))
+                .Where(a => !modgenAssemblies.Contains(a.Name))
                 .DistinctBy(a => a.Name)
                 .Select(f => Assembly.LoadFrom(f.FullName))
                 .ToList();
@@ -473,9 +473,12 @@ for (var i = 0; i < configs.Count; i++)
                 using var packageReader = await NugetUtils.DownloadPackageAsync(dep.FullName, depVersion);
                 var nuspecReader = await packageReader.GetNuspecReaderAsync(CancellationToken.None);
 
-                var dependencies = nuspecReader.GetDependencyGroups()
-                    .Single(dg => dg.TargetFramework.ToString() == framework)
-                    .Packages;
+                var dependencyGroup = nuspecReader.GetDependencyGroups()
+                    .OrderByDescending(dg => dg.TargetFramework.Version.Major)
+                    .First(dg => dg.TargetFramework.Version.Major <= dotnetMajor);
+
+                var dependencies = dependencyGroup.Packages;
+                var framework = dependencyGroup.TargetFramework.ToString();
 
                 File.WriteAllText(Path.Combine(moduleFolder, "min-version"), dependencies.Single(d => d.Id == "TopModel.Generator.Core").VersionRange.MinVersion!.ToString());
 

@@ -8,6 +8,14 @@ Changelogs des modules :
 - [`sql`](./TopModel.Generator.Sql/CHANGELOG.md)
 - [`translation`](./TopModel.Generator.Translation/CHANGELOG.md)
 
+## 2.2.0
+
+- [`992239c`](https://github.com/klee-contrib/topmodel/commit/992239c91f90e058e0ea45615e61a34b575100ad) - net6.0/8.0 => net8.0/9.0
+
+  **breaking change** : TopModel ne supporte plus .NET 6, puisque son support est terminé. En revanche, on peut l'utiliser avec .NET 9 maintenan.
+
+- [#412](https://github.com/klee-contrib/topmodel/pull/412) - [Generator] Vide les buffers lors du build des générateurs custom
+
 ## 2.1.3
 
 - [`#403`](https://github.com/klee-contrib/topmodel/pull/403) - [Core] Autoriser types integer, boolean et number dans customProperties
