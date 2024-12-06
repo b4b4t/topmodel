@@ -1,5 +1,10 @@
 ## 1.1.0
 
+- [5849b8](https://github.com/klee-contrib/topmodel/commit/5849b8a30aa2a69954bc9fd2a6d2957ae1c52a82) [JPA] Créer un mode FeignClient dans le générateur d'API client
+  Fix #419
+
+- [db1f14](https://github.com/klee-contrib/topmodel/commit/db1f14fd5aa5e71f9667a448f419dfa5838b42dc) [JAVA] annotation absente sur un champ issu d'une composition #414
+
 Breaking changes :
 - Suppression du mode `enumShortcut`
 - Les DAO des listes de références ne sont plus générés. La première génération risque de les supprimer
