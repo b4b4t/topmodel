@@ -56,35 +56,35 @@ export class UtilisateurService {
      * @returns Utilisateurs matchant les critères
      */
     searchUtilisateur(nom?: string, prenom?: string, email?: string, dateNaissance?: string, adresse?: string, actif?: boolean, profilId?: number, typeUtilisateurCode?: TypeUtilisateurCode, queryParams: any = {}): Observable<UtilisateurItem[]> {
-        if (nom) {
+        if (nom !== null && nom !== undefined) {
             queryParams['nom'] = nom
         }
 
-        if (prenom) {
+        if (prenom !== null && prenom !== undefined) {
             queryParams['prenom'] = prenom
         }
 
-        if (email) {
+        if (email !== null && email !== undefined) {
             queryParams['email'] = email
         }
 
-        if (dateNaissance) {
+        if (dateNaissance !== null && dateNaissance !== undefined) {
             queryParams['dateNaissance'] = dateNaissance
         }
 
-        if (adresse) {
+        if (adresse !== null && adresse !== undefined) {
             queryParams['adresse'] = adresse
         }
 
-        if (actif) {
+        if (actif !== null && actif !== undefined) {
             queryParams['actif'] = actif
         }
 
-        if (profilId) {
+        if (profilId !== null && profilId !== undefined) {
             queryParams['profilId'] = profilId
         }
 
-        if (typeUtilisateurCode) {
+        if (typeUtilisateurCode !== null && typeUtilisateurCode !== undefined) {
             queryParams['typeUtilisateurCode'] = typeUtilisateurCode
         }
 
