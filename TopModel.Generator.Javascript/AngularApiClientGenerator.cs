@@ -194,7 +194,7 @@ public class AngularApiClientGenerator : EndpointsGeneratorBase<JavascriptConfig
         {
             foreach (var qParam in endpoint.GetQueryParams())
             {
-                fw.WriteLine(2, @$"if ({qParam.GetParamName()}) {{");
+                fw.WriteLine(2, @$"if ({qParam.GetParamName()} !== null && {qParam.GetParamName()} !== undefined) {{");
                 fw.WriteLine(3, $"queryParams['{qParam.GetParamName()}'] = {qParam.GetParamName()}");
                 fw.WriteLine(2, @$"}}");
                 fw.WriteLine();
