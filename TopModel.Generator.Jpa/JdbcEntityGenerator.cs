@@ -137,7 +137,7 @@ public class JdbcEntityGenerator : JavaClassGeneratorBase
 
     protected override void WriteGetters(JavaWriter fw, Class classe, string tag)
     {
-        var properties = Config.UseJdbc ? classe.Properties.Where(p => !(p is AssociationProperty ap && (ap.Type == AssociationType.OneToMany || ap.Type == AssociationType.ManyToMany))) : classe.GetProperties(Classes);
+        var properties = classe.Properties.Where(p => !(p is AssociationProperty ap && (ap.Type == AssociationType.OneToMany || ap.Type == AssociationType.ManyToMany)));
         foreach (var property in properties)
         {
             JpaModelPropertyGenerator!.WriteGetter(fw, tag, property);
@@ -146,7 +146,7 @@ public class JdbcEntityGenerator : JavaClassGeneratorBase
 
     protected override void WriteSetters(JavaWriter fw, Class classe, string tag)
     {
-        var properties = Config.UseJdbc ? classe.Properties.Where(p => !(p is AssociationProperty ap && (ap.Type == AssociationType.OneToMany || ap.Type == AssociationType.ManyToMany))) : classe.GetProperties(Classes);
+        var properties = classe.Properties.Where(p => !(p is AssociationProperty ap && (ap.Type == AssociationType.OneToMany || ap.Type == AssociationType.ManyToMany)));
         if (Config.CanClassUseEnums(classe, Classes))
         {
             return;

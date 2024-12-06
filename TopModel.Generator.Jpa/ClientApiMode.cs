@@ -6,6 +6,11 @@
 public static class ClientApiMode
 {
     /// <summary>
+    /// Génération d'un client en mode Feign (interface spring controller avec l'annotation Feign).
+    /// </summary>
+    public const string FeignClient = nameof(FeignClient);
+
+    /// <summary>
     /// Génération d'un client en mode RestClient (interface Exchange).
     /// </summary>
     public const string RestClient = nameof(RestClient);
