@@ -24,7 +24,7 @@ public abstract class JavaClassGeneratorBase : ClassGeneratorBase<JpaConfig>
         ["Set"] = "HashSet"
     };
 
-    protected string JavaxOrJakarta => Config.PersistenceMode.ToString().ToLower();
+    protected string JavaxOrJakarta => Config.JavaxOrJakarta;
 
     protected virtual JavaConstructorGenerator ConstructorGenerator
     {
@@ -44,16 +44,13 @@ public abstract class JavaClassGeneratorBase : ClassGeneratorBase<JpaConfig>
         }
     }
 
-    private JavaAnnotation GeneratedAnnotation => new JavaAnnotation("Generated", $"{JavaxOrJakarta}.annotation.Generated")
-                .AddAttribute("value", "\"TopModel : https://github.com/klee-contrib/topmodel\"");
-
     protected virtual void WriteAnnotations(JavaWriter fw, Class classe, string tag)
     {
         fw.WriteDocStart(0, classe.Comment);
         fw.WriteDocEnd(0);
         if (Config.GeneratedHint)
         {
-            fw.WriteAnnotation(0, GeneratedAnnotation);
+            fw.WriteAnnotation(0, Config.GeneratedAnnotation);
         }
 
         fw.AddImports(Config.GetDecoratorImports(classe, tag).ToList());

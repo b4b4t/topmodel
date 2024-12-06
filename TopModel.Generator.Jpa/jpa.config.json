@@ -120,13 +120,13 @@
         {
           "type": "string",
           "description": "Mode de génération de l'API Client ('Client' ou 'Server')",
-          "default": "RestClient",
-          "enum": ["RestTemplate", "RestClient"]
+          "default": "restClient",
+          "enum": ["RrestTemplate", "RestClient", "FeignClient"]
         },
         {
           "type": "string",
           "description": "Mode de génération de l'API ('RestTemplate' ou 'RestClient')",
-          "default": "RestClient",
+          "default": "restClient",
           "pattern": "^\\{[^\\}]+\\}$"
         }
       ]

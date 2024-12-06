@@ -58,13 +58,17 @@ public class GeneratorRegistration : IGeneratorRegistration<JpaConfig>
 
             if (config.ApiGeneration != ApiGeneration.Server)
             {
-                if (config.ClientApiGeneration == ClientApiMode.RestClient)
+                switch (config.ClientApiGeneration)
                 {
-                    services.AddGenerator<SpringClientApiGenerator, JpaConfig>(config, number);
-                }
-                else
-                {
-                    services.AddGenerator<SpringRestTemplateApiGenerator, JpaConfig>(config, number);
+                    case ClientApiMode.RestClient:
+                        services.AddGenerator<SpringClientApiGenerator, JpaConfig>(config, number);
+                        break;
+                    case ClientApiMode.RestTemplate:
+                        services.AddGenerator<SpringRestTemplateApiGenerator, JpaConfig>(config, number);
+                        break;
+                    case ClientApiMode.FeignClient:
+                        services.AddGenerator<FeignClientApiGenerator, JpaConfig>(config, number);
+                        break;
                 }
             }
         }

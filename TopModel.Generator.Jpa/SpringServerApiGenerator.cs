@@ -46,12 +46,7 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
         }
 
         var javaxOrJakarta = Config.PersistenceMode.ToString().ToLower();
-        if (Config.GeneratedHint)
-        {
-            fw.AddImport($"{javaxOrJakarta}.annotation.Generated");
-            fw.WriteLine("@Generated(\"TopModel : https://github.com/klee-contrib/topmodel\")");
-        }
-
+        fw.WriteAnnotations(0, GetClassAnnotations(endpoints.First().ModelFile));
         fw.WriteLine($"public interface {className} {{");
 
         foreach (var endpoint in endpoints)
@@ -62,7 +57,15 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
         fw.WriteLine("}");
     }
 
-    private static string GetClassName(string fileName)
+    protected virtual IEnumerable<JavaAnnotation> GetClassAnnotations(ModelFile file)
+    {
+        if (Config.GeneratedHint)
+        {
+            yield return Config.GeneratedAnnotation;
+        }
+    }
+
+    protected virtual string GetClassName(string fileName)
     {
         return $"{fileName.ToPascalCase()}Controller";
     }

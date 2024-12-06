@@ -40,7 +40,7 @@ public class JpaConfig : GeneratorConfigBase
     public string? ApiGeneration { get; set; }
 
     /// <summary>
-    /// Mode de génération de l'API Client ('Client' ou 'Server').
+    /// Mode de génération de l'API Client (RestClient, RestTemplate ou FeignClient).
     /// </summary>
     public string? ClientApiGeneration { get; set; } = ClientApiMode.RestClient;
 
@@ -65,6 +65,11 @@ public class JpaConfig : GeneratorConfigBase
     public string CompositionConverterCanonicalName { get; set; } = "{package}.{class}Converter";
 
     public string CompositionConverterSimpleName => CompositionConverterCanonicalName.Split('.').Last();
+
+    public string JavaxOrJakarta => PersistenceMode.ToString().ToLower();
+
+    public JavaAnnotation GeneratedAnnotation => new JavaAnnotation("Generated", $"{JavaxOrJakarta}.annotation.Generated")
+                .AddAttribute("value", "\"TopModel : https://github.com/klee-contrib/topmodel\"");
 
     public override Dictionary<string, List<string>> TemplateAttributes => new()
     {
