@@ -29,6 +29,13 @@ public static class EndpointExtensions
             : $"{alp.Property.Class.Trigram?.ToLower() ?? alp.Property.Class.NameCamel}{property.NameCamel.ToFirstUpper()}";
     }
 
+    public static IEnumerable<IProperty> GetQueryAndMultipartParams(this Endpoint endpoint)
+    {
+        return endpoint.Params
+            .Where(param => !(param is CompositionProperty || (param.Domain?.BodyParam ?? false)))
+            .Except(endpoint.GetRouteParams());
+    }
+
     public static IEnumerable<IProperty> GetQueryParams(this Endpoint endpoint)
     {
         return endpoint.Params
@@ -44,6 +51,11 @@ public static class EndpointExtensions
     public static bool IsJsonBodyParam(this IProperty property)
     {
         return property.Endpoint.GetJsonBodyParam() == property;
+    }
+
+    public static bool IsQueryOrMultipartParam(this IProperty property)
+    {
+        return property.Endpoint.GetQueryAndMultipartParams().Contains(property);
     }
 
     public static bool IsQueryParam(this IProperty property)
