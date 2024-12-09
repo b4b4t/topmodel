@@ -1,4 +1,5 @@
 ﻿using Microsoft.OpenApi.Models;
+using NuGet.Packaging;
 
 namespace TopModel.ModelGenerator.OpenApi;
 
@@ -52,21 +53,56 @@ public static class OpenApiUtils
 
     public static OpenApiSchema? GetRequestBodySchema(this OpenApiOperation operation)
     {
-        return operation.RequestBody?.Content.First().Value.Schema;
+        var schema = operation.RequestBody?.Content.First().Value.Schema;
+        if (schema != null && schema.Reference == null)
+        {
+            schema.Reference = operation.RequestBody?.Reference;
+        }
+
+        return schema;
     }
 
     public static IDictionary<string, OpenApiSchema> GetSchemas(this OpenApiDocument model, HashSet<string>? references = null)
     {
-        return model.Components.Schemas
-            .Where(s =>
-                s.Value.Type == "object"
-                || s.Value.AllOf.Any() && s.Value.AllOf.All(a => a.Type == "object" || a.Reference != null)
-                || s.Value.Type == "array" && s.Value.Items.Type == "object"
-                || s.Value.AnyOf.Any()
-                || s.Value.OneOf.Any()
-                || s.Value.Type == "string" && s.Value.Enum.Any())
-            .Where(s => references == null || references.Contains(s.Key))
-            .ToDictionary(a => a.Key, a => a.Value);
+        var schemas = model.Components.Schemas;
+        foreach (var s in model.Components.RequestBodies.ToDictionary(r => r.Key, r =>
+        {
+            var schema = r.Value.Content.First().Value.Schema;
+            if (schema.Reference == null)
+            {
+                schema.Reference = r.Value.Reference;
+            }
+
+            return schema;
+        }))
+        {
+            if (!schemas.ContainsKey(s.Key))
+            {
+                schemas.Add(s);
+            }
+        }
+
+        foreach (var s in model.Paths
+            .SelectMany(p => p.Value.Operations.Where(o => o.Value.Tags.Any()))
+            .Select(o => o.Value)
+            .Where(o => o.RequestBody != null)
+            .ToDictionary(r => $"{r.OperationId}Body", r => r.RequestBody.Content.First().Value.Schema))
+        {
+            if (!schemas.ContainsKey(s.Key))
+            {
+                schemas.Add(s);
+            }
+        }
+
+        return schemas.Where(s =>
+             s.Value.Type == "object"
+             || s.Value.AllOf.Any() && s.Value.AllOf.All(a => a.Type == "object" || a.Reference != null)
+             || s.Value.Type == "array" && s.Value.Items.Type == "object"
+             || s.Value.AnyOf.Any()
+             || s.Value.OneOf.Any()
+             || s.Value.Type == "string" && s.Value.Enum.Any())
+         .Where(s => references == null || references.Contains(s.Key))
+         .ToDictionary(a => a.Key, a => a.Value);
     }
 
     public static string Unplurialize(this string name)
