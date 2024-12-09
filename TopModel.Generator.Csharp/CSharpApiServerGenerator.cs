@@ -37,9 +37,11 @@ public class CSharpApiServerGenerator : EndpointsGeneratorBase<CsharpConfig>
     {
         var sb = new StringBuilder();
 
-        var type = Config.GetType(param, nonNullable: param.IsJsonBodyParam() || param.IsRouteParam() || param.IsQueryParam() && !param.Endpoint.IsMultipart && Config.GetValue(param, Classes) != "null");
+        string defaultValue = Config.GetValue(param, Classes);
 
-        if (param.Endpoint.IsMultipart && !param.IsQueryParam() && !param.IsRouteParam() && type != "IFormFile")
+        var type = Config.GetType(param, nonNullable: param is CompositionProperty || param.IsRouteParam() || defaultValue != "null");
+
+        if (param.Endpoint.IsMultipart && !param.IsQueryParam() && !param.IsRouteParam() && !type.StartsWith("IFormFile"))
         {
             sb.Append("[FromForm] ");
         }
@@ -54,9 +56,9 @@ public class CSharpApiServerGenerator : EndpointsGeneratorBase<CsharpConfig>
 
         sb.Append($@"{type} {param.GetParamName().Verbatim()}");
 
-        if (param.IsQueryParam() && !param.Endpoint.IsMultipart)
+        if (param is not CompositionProperty && !param.IsRouteParam())
         {
-            sb.Append($" = {Config.GetValue(param, Classes)}");
+            sb.Append($" = {defaultValue}");
         }
 
         return sb.ToString();
