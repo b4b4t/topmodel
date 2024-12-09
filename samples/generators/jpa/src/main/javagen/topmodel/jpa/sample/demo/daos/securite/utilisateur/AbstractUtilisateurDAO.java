@@ -9,7 +9,6 @@ import org.springframework.data.repository.NoRepositoryBean;
 import topmodel.jpa.sample.demo.daos.repository.CustomCrudRepository;
 import topmodel.jpa.sample.demo.entities.securite.utilisateur.Utilisateur;
 
-
 @NoRepositoryBean
 interface AbstractUtilisateurDAO extends CustomCrudRepository<Utilisateur, Integer> {
 

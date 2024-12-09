@@ -26,11 +26,6 @@ public class FeignClientApiGenerator : SpringServerApiGenerator
         return Config.ResolveVariables(Config.ApiGeneration!, tag) == ApiGeneration.Client && Config.ResolveVariables(Config.ClientApiGeneration!, tag) == ClientApiMode.FeignClient;
     }
 
-    protected override string GetClassName(string fileName)
-    {
-        return $"{fileName.ToPascalCase()}Api";
-    }
-
     protected override IEnumerable<JavaAnnotation> GetClassAnnotations(ModelFile file)
     {
         var fileName = file.Options.Endpoints.FileName;
@@ -42,5 +37,10 @@ public class FeignClientApiGenerator : SpringServerApiGenerator
         yield return new JavaAnnotation("FeignClient", "org.springframework.cloud.openfeign.FeignClient")
                         .AddAttribute("name", $@"""{file.Namespace.RootModule}""")
                         .AddAttribute("contextId", $@"""{GetClassName(fileName)}""");
+    }
+
+    protected override string GetClassName(string fileName)
+    {
+        return $"{fileName.ToPascalCase()}Api";
     }
 }

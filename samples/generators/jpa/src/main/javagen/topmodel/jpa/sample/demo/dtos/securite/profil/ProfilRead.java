@@ -6,6 +6,7 @@ package topmodel.jpa.sample.demo.dtos.securite.profil;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.annotation.Generated;
@@ -103,6 +104,9 @@ public class ProfilRead implements Serializable {
 	 * @return value of {@link topmodel.jpa.sample.demo.dtos.securite.profil.ProfilRead#droits droits}.
 	 */
 	public List<DroitCode> getDroits() {
+		if(this.droits == null) {
+			this.droits = new ArrayList<>();
+		}
 		return this.droits;
 	}
 
@@ -130,6 +134,9 @@ public class ProfilRead implements Serializable {
 	 * @return value of {@link topmodel.jpa.sample.demo.dtos.securite.profil.ProfilRead#utilisateurs utilisateurs}.
 	 */
 	public List<UtilisateurItem> getUtilisateurs() {
+		if(this.utilisateurs == null) {
+			this.utilisateurs = new ArrayList<>();
+		}
 		return this.utilisateurs;
 	}
 

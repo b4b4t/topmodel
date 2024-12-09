@@ -48,8 +48,6 @@ public class JpaDaoGenerator : ClassGeneratorBase<JpaConfig>
 
         using var fw = new JavaWriter(fileName, _logger, packageName, null);
         fw.WriteLine();
-        WriteImports(fw, classe, tag);
-        fw.WriteLine();
         if (Config.CanClassUseEnums(classe))
         {
             fw.AddImport($"{Config.GetEnumPackageName(classe, tag)}.{Config.GetType(classe.PrimaryKey.SingleOrDefault() ?? classe.Extends!.PrimaryKey.Single())}");
@@ -75,24 +73,29 @@ public class JpaDaoGenerator : ClassGeneratorBase<JpaConfig>
         }
 
         string daosInterface;
+        fw.AddImport(classe.GetImport(Config, tag));
         if (Config.DaosInterface != null)
         {
             int lastIndexOf = Config.DaosInterface.LastIndexOf(".");
             string daosInterfaceName = lastIndexOf > -1 ? Config.DaosInterface.Substring(lastIndexOf + 1) : Config.DaosInterface;
             daosInterface = $"{daosInterfaceName}<{classe.NamePascal}, {pk}>";
+            fw.AddImport($"{Config.DaosInterface}");
         }
         else if (classe.Reference || Config.UseJdbc)
         {
             daosInterface = $"CrudRepository<{classe.NamePascal}, {pk}>";
+            fw.AddImport("org.springframework.data.repository.CrudRepository");
         }
         else
         {
             daosInterface = $"JpaRepository<{classe.NamePascal}, {pk}>";
+            fw.AddImport("org.springframework.data.jpa.repository.JpaRepository");
         }
 
         if (Config.DaosAbstract)
         {
             fw.WriteLine("@NoRepositoryBean");
+            fw.AddImport("org.springframework.data.repository.NoRepositoryBean");
             fw.WriteLine($"interface Abstract{classe.NamePascal}DAO extends {daosInterface} {{");
         }
         else
@@ -102,33 +105,5 @@ public class JpaDaoGenerator : ClassGeneratorBase<JpaConfig>
 
         fw.WriteLine();
         fw.WriteLine("}");
-    }
-
-    private void WriteImports(JavaWriter fw, Class classe, string tag)
-    {
-        var imports = new List<string>
-        {
-            classe.GetImport(Config, tag)
-        };
-
-        if (Config.DaosInterface != null)
-        {
-            imports.Add($"{Config.DaosInterface}");
-        }
-        else if (classe.Reference || Config.UseJdbc)
-        {
-            imports.Add("org.springframework.data.repository.CrudRepository");
-        }
-        else
-        {
-            imports.Add("org.springframework.data.jpa.repository.JpaRepository");
-        }
-
-        if (Config.DaosAbstract)
-        {
-            imports.Add("org.springframework.data.repository.NoRepositoryBean");
-        }
-
-        fw.AddImports(imports);
     }
 }
