@@ -54,10 +54,12 @@ public class SpringDataFlowGenerator : GeneratorBase<JpaConfig>
 
     private static void WriteBeanFlow(JavaWriter fw, DataFlow dataFlow)
     {
-        fw.AddImport("org.springframework.context.annotation.Bean");
-        fw.AddImport("org.springframework.batch.core.job.flow.Flow");
-        fw.AddImport("org.springframework.beans.factory.annotation.Qualifier");
-        fw.AddImport("org.springframework.batch.core.Step");
+        fw.AddImports([
+            "org.springframework.context.annotation.Bean",
+            "org.springframework.batch.core.job.flow.Flow",
+            "org.springframework.beans.factory.annotation.Qualifier",
+            "org.springframework.batch.core.Step"
+        ]);
 
         fw.WriteLine();
         fw.WriteLine(1, @$"@Bean(""{dataFlow.Name.ToPascalCase()}Flow"")");
@@ -339,16 +341,18 @@ public class SpringDataFlowGenerator : GeneratorBase<JpaConfig>
             Config.DataFlowsPath!,
             module: module).ToPackageName();
         using var fw = new JavaWriter(configFilePath, _logger, packageName);
-        fw.AddImport("org.springframework.context.annotation.Configuration");
-        fw.AddImport("org.springframework.context.annotation.Bean");
-        fw.AddImport("org.springframework.batch.core.Job");
-        fw.AddImport("org.springframework.batch.core.repository.JobRepository");
-        fw.AddImport("org.springframework.beans.factory.annotation.Qualifier");
-        fw.AddImport("org.springframework.batch.core.job.flow.Flow");
-        fw.AddImport("org.springframework.batch.core.job.builder.JobBuilder");
-        fw.AddImport("org.springframework.batch.core.launch.support.RunIdIncrementer");
-        fw.AddImport("org.springframework.core.task.TaskExecutor");
-        fw.AddImport("org.springframework.context.annotation.Import");
+        fw.AddImports([
+            "org.springframework.context.annotation.Configuration",
+            "org.springframework.context.annotation.Bean",
+            "org.springframework.batch.core.Job",
+            "org.springframework.batch.core.repository.JobRepository",
+            "org.springframework.beans.factory.annotation.Qualifier",
+            "org.springframework.batch.core.job.flow.Flow",
+            "org.springframework.batch.core.job.builder.JobBuilder",
+            "org.springframework.batch.core.launch.support.RunIdIncrementer",
+            "org.springframework.core.task.TaskExecutor",
+            "org.springframework.context.annotation.Import"
+        ]);
         fw.WriteLine();
         fw.WriteLine("@Configuration");
         var javaxOrJakarta = Config.PersistenceMode.ToString().ToLower();

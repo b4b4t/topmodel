@@ -23,7 +23,7 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
     {
         get
         {
-            _jpaModelPropertyGenerator ??= new JpaModelPropertyGenerator(Config, Classes, []);
+            _jpaModelPropertyGenerator ??= Config.UseJdbc ? new JdbcModelPropertyGenerator(Config, Classes, []) : new JpaModelPropertyGenerator(Config, Classes, []);
             return _jpaModelPropertyGenerator;
         }
     }
@@ -58,13 +58,8 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
             .Distinct()
             .ToArray();
 
-        if (imports.Any())
-        {
-            fw.AddImports(imports);
-            fw.WriteLine();
-        }
-
-        var javaxOrJakarta = Config.PersistenceMode.ToString().ToLower();
+        fw.AddImports(imports);
+        fw.WriteLine();
         if (Config.GeneratedHint)
         {
             fw.WriteAnnotation(0, Config.GeneratedAnnotation);
@@ -114,7 +109,8 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
         }
 
         var checkSourceNull = false;
-        if ((!propertySource.Class.IsPersistent && !propertyTarget.Class.IsPersistent)
+        if (
+            (!propertySource.Class.IsPersistent && !propertyTarget.Class.IsPersistent)
              || !(propertySource is AssociationProperty
                 || propertySource is AliasProperty psAlp && psAlp.Property is AssociationProperty
                 || propertyTarget is AssociationProperty

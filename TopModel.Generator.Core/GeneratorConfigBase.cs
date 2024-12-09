@@ -322,7 +322,7 @@ public abstract class GeneratorConfigBase
             AssociationProperty ap when useClassForAssociation => HandleAUC(ap),
             AliasProperty { Property: AssociationProperty ap } when useClassForAssociation => HandleAUC(ap),
             AssociationProperty ap when CanClassUseEnums(ap.Association, availableClasses, ap.Property) => HandleEnum(ap),
-            AliasProperty { Property: AssociationProperty ap } when CanClassUseEnums(ap.Association, availableClasses) => HandleEnum(ap),
+            AliasProperty { Property: AssociationProperty ap } when CanClassUseEnums(ap.Association, availableClasses, ap.Property) => HandleEnum(ap),
             RegularProperty { Class: not null } rp when CanClassUseEnums(rp.Class, availableClasses, rp) => HandleEnum(rp),
             AliasProperty { Property: RegularProperty { Class: not null } rp } when CanClassUseEnums(rp.Class, availableClasses, rp) => HandleEnum(rp),
             AliasProperty { As: not null } alp when GetImplementation(alp.Domain)?.GenericType != null => GetImplementation(alp.Domain)!.GenericType!.Replace("{T}", GetType(alp.OriginalProperty!, availableClasses, useClassForAssociation)),

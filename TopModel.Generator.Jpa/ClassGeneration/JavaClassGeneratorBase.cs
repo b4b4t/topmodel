@@ -39,7 +39,8 @@ public abstract class JavaClassGeneratorBase : ClassGeneratorBase<JpaConfig>
     {
         get
         {
-            _jpaModelPropertyGenerator ??= new JpaModelPropertyGenerator(Config, Classes, NewableTypes);
+            _jpaModelPropertyGenerator ??= Config.UseJdbc ? new JdbcModelPropertyGenerator(Config, Classes, NewableTypes)
+                : new JpaModelPropertyGenerator(Config, Classes, NewableTypes);
             return _jpaModelPropertyGenerator;
         }
     }
