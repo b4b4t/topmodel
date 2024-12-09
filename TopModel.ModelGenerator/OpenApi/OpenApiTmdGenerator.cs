@@ -55,7 +55,7 @@ public class OpenApiTmdGenerator : ModelGenerator
             .GroupBy(o => o.Value.Tags.First().Name.ToPascalCase())
             .Where(m => m.Key != "Null" && (_config.Include == null || _config.Include.Select(i => i.ToPascalCase()).Contains(m.Key)));
 
-        var referenceMap = modules.ToDictionary(m => m.Key, m => GetModuleReferences(m));
+        var referenceMap = modules.ToDictionary(m => m.Key, GetModuleReferences);
 
         var modelFileName = $"{Path.Combine(ModelRoot, _config.OutputDirectory, _config.ModelFileName)}.tmd";
         yield return modelFileName;
@@ -407,6 +407,21 @@ public class OpenApiTmdGenerator : ModelGenerator
                 foreach (var reference in GetSchemaReferences(operation.Value.RequestBody.Content.First().Value.Schema, visited))
                 {
                     yield return reference;
+                }
+
+                if (operation.Value.RequestBody.Reference == null
+                    && operation.Value.RequestBody.Content.First().Value.Schema.Reference == null
+                    && operation.Value.RequestBody.Content.First().Value.Schema.Type == "object")
+                {
+                    operation.Value.RequestBody.Reference = new OpenApiReference()
+                    {
+                        Id = $"{operation.Value.OperationId}Body"
+                    };
+                }
+
+                if (operation.Value.RequestBody.Reference != null)
+                {
+                    yield return operation.Value.RequestBody.Reference;
                 }
             }
 
