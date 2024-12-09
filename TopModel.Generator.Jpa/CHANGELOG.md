@@ -1,3 +1,7 @@
+## 1.1.1
+
+- [95ebd](https://github.com/klee-contrib/topmodel/commit/95ebd7e79a6e482aaa6b7268fd6efe3084a26ff1) [JPA] Suite refacto
+
 ## 1.1.0
 
 - [5849b8](https://github.com/klee-contrib/topmodel/commit/5849b8a30aa2a69954bc9fd2a6d2957ae1c52a82) [JPA] Créer un mode FeignClient dans le générateur d'API client
