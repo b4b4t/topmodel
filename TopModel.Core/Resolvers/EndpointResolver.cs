@@ -12,13 +12,13 @@ internal class EndpointResolver(ModelFile modelFile)
     {
         foreach (var endpoint in modelFile.Endpoints)
         {
-            foreach (var queryParam in endpoint.GetQueryParams())
+            foreach (var queryParam in endpoint.GetQueryAndMultipartParams())
             {
                 var index = endpoint.Params.IndexOf(queryParam);
 
-                if (endpoint.Params.Any(param => !param.IsQueryParam() && endpoint.Params.IndexOf(param) > index))
+                if (endpoint.Params.Any(param => !param.IsQueryOrMultipartParam() && endpoint.Params.IndexOf(param) > index))
                 {
-                    yield return new ModelError(endpoint, $"Le paramètre de requête '{queryParam.GetParamName()}' doit suivre tous les paramètres de route ou de body dans un endpoint.", queryParam.GetLocation()) { IsError = false, ModelErrorType = ModelErrorType.TMD9003 };
+                    yield return new ModelError(endpoint, $"Le paramètre de requête (ou multipart) '{queryParam.GetParamName()}' doit suivre tous les paramètres de route ou de body dans un endpoint.", queryParam.GetLocation()) { IsError = false, ModelErrorType = ModelErrorType.TMD9003 };
                 }
             }
 
