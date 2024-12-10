@@ -1,3 +1,9 @@
+## 1.1.3
+
+- [8e6c7e](https://github.com/klee-contrib/topmodel/commit/8e6c7e91211edf29108254fc0aef630157c69c90) [JPA] Fix annotation Column sur association manyToMany
+- [a8cfea](https://github.com/klee-contrib/topmodel/commit/a8cfea155d4bcfe6d196cd9e8de2e529d16dea98) [JPA] Fix import alias de composition dans un module distant
+
+
 ## 1.1.2
 
 - [429ffe](https://github.com/klee-contrib/topmodel/commit/429ffe4fc8c135fa4b13d36300b7875b7568206d) [JPA] Suppression de l'initialisation des newable types pour les dtos
