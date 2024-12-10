@@ -159,7 +159,6 @@ public class JpaModelPropertyGenerator
     public void WriteProperty(JavaWriter fw, IProperty property, string tag)
     {
         fw.WriteLine();
-        fw.AddImports(property.GetTypeImports(_config, tag));
         fw.WriteDocStart(1, property.Comment);
         IEnumerable<JavaAnnotation> annotations = GetAnnotations(property, tag);
         if (property is AliasProperty ap && _classes.Contains(ap.Property.Class))
@@ -177,6 +176,7 @@ public class JpaModelPropertyGenerator
         fw.WriteAnnotations(1, annotations);
         string defaultValue = GetDefaultValue(property);
         fw.AddImports(GetDefaultValueImports(property, tag));
+        fw.AddImports(property.GetTypeImports(_config, tag));
         fw.WriteLine(1, $"private {GetPropertyType(property)} {GetPropertyName(property)}{defaultValue};");
     }
 
