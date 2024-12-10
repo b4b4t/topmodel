@@ -136,7 +136,7 @@ public class JpaModelPropertyGenerator
 
         fw.WriteLine(indentLevel, @$"public {propertyType} {getterName}() {{");
         var genericType = propertyType.Split('<').First();
-        if (_newableTypes.TryGetValue(genericType, out var newableType))
+        if (_newableTypes.TryGetValue(genericType, out var newableType) && property.Class.IsPersistent)
         {
             fw.WriteLine(indentLevel + 1, $"if(this.{propertyName} == null) {{");
             fw.AddImport($"java.util.{newableType}");
@@ -239,7 +239,7 @@ public class JpaModelPropertyGenerator
             yield return NotNullAnnotation;
         }
 
-        if (_config.CanClassUseEnums(property.Property.Class, _classes, property) && property.Class.IsPersistent)
+        if (_config.CanClassUseEnums(property.Property.Class, _classes, property.Property) && property.Class.IsPersistent)
         {
             yield return EnumAnnotation;
         }

@@ -5,7 +5,6 @@
 package topmodel.jpa.sample.demo.dtos.securite.profil;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.annotation.Generated;
@@ -51,9 +50,6 @@ public class ProfilWrite implements Serializable {
 	 * @return value of {@link topmodel.jpa.sample.demo.dtos.securite.profil.ProfilWrite#droits droits}.
 	 */
 	public List<DroitCode> getDroits() {
-		if(this.droits == null) {
-			this.droits = new ArrayList<>();
-		}
 		return this.droits;
 	}
 
