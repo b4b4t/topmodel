@@ -20,6 +20,7 @@ public static class ImportsJpaExtensions
         {
             CompositionProperty cp => cp.GetTypeImports(config, tag),
             AssociationProperty ap => ap.GetTypeImports(config, tag),
+            AliasProperty ap => ap.GetTypeImports(config, tag),
             _ => p.GetRegularTypeImports(config, tag)
         };
     }
@@ -79,6 +80,10 @@ public static class ImportsJpaExtensions
         else if (ap.Property is AssociationProperty apr && apr.Association.PrimaryKey.Count() == 1 && config.CanClassUseEnums(apr.Association, prop: apr.Association.PrimaryKey.Single()))
         {
             imports.Add($"{config.GetEnumPackageName(apr.Association, config.GetBestClassTag(apr.Association, tag))}.{config.GetEnumName(apr.Association.PrimaryKey.Single(), apr.Association)}");
+        }
+        else if (ap.Property is CompositionProperty cp)
+        {
+            imports.AddRange(GetTypeImports(cp, config, tag));
         }
 
         imports.AddRange(config.GetDomainImports(ap, tag));
