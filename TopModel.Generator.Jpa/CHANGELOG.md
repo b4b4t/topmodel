@@ -1,3 +1,7 @@
+## 1.1.2
+
+- [429ffe](https://github.com/klee-contrib/topmodel/commit/429ffe4fc8c135fa4b13d36300b7875b7568206d) [JPA] Suppression de l'initialisation des newable types pour les dtos
+
 ## 1.1.1
 
 - [95ebd](https://github.com/klee-contrib/topmodel/commit/95ebd7e79a6e482aaa6b7268fd6efe3084a26ff1) [JPA] Suite refacto
