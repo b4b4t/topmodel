@@ -229,8 +229,10 @@ public class JpaEntityGenerator : JavaClassGeneratorBase
             {
                 annotations.AddRange(JpaModelPropertyGenerator.GetJpaAssociationAnnotations(ap, tag));
             }
-
-            annotations.Add(JpaModelPropertyGenerator.GetColumnAnnotation(pk));
+            else
+            {
+                annotations.Add(JpaModelPropertyGenerator.GetColumnAnnotation(pk));
+            }
 
             fw.WriteAnnotations(2, annotations);
             fw.WriteLine(2, $"private {JpaModelPropertyGenerator.GetPropertyType(pk)} {JpaModelPropertyGenerator.GetPropertyName(pk)};");
