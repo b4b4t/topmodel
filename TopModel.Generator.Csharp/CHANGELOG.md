@@ -1,3 +1,7 @@
+## 1.1.1
+
+- [`c1ec016`](https://github.com/klee-contrib/topmodel/commit/c1ec01639dccc17ece05136ffe85ce1618d925fb) - [C# Server API] Fix ? et = null en trop pour bodyparam: true
+
 ## 1.1.0
 
 - [`6aeba30`](https://github.com/klee-contrib/topmodel/commit/6aeba30068b86500e9d73b5d474f354e1e384979) - [C# Server API] Paramètres multipart toujours nullables (comme query)
