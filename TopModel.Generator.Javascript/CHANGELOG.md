@@ -1,3 +1,7 @@
+## 1.1.4
+
+- [`437fc7b`](https://github.com/klee-contrib/topmodel/commit/437fc7b20114047d51f6b5100f3214f483920324) - [JS] Support de {module} (et {lang}) dans modelRootPath et resourceRootPath
+
 ## 1.1.3
 
 - [ec2934d](https://github.com/klee-contrib/topmodel/commit/ec2934d07f8ddcc64992d0f436212e2a190d6a6f) [Angular] problème check nullité dans le cas d'un boolean en paramètre d'un endPoint Fix #418
