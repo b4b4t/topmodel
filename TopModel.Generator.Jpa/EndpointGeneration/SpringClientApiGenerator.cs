@@ -178,7 +178,8 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
             }
         }
 
-        fw.WriteLine(1, $"{(endpoint.IsMultipart ? "<K, V> " : string.Empty)}{returnType} {endpoint.NameCamel}({string.Join(", ", methodParams)});");
+        fw.AddImport("org.springframework.http.ResponseEntity");
+        fw.WriteLine(1, $"{(endpoint.IsMultipart ? "<K, V> " : string.Empty)}ResponseEntity<{returnType}> {endpoint.NameCamel}({string.Join(", ", methodParams)});");
     }
 
     private void WriteImports(IEnumerable<Endpoint> endpoints, JavaWriter fw, string tag)

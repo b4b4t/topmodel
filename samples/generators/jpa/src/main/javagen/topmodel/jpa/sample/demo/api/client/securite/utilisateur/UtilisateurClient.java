@@ -7,6 +7,7 @@ package topmodel.jpa.sample.demo.api.client.securite.utilisateur;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,7 +38,7 @@ public interface UtilisateurClient {
 	 */
 	@PreAuthorize("hasRole('CREATE')")
 	@PostExchange(value = "/")
-	UtilisateurRead addUtilisateur(@RequestBody @Valid UtilisateurWrite utilisateur);
+	ResponseEntity<UtilisateurRead> addUtilisateur(@RequestBody @Valid UtilisateurWrite utilisateur);
 
 	/**
 	 * Supprime un utilisateur.
@@ -45,7 +46,7 @@ public interface UtilisateurClient {
 	 */
 	@PreAuthorize("hasRole('DELETE')")
 	@DeleteExchange(value = "/{utiId}")
-	void deleteUtilisateur(@PathVariable("utiId") Integer utiId);
+	ResponseEntity<void> deleteUtilisateur(@PathVariable("utiId") Integer utiId);
 
 	/**
 	 * Charge le détail d'un utilisateur.
@@ -54,7 +55,7 @@ public interface UtilisateurClient {
 	 */
 	@PreAuthorize("hasRole('READ')")
 	@GetExchange(value = "/{utiId}")
-	UtilisateurRead getUtilisateur(@PathVariable("utiId") Integer utiId);
+	ResponseEntity<UtilisateurRead> getUtilisateur(@PathVariable("utiId") Integer utiId);
 
 	/**
 	 * Recherche des utilisateurs.
@@ -70,7 +71,7 @@ public interface UtilisateurClient {
 	 */
 	@PreAuthorize("hasRole('READ')")
 	@GetExchange(value = "/")
-	List<UtilisateurItem> searchUtilisateur(@RequestParam(value = "nom", required = true) String nom, @RequestParam(value = "prenom", required = true) String prenom, @RequestParam(value = "email", required = true) String email, @RequestParam(value = "dateNaissance", required = false) LocalDate dateNaissance, @RequestParam(value = "adresse", required = false) String adresse, @RequestParam(value = "actif", required = true) Boolean actif, @RequestParam(value = "profilId", required = true) Integer profilId, @RequestParam(value = "typeUtilisateurCode", required = true) TypeUtilisateurCode typeUtilisateurCode);
+	ResponseEntity<List<UtilisateurItem>> searchUtilisateur(@RequestParam(value = "nom", required = true) String nom, @RequestParam(value = "prenom", required = true) String prenom, @RequestParam(value = "email", required = true) String email, @RequestParam(value = "dateNaissance", required = false) LocalDate dateNaissance, @RequestParam(value = "adresse", required = false) String adresse, @RequestParam(value = "actif", required = true) Boolean actif, @RequestParam(value = "profilId", required = true) Integer profilId, @RequestParam(value = "typeUtilisateurCode", required = true) TypeUtilisateurCode typeUtilisateurCode);
 
 	/**
 	 * Sauvegarde un utilisateur.
@@ -80,5 +81,5 @@ public interface UtilisateurClient {
 	 */
 	@PreAuthorize("hasRole('UPDATE')")
 	@PutExchange(value = "/{utiId}")
-	UtilisateurRead updateUtilisateur(@PathVariable("utiId") Integer utiId, @RequestBody @Valid UtilisateurWrite utilisateur);
+	ResponseEntity<UtilisateurRead> updateUtilisateur(@PathVariable("utiId") Integer utiId, @RequestBody @Valid UtilisateurWrite utilisateur);
 }
