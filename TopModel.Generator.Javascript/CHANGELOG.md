@@ -1,3 +1,7 @@
+## 1.1.5
+
+- [`4037be2`]([Core/JS] Fix "strictIfUppercase" manquant sur camel/pascal case des noms de propriétés) - [Core/JS] Fix "strictIfUppercase" manquant sur camel/pascal case des noms de propriétés
+
 ## 1.1.4
 
 - [`437fc7b`](https://github.com/klee-contrib/topmodel/commit/437fc7b20114047d51f6b5100f3214f483920324) - [JS] Support de {module} (et {lang}) dans modelRootPath et resourceRootPath
