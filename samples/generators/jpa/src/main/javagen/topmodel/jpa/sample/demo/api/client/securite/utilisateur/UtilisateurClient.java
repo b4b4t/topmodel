@@ -46,7 +46,7 @@ public interface UtilisateurClient {
 	 */
 	@PreAuthorize("hasRole('DELETE')")
 	@DeleteExchange(value = "/{utiId}")
-	ResponseEntity<void> deleteUtilisateur(@PathVariable("utiId") Integer utiId);
+	ResponseEntity<Void> deleteUtilisateur(@PathVariable("utiId") Integer utiId);
 
 	/**
 	 * Charge le détail d'un utilisateur.
