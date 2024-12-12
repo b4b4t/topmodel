@@ -95,7 +95,7 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
         }
 
         fw.WriteLine(1, " */");
-        var returnType = "void";
+        var returnType = "Void";
 
         if (endpoint.Returns != null)
         {
