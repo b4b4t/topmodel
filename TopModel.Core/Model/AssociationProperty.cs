@@ -139,7 +139,7 @@ public class AssociationProperty : IProperty
 
             if (!string.IsNullOrWhiteSpace(Role))
             {
-                name.Append(Role?.Replace(" ", string.Empty).ToPascalCase());
+                name.Append(Role?.Replace(" ", string.Empty).ToPascalCase(strictIfUppercase: true));
             }
 
             return name.ToString();

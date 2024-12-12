@@ -92,7 +92,7 @@ public class TypescriptReferenceGenerator : ClassGroupGeneratorBase<JavascriptCo
                 {
                     fw.Write("export type ");
                     fw.Write(reference.NamePascal);
-                    fw.Write($"{reference.EnumKey.Name.ToPascalCase()} = ");
+                    fw.Write($"{reference.EnumKey.NamePascal} = ");
                     var type = Config.GetImplementation(reference.EnumKey.Domain)?.Type;
                     var quote = (type == "boolean" || type == "number") ? string.Empty : @"""";
                     fw.Write(string.Join(" | ", values.Select(r => $@"{quote}{r.Value[reference.EnumKey]}{quote}").OrderBy(x => x, StringComparer.Ordinal)));

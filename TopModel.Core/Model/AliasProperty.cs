@@ -58,25 +58,25 @@ public class AliasProperty : IProperty
     public string NamePascal => ((IProperty)this).Parent.PreservePropertyCasing
         ? Name
         : (Prefix?.ToFirstUpper() ?? string.Empty)
-            + (_name?.ToPascalCase() ?? _property?.NamePascal)
+            + (_name?.ToPascalCase(strictIfUppercase: true) ?? _property?.NamePascal)
             + (Suffix ?? string.Empty);
 
     public string NameCamel => ((IProperty)this).Parent.PreservePropertyCasing
         ? Name
         : (Prefix?.ToFirstLower() ?? string.Empty)
             + (string.IsNullOrWhiteSpace(Prefix)
-                ? (_name?.ToCamelCase() ?? _property?.NameCamel)
-                : (_name?.ToPascalCase() ?? _property?.NamePascal))
+                ? (_name?.ToCamelCase(strictIfUppercase: true) ?? _property?.NameCamel)
+                : (_name?.ToPascalCase(strictIfUppercase: true) ?? _property?.NamePascal))
             + (Suffix ?? string.Empty);
 
     public string NameByClassPascal => Class.IsPersistent ? (Prefix?.ToFirstUpper() ?? string.Empty)
-            + (_name?.ToPascalCase() ?? _property?.NameByClassPascal)
+            + (_name?.ToPascalCase(strictIfUppercase: true) ?? _property?.NameByClassPascal)
             + (Suffix ?? string.Empty) : NamePascal;
 
     public string NameByClassCamel => Class.IsPersistent ? (Prefix?.ToFirstLower() ?? string.Empty)
             + (string.IsNullOrWhiteSpace(Prefix)
-                ? (_name?.ToCamelCase() ?? _property?.NameByClassCamel)
-                : (_name?.ToPascalCase() ?? _property?.NameByClassPascal))
+                ? (_name?.ToCamelCase(strictIfUppercase: true) ?? _property?.NameByClassCamel)
+                : (_name?.ToPascalCase(strictIfUppercase: true) ?? _property?.NameByClassPascal))
             + (Suffix ?? string.Empty) : NameCamel;
 
     public string? Label
