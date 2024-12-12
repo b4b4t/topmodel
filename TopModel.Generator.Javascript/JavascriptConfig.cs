@@ -256,7 +256,7 @@ public class JavascriptConfig : GeneratorConfigBase
 
     protected override string GetEnumType(string className, string propName, bool isPrimaryKeyDef = false)
     {
-        return $"{className.ToPascalCase()}{propName.ToPascalCase()}";
+        return $"{className.ToPascalCase(strictIfUppercase: true)}{propName.ToPascalCase(strictIfUppercase: true)}";
     }
 
     protected override bool IsEnumNameValid(string name)
