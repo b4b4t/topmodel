@@ -158,6 +158,10 @@
               "type": "string",
               "description": "Surcharge locale du trigram"
             },
+            "className": {
+              "type": "string",
+              "description": "Surcharge du nom de la classe cible dans le nom de la propriété d'association."
+            },
             "property": {
               "type": "string",
               "description": "Propriété de la classe cible à utiliser pour la clé étrangère (au lieu de la clé primaire)."

@@ -53,7 +53,7 @@ comment: C'est une FK obligatoire
 role: Exemple
 ```
 
-La propriété qui en découlera sera `ClasseCibleExempleId` (si la `primaryKey` de `ClasseCible` est `Id`).
+La propriété qui en découlera sera `ClasseCibleExempleId` (si la `primaryKey` de `ClasseCible` est `Id`). Il est possible de surcharger le nom de la classe cible dans la propriété (donc ici `ClasseCible`) via la propriété `className`.
 
 Une association peut référencer une classe non persistée, dans ce cas il faut identifier la propriété de la classe cible à utiliser via `property` (puisqu'une telle classe ne peut pas avoir de clé primaire par définition).
 
