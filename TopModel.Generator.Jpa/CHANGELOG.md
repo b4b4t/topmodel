@@ -1,3 +1,9 @@
+## 1.2.0
+
+- [4e3b6b](https://github.com/klee-contrib/topmodel/commit/4e3b6b7072937a40aa0717b585c0bf231908d5e7) [JPA] Le spring client doit retourner un ResponseEntity (pour gérer les différents codes Http)
+
+> BREAKING CHANGE: Les api clientes générées avec `SpringClient` ne renvoient plus l'objet `D` directement, mais un objet `ResponseEntity<D>`.
+
 ## 1.1.3
 
 - [8e6c7e](https://github.com/klee-contrib/topmodel/commit/8e6c7e91211edf29108254fc0aef630157c69c90) [JPA] Fix annotation Column sur association manyToMany
