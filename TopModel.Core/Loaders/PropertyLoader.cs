@@ -129,6 +129,9 @@ public class PropertyLoader : ILoader<IProperty>
                         case "trigram":
                             ap.Trigram = new LocatedString(value);
                             break;
+                        case "className":
+                            ap.ClassName = value!.Value;
+                            break;
                         case "customProperties":
                             parser.ConsumeMapping(prop => ap.CustomProperties.Add(prop.Value, parser.Consume<Scalar>().Value));
                             break;

@@ -10,6 +10,8 @@ public class AssociationProperty : IProperty
 
     public LocatedString? Trigram { get; set; }
 
+    public string? ClassName { get; set; }
+
 #nullable disable
     public Class Association { get; set; }
 
@@ -77,7 +79,11 @@ public class AssociationProperty : IProperty
 
             var name = new StringBuilder();
 
-            if (Type == AssociationType.OneToMany || Type == AssociationType.ManyToMany)
+            if (ClassName != null)
+            {
+                name.Append(ClassName);
+            }
+            else if (Type == AssociationType.OneToMany || Type == AssociationType.ManyToMany)
             {
                 name.Append(Association.PluralName);
             }
@@ -116,7 +122,11 @@ public class AssociationProperty : IProperty
 
             var name = new StringBuilder();
 
-            if (Type == AssociationType.OneToMany || Type == AssociationType.ManyToMany)
+            if (ClassName != null)
+            {
+                name.Append(ClassName.ToCamelCase(strictIfUppercase: true));
+            }
+            else if (Type == AssociationType.OneToMany || Type == AssociationType.ManyToMany)
             {
                 name.Append(Association.PluralNameCamel);
             }
@@ -127,7 +137,7 @@ public class AssociationProperty : IProperty
 
             if (Type == AssociationType.ManyToOne || Type == AssociationType.OneToOne)
             {
-                if (Association.Extends == null || !Association.PrimaryKey.Any())
+                if (Association.Extends == null || !Association.PrimaryKey.Any() || ClassName != null)
                 {
                     name.Append(Property?.NameCamel.ToFirstUpper());
                 }
@@ -148,9 +158,9 @@ public class AssociationProperty : IProperty
 
     public string NamePascal => ((IProperty)this).Parent.PreservePropertyCasing ? Name : NameCamel.ToFirstUpper();
 
-    public string NameByClassPascal => Type.IsToMany() ? $"{NamePascal}" : $"{Association.NamePascal}{Role?.ToPascalCase() ?? string.Empty}";
+    public string NameByClassPascal => Type.IsToMany() ? $"{NamePascal}" : $"{ClassName?.ToPascalCase(strictIfUppercase: true) ?? Association.NamePascal}{Role?.ToPascalCase() ?? string.Empty}";
 
-    public string NameByClassCamel => Type.IsToMany() ? $"{NameCamel}" : $"{Association.NameCamel}{Role?.ToPascalCase() ?? string.Empty}";
+    public string NameByClassCamel => Type.IsToMany() ? $"{NameCamel}" : $"{ClassName?.ToCamelCase(strictIfUppercase: true) ?? Association.NameCamel}{Role?.ToPascalCase() ?? string.Empty}";
 
     public Domain Domain => Type.IsToMany() && (Property?.Domain?.AsDomains.TryGetValue(As, out var ld) ?? false) ? ld : Property?.Domain!;
 
