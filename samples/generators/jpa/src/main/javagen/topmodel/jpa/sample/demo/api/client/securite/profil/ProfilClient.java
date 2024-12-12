@@ -6,6 +6,7 @@ package topmodel.jpa.sample.demo.api.client.securite.profil;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,7 +34,7 @@ public interface ProfilClient {
 	 */
 	@PreAuthorize("hasRole('CREATE')")
 	@PostExchange(value = "/")
-	ProfilRead addProfil(@RequestBody @Valid ProfilWrite profil);
+	ResponseEntity<ProfilRead> addProfil(@RequestBody @Valid ProfilWrite profil);
 
 	/**
 	 * Charge le détail d'un Profil.
@@ -42,7 +43,7 @@ public interface ProfilClient {
 	 */
 	@PreAuthorize("hasRole('READ')")
 	@GetExchange(value = "/{proId}")
-	ProfilRead getProfil(@PathVariable("proId") Integer proId);
+	ResponseEntity<ProfilRead> getProfil(@PathVariable("proId") Integer proId);
 
 	/**
 	 * Liste tous les Profils.
@@ -50,7 +51,7 @@ public interface ProfilClient {
 	 */
 	@PreAuthorize("hasRole('READ')")
 	@GetExchange(value = "/")
-	List<ProfilItem> getProfils();
+	ResponseEntity<List<ProfilItem>> getProfils();
 
 	/**
 	 * Sauvegarde un Profil.
@@ -60,5 +61,5 @@ public interface ProfilClient {
 	 */
 	@PreAuthorize("hasRole('UPDATE')")
 	@PutExchange(value = "/{proId}")
-	ProfilRead updateProfil(@PathVariable("proId") Integer proId, @RequestBody @Valid ProfilWrite profil);
+	ResponseEntity<ProfilRead> updateProfil(@PathVariable("proId") Integer proId, @RequestBody @Valid ProfilWrite profil);
 }
