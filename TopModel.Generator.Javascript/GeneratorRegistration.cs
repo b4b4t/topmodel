@@ -37,6 +37,11 @@ public class GeneratorRegistration : IGeneratorRegistration<JavascriptConfig>
 
         if (config.ModelRootPath != null)
         {
+            if (!config.ModelRootPath.Contains("{module}"))
+            {
+                config.ModelRootPath = Path.Combine(config.ModelRootPath, "{module}");
+            }
+
             services.AddGenerator<TypescriptDefinitionGenerator, JavascriptConfig>(config, number);
             services.AddGenerator<TypescriptReferenceGenerator, JavascriptConfig>(config, number);
 
@@ -59,6 +64,11 @@ public class GeneratorRegistration : IGeneratorRegistration<JavascriptConfig>
 
         if (config.ResourceRootPath != null && (config.TranslateProperties == true || config.TranslateReferences == true))
         {
+            if (!config.ResourceRootPath.Contains("{lang}"))
+            {
+                config.ResourceRootPath = Path.Combine(config.ResourceRootPath, "{lang}");
+            }
+
             services.AddGenerator<JavascriptResourceGenerator, JavascriptConfig>(config, number);
         }
     }

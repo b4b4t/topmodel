@@ -11,12 +11,12 @@ namespace TopModel.Generator.Javascript;
 public class JavascriptConfig : GeneratorConfigBase
 {
     /// <summary>
-    /// Localisation du modèle, relative au répertoire de génération. Si non renseigné, aucun fichier ne sera généré.
+    /// Localisation du modèle, relative au répertoire de génération. Si non renseigné, aucun modèle ne sera généré. Si '{module}' n'est pas présent dans le chemin, alors il sera ajouté à la fin.
     /// </summary>
     public string? ModelRootPath { get; set; }
 
     /// <summary>
-    /// Localisation des ressources i18n, relative au répertoire de génération. Si non renseigné, aucun fichier ne sera généré.
+    /// Localisation des ressources i18n, relative au répertoire de génération. Si non renseigné, aucun fichier ne sera généré. Si '{lang}' n'est pas présent dans le chemin, alors il sera ajouté à la fin.
     /// </summary>
     public string? ResourceRootPath { get; set; }
 
@@ -80,24 +80,31 @@ public class JavascriptConfig : GeneratorConfigBase
     /// </summary>
     public bool GenerateMainResourceFiles { get; set; }
 
-    public override string[] PropertiesWithModuleVariableSupport => new[]
-    {
-        nameof(ApiClientFilePath)
-    };
+    public override string[] PropertiesWithModuleVariableSupport =>
+    [
+        nameof(ModelRootPath),
+        nameof(ApiClientFilePath),
+        nameof(ResourceRootPath)
+    ];
 
-    public override string[] PropertiesWithFileNameVariableSupport => new[]
-    {
+    public override string[] PropertiesWithFileNameVariableSupport =>
+    [
         nameof(ApiClientFilePath)
-    };
+    ];
 
-    public override string[] PropertiesWithTagVariableSupport => new[]
-    {
+    public override string[] PropertiesWithTagVariableSupport =>
+    [
         nameof(ModelRootPath),
         nameof(ResourceRootPath),
         nameof(ApiClientRootPath),
         nameof(FetchPath),
         nameof(DomainPath)
-    };
+    ];
+
+    public override string[] PropertiesWithLangVariableSupport =>
+    [
+        nameof(ResourceRootPath)
+    ];
 
     protected override bool UseNamedEnums => false;
 
@@ -107,8 +114,7 @@ public class JavascriptConfig : GeneratorConfigBase
     {
         return Path.Combine(
             OutputDirectory,
-            ResolveVariables(ModelRootPath!, tag),
-            classe.Namespace.ModulePathKebab,
+            ResolveVariables(ModelRootPath!, tag, classe.Namespace.ModulePathKebab),
             $"{classe.Name.ToKebabCase()}.ts")
         .Replace("\\", "/");
     }
@@ -117,8 +123,7 @@ public class JavascriptConfig : GeneratorConfigBase
     {
         return Path.Combine(
             OutputDirectory,
-            ResolveVariables(ResourceRootPath!, tag),
-            lang,
+            ResolveVariables(ResourceRootPath!, tag, ns.RootModule.ToKebabCase(), lang),
             $"{ns.RootModule.ToKebabCase()}.comments{(ResourceMode == ResourceMode.JS ? ".ts" : ".json")}")
         .Replace("\\", "/");
     }
@@ -208,7 +213,11 @@ public class JavascriptConfig : GeneratorConfigBase
 
     public virtual string GetReferencesFileName(Namespace ns, string tag)
     {
-        return Path.Combine(OutputDirectory, ResolveVariables(ModelRootPath!, tag), ns.ModulePathKebab, "references.ts").Replace("\\", "/");
+        return Path.Combine(
+            OutputDirectory,
+            ResolveVariables(ModelRootPath!, tag, ns.ModulePathKebab),
+            "references.ts")
+        .Replace("\\", "/");
     }
 
     public virtual string GetRelativePath(string path, string fileName)
@@ -222,8 +231,7 @@ public class JavascriptConfig : GeneratorConfigBase
     {
         return Path.Combine(
             OutputDirectory,
-            ResolveVariables(ResourceRootPath!, tag),
-            lang,
+            ResolveVariables(ResourceRootPath!, tag, ns.RootModule.ToKebabCase(), lang),
             $"{ns.RootModule.ToKebabCase()}{(ResourceMode == ResourceMode.JS ? ".ts" : ".json")}")
         .Replace("\\", "/");
     }

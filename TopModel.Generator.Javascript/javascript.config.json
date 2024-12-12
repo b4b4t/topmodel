@@ -63,11 +63,11 @@
     },
     "modelRootPath": {
       "type": "string",
-      "description": "Localisation du modèle, relative au répertoire de génération. Si non renseigné, aucun modèle ne sera généré."
+      "description": "Localisation du modèle, relative au répertoire de génération. Si non renseigné, aucun modèle ne sera généré. Si '{module}' n'est pas présent dans le chemin, alors il sera ajouté à la fin."
     },
     "resourceRootPath": {
       "type": "string",
-      "description": "Localisation des ressources i18n, relative au répertoire de génération. Si non renseigné, aucun fichier ne sera généré"
+      "description": "Localisation des ressources i18n, relative au répertoire de génération. Si non renseigné, aucun fichier ne sera généré. Si '{lang}' n'est pas présent dans le chemin, alors il sera ajouté à la fin."
     },
     "apiClientRootPath": {
       "type": "string",
