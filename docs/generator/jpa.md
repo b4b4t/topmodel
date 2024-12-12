@@ -282,6 +282,10 @@ public class UtilisateurService {
 }
 ```
 
+### FeignClient
+
+Génère le même fichier que dans le mode `Server` de la génération d'API, à la différence près que le suffix est `Api` au lieu de `Controller`, et que l'annotation `@FeignClient` est ajoutée à l'interface.
+
 ## Dépendances
 
 ### Modèle
