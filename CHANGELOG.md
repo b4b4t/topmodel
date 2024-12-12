@@ -8,6 +8,14 @@ Changelogs des modules :
 - [`sql`](./TopModel.Generator.Sql/CHANGELOG.md)
 - [`translation`](./TopModel.Generator.Translation/CHANGELOG.md)
 
+## 2.3.0
+
+- [`d51c93a`](https://github.com/klee-contrib/topmodel/commit/d51c93a867dbcb5bf9b9d79c816f0ad2bfc0b3a6) - `className` sur association (fix [#374](https://github.com/klee-contrib/topmodel/issues/374))
+- [`5107614`](https://github.com/klee-contrib/topmodel/commit/5107614fb6c33b0c2155effa02c75fdb0efd77a3) - [Core] Warning ordre des paramètres d'endpoint qui inclus aussi les multiparts
+- [`4037be2`](https://github.com/klee-contrib/topmodel/commit/4037be206bd5304cc62e64530205e96b3dc03b8e) - [Core/JS] Fix "strictIfUppercase" manquant sur camel/pascal case des noms de propriétés
+
+  C'est peut être un petit breaking change parce que les noms de propriétés entièrement en majusucules sont désormais bien convertis dans la casse du langage cible (PascalCase / camelCase). Si vous avez besoin de conserver la vraie casse dans le fichier de modèle, vous pouvez toujours utiliser `preservePropertyCasing` sur la classe.
+
 ## 2.2.0
 
 - [`992239c`](https://github.com/klee-contrib/topmodel/commit/992239c91f90e058e0ea45615e61a34b575100ad) - net6.0/8.0 => net8.0/9.0
