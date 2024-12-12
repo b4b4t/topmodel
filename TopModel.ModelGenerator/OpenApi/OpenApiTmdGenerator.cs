@@ -437,6 +437,11 @@ public class OpenApiTmdGenerator : ModelGenerator
                 {
                     yield return reference;
                 }
+
+                if (response.Reference != null)
+                {
+                    yield return response.Reference;
+                }
             }
         }
     }

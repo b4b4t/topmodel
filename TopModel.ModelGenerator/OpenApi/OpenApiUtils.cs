@@ -82,6 +82,23 @@ public static class OpenApiUtils
             }
         }
 
+        foreach (var s in model.Components.Responses.Where(r => r.Value.Content.Any()).ToDictionary(r => r.Key, r =>
+        {
+            var schema = r.Value.Content.First().Value.Schema;
+            if (schema.Reference == null)
+            {
+                schema.Reference = r.Value.Reference;
+            }
+
+            return schema;
+        }))
+        {
+            if (!schemas.ContainsKey(s.Key))
+            {
+                schemas.Add(s);
+            }
+        }
+
         foreach (var s in model.Paths
             .SelectMany(p => p.Value.Operations.Where(o => o.Value.Tags.Any()))
             .Select(o => o.Value)
