@@ -4,7 +4,15 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using TopModel.Core;
 using TopModel.Core.FileModel;
-
+using System.Reflection;
+using System.Text;
+using NJsonSchema;
+using NJsonSchema.Validation;
+using TopModel.Utils;
+using YamlDotNet.Core;
+using YamlDotNet.Core.Events;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 namespace TopModel.LanguageServer;
 
 public class CompletionHandler : CompletionHandlerBase
@@ -67,7 +75,6 @@ public class CompletionHandler : CompletionHandlerBase
         var currentKey = GetCurrentKey(request).Key;
         var parentKey = GetParentKey(request).Key;
         var useIndex = GetUseIndex(file, text);
-
         if (parentKey == "asDomains" && currentLine[..reqChar].Contains(':')
             || currentKey == "domain"
             || parentKey == "domain" && currentLine[..reqChar].Contains("name: ")
@@ -537,7 +544,7 @@ public class CompletionHandler : CompletionHandlerBase
             end++;
         }
 
-        return (start + 1, end - 1);
+        return (Math.Min(start + 1, lineNumber), Math.Max(end - 1, lineNumber));
     }
 
     private (string Key, int Line, int End, bool IsKey) GetParentKey(CompletionParams request)
@@ -587,6 +594,20 @@ public class CompletionHandler : CompletionHandlerBase
         }
 
         return GetObjectRange(text, start);
+    }
+
+    private string[] GetYaml(CompletionParams request)
+    {
+        var text = _fileCache.GetFile(request.TextDocument.Uri.GetFileSystemPath());
+        var start = request.Position.Line;
+        var currentLine = text.ElementAtOrDefault(request.Position.Line) ?? string.Empty;
+        while (!currentLine.StartsWith("---") && start > 0)
+        {
+            start--;
+            currentLine = text.ElementAtOrDefault(start) ?? string.Empty;
+        }
+
+        return text[start..request.Position.Line];
     }
 
     private (string Object, int Line) GetRootObject(CompletionParams request)
