@@ -8,6 +8,10 @@ Changelogs des modules :
 - [`sql`](./TopModel.Generator.Sql/CHANGELOG.md)
 - [`translation`](./TopModel.Generator.Translation/CHANGELOG.md)
 
+## 2.3.2
+
+- [`f647621`](https://github.com/klee-contrib/topmodel/commit/f64762148497a86e171fd641bdfb8bc7f2ca237d) - [Core] preservePropertyCasing sans impact sur SqlName
+
 ## 2.3.1
 
 - [`2d4e6e0`](https://github.com/klee-contrib/topmodel/commit/2d4e6e0198245ef34a5f3287ea0357d3979f7544) - [Core] Fix calcul 'Association.NameCamel'
