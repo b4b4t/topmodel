@@ -1,11 +1,10 @@
 import { makeAutoObservable } from "mobx";
-import { commands, ExtensionContext, Terminal, window, workspace } from "vscode";
+import { commands, ExtensionContext, Terminal, Uri, window, workspace } from "vscode";
 import { LanguageClient, ServerOptions } from "vscode-languageclient/node";
 
 import { COMMANDS, COMMANDS_OPTIONS, SERVER_EXE } from "./const";
 import { TopModelConfig } from "./types";
-import { execute } from "./utils";
-
+import path = require("path");
 export class Application {
     private _terminal?: Terminal;
     public client?: LanguageClient;
@@ -25,7 +24,8 @@ export class Application {
     constructor(
         public readonly _configPath: string,
         public readonly config: TopModelConfig,
-        public readonly extensionContext: ExtensionContext
+        public readonly extensionContext: ExtensionContext,
+        configs: { config: TopModelConfig; file: Uri }[]
     ) {
         makeAutoObservable(this);
         window.onDidCloseTerminal((terminal) => {
@@ -33,15 +33,28 @@ export class Application {
                 this._terminal = undefined;
             }
         });
-        this.start();
+        const cp = this.extensionContext.asAbsolutePath(_configPath);
+        const modelRoot = path.resolve(cp, config.modelRoot ?? "./");
+        const shouldStartLanguageServer =
+            configs.find(
+                (c) =>
+                    path.resolve(this.extensionContext.asAbsolutePath(c.file.path), c.config.modelRoot ?? "./") ===
+                    modelRoot
+            )?.config === config;
+        this.start(shouldStartLanguageServer);
     }
 
     public get configPath() {
         return this._configPath;
     }
 
-    public async start() {
-        this.startLanguageServer();
+    public async start(shouldStartLanguageServer: boolean) {
+        if (shouldStartLanguageServer) {
+            this.startLanguageServer();
+        } else {
+            this.status = "STARTED";
+        }
+
         this.registerCommands();
     }
 

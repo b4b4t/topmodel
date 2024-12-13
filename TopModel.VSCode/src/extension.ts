@@ -19,7 +19,7 @@ export async function activate(ctx: ExtensionContext) {
         const installed = await checkDotnetInstall();
         if (installed) {
             const confs = await findConfFiles();
-            const applications = confs.map((conf) => new Application(conf.file.path, conf.config, ctx));
+            const applications = confs.map((conf) => new Application(conf.file.path, conf.config, ctx, confs));
             state = new State(ctx);
             state.applications.push(...applications);
         }
