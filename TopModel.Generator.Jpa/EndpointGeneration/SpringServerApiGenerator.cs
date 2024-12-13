@@ -26,6 +26,19 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
         return Config.ResolveVariables(Config.ApiGeneration!, tag) == ApiGeneration.Server;
     }
 
+    protected virtual IEnumerable<JavaAnnotation> GetClassAnnotations(ModelFile file)
+    {
+        if (Config.GeneratedHint)
+        {
+            yield return Config.GeneratedAnnotation;
+        }
+    }
+
+    protected virtual string GetClassName(string fileName)
+    {
+        return $"{fileName.ToPascalCase()}Controller";
+    }
+
     protected override string GetFilePath(ModelFile file, string tag)
     {
         return Path.Combine(Config.GetApiPath(file, tag), $"{GetClassName(file.Options.Endpoints.FileName)}.java");
@@ -55,19 +68,6 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
         }
 
         fw.WriteLine("}");
-    }
-
-    protected virtual IEnumerable<JavaAnnotation> GetClassAnnotations(ModelFile file)
-    {
-        if (Config.GeneratedHint)
-        {
-            yield return Config.GeneratedAnnotation;
-        }
-    }
-
-    protected virtual string GetClassName(string fileName)
-    {
-        return $"{fileName.ToPascalCase()}Controller";
     }
 
     private void AddImports(IEnumerable<Endpoint> endpoints, JavaWriter fw, string tag)

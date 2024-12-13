@@ -7,9 +7,8 @@ namespace TopModel.Generator.Jpa;
 /// </summary>
 public class JdbcModelPropertyGenerator(JpaConfig config, IEnumerable<Class> classes, Dictionary<string, string> newableTypes) : JpaModelPropertyGenerator(config, classes, newableTypes)
 {
-    private readonly JpaConfig _config = config;
-
     private readonly IEnumerable<Class> _classes = classes;
+    private readonly JpaConfig _config = config;
 
     private JavaAnnotation IdAnnotation => new JavaAnnotation("Id", "org.springframework.data.annotation.Id");
 
