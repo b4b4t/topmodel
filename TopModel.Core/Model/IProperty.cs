@@ -64,9 +64,7 @@ public interface IProperty
             var sqlName = prop switch
             {
                 AssociationProperty or AliasProperty { Property: AssociationProperty } => apPkTrigram != null ? apPk?.SqlName.Replace($"{apPkTrigram}_", string.Empty) : apPk?.SqlName,
-                { Class.Extends: not null, PrimaryKey: true } when Parent.PreservePropertyCasing => prop.Name.Replace(prop.Class.Name, string.Empty),
                 { Class.Extends: not null, PrimaryKey: true } => prop.Name.Replace(prop.Class.Name, string.Empty).ToConstantCase(),
-                _ when Parent.PreservePropertyCasing => prop.Name,
                 _ => prop.Name.ToConstantCase()
             };
 
