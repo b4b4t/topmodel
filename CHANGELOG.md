@@ -8,6 +8,10 @@ Changelogs des modules :
 - [`sql`](./TopModel.Generator.Sql/CHANGELOG.md)
 - [`translation`](./TopModel.Generator.Translation/CHANGELOG.md)
 
+## 2.3.1
+
+- [`2d4e6e0`](https://github.com/klee-contrib/topmodel/commit/2d4e6e0198245ef34a5f3287ea0357d3979f7544) - [Core] Fix calcul 'Association.NameCamel'
+
 ## 2.3.0
 
 - [`d51c93a`](https://github.com/klee-contrib/topmodel/commit/d51c93a867dbcb5bf9b9d79c816f0ad2bfc0b3a6) - `className` sur association (fix [#374](https://github.com/klee-contrib/topmodel/issues/374))
