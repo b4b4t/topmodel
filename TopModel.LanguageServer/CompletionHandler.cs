@@ -1,18 +1,11 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+﻿using NJsonSchema;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using TopModel.Core;
 using TopModel.Core.FileModel;
-using System.Reflection;
-using System.Text;
-using NJsonSchema;
-using NJsonSchema.Validation;
-using TopModel.Utils;
-using YamlDotNet.Core;
-using YamlDotNet.Core.Events;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
+
 namespace TopModel.LanguageServer;
 
 public class CompletionHandler : CompletionHandlerBase
@@ -596,20 +589,6 @@ public class CompletionHandler : CompletionHandlerBase
         return GetObjectRange(text, start);
     }
 
-    private string[] GetYaml(CompletionParams request)
-    {
-        var text = _fileCache.GetFile(request.TextDocument.Uri.GetFileSystemPath());
-        var start = request.Position.Line;
-        var currentLine = text.ElementAtOrDefault(request.Position.Line) ?? string.Empty;
-        while (!currentLine.StartsWith("---") && start > 0)
-        {
-            start--;
-            currentLine = text.ElementAtOrDefault(start) ?? string.Empty;
-        }
-
-        return text[start..request.Position.Line];
-    }
-
     private (string Object, int Line) GetRootObject(CompletionParams request)
     {
         var text = _fileCache.GetFile(request.TextDocument.Uri.GetFileSystemPath());
@@ -662,5 +641,19 @@ public class CompletionHandler : CompletionHandlerBase
         }
 
         return 0;
+    }
+
+    private string[] GetYaml(CompletionParams request)
+    {
+        var text = _fileCache.GetFile(request.TextDocument.Uri.GetFileSystemPath());
+        var start = request.Position.Line;
+        var currentLine = text.ElementAtOrDefault(request.Position.Line) ?? string.Empty;
+        while (!currentLine.StartsWith("---") && start > 0)
+        {
+            start--;
+            currentLine = text.ElementAtOrDefault(start) ?? string.Empty;
+        }
+
+        return text[start..request.Position.Line];
     }
 }

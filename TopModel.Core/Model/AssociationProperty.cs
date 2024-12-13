@@ -137,7 +137,7 @@ public class AssociationProperty : IProperty
 
             if (Type == AssociationType.ManyToOne || Type == AssociationType.OneToOne)
             {
-                if (Association.Extends == null || !Association.PrimaryKey.Any() || ClassName != null)
+                if (name.Length != 0)
                 {
                     name.Append(Property?.NameCamel.ToFirstUpper());
                 }
