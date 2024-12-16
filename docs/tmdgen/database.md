@@ -96,10 +96,11 @@ database:
       - geography_columns
     source:
       host: localhost
-      port: 5432
+      port: "5432"
       dbName: demo
       schema: demo
       user: demo
+      dbType: postgresql
 ```
 
 ## Connexion à la base de données
