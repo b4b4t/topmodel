@@ -309,7 +309,7 @@ public abstract class DatabaseTmdGenerator : ModelGenerator, IDisposable
         {
             var regularProperties = group.Where(p => !foreignConstraints?.Any(f => f.ColumnName == p.ColumnName) ?? true);
             var trigram = regularProperties.FirstOrDefault()?.ColumnName.Split('_').First();
-            if (trigram == null || !regularProperties.All(p => p.ColumnName.StartsWith(trigram)) || regularProperties.Count() <= 1)
+            if (trigram == null || !regularProperties.All(p => p.ColumnName.StartsWith(trigram)) || regularProperties.Any(p => p.ColumnName == trigram) || regularProperties.Count() <= 1)
             {
                 trigram = string.Empty;
             }
@@ -496,7 +496,8 @@ public abstract class DatabaseTmdGenerator : ModelGenerator, IDisposable
             foreach (var file in group.OrderBy(f => f.Name))
             {
                 var mainClass = file.Classes.OrderByDescending(cl => cl.Dependencies.Count + _classes.SelectMany(c => c.Value.Dependencies).Where(c => c == cl).Count()).First();
-                file.Name = (indice < 10 ? "0" : string.Empty) + (indice++) + "_" + mainClass.Name;
+                file.Name = (indice < 10 ? "0" : string.Empty) + indice++ + "_" + mainClass.Name;
+                file.Path = Path.Combine(file.Module!, file.Name);
             }
         }
     }
