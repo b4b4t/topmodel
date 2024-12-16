@@ -1,3 +1,7 @@
+## 1.1.6
+
+- [`f3e4479`](https://github.com/klee-contrib/topmodel/commit/f3e447955bdb11c30deb6c3d55fa51bb0b3890f1) - [JSResourceGen] Fix génération libellés de classes avec le même nom qu'un sous module (...)
+
 ## 1.1.5
 
 - [`4037be2`]([Core/JS] Fix "strictIfUppercase" manquant sur camel/pascal case des noms de propriétés) - [Core/JS] Fix "strictIfUppercase" manquant sur camel/pascal case des noms de propriétés
