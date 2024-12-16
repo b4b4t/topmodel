@@ -522,7 +522,7 @@ public abstract class DatabaseTmdGenerator : ModelGenerator, IDisposable
             var fileName = Path.Combine(rootPath, file.Module!, file.Name + ".tmd");
             yield return fileName;
 
-            using var tmdFileWriter = new TmdWriter(rootPath, file!, _logger, ModelRoot);
+            using var tmdFileWriter = new TmdWriter(fileName, file!, _logger, ModelRoot);
         }
     }
 }
