@@ -129,9 +129,12 @@ public class JavascriptResourceGenerator : TranslationGeneratorBase<JavascriptCo
         return Config.ResourceMode == ResourceMode.JS ? name : $@"""{name}""";
     }
 
-    private void WriteClasseNode(FileWriter fw, IGrouping<IPropertyContainer, IProperty> container, bool isComment, bool isLast, string lang, int indentLevel)
+    private void WriteClasseNode(FileWriter fw, IGrouping<IPropertyContainer, IProperty> container, bool isComment, bool isLast, string lang, int indentLevel, bool onlyProperties = false)
     {
-        fw.WriteLine(indentLevel, $"{Quote(container.Key.NameCamel)}: {{");
+        if (!onlyProperties)
+        {
+            fw.WriteLine(indentLevel, $"{Quote(container.Key.NameCamel)}: {{");
+        }
 
         var i = 1;
         if (Config.TranslateProperties == true)
@@ -149,7 +152,7 @@ public class JavascriptResourceGenerator : TranslationGeneratorBase<JavascriptCo
 
                 fw.Write(indentLevel + 1, $"{Quote(property.NameCamel)}: ");
                 fw.Write($@"""{translation}""");
-                fw.WriteLine(container.Count() == i++ && !(Config.TranslateReferences == true && container.Key is Class { DefaultProperty: not null, Enum: true } && ((container.Key as Class)?.Values.Any() ?? false)) ? string.Empty : ",");
+                fw.WriteLine(container.Count() == i++ && !onlyProperties && !(Config.TranslateReferences == true && container.Key is Class { DefaultProperty: not null, Enum: true } && ((container.Key as Class)?.Values.Any() ?? false)) ? string.Empty : ",");
             }
         }
 
@@ -167,8 +170,11 @@ public class JavascriptResourceGenerator : TranslationGeneratorBase<JavascriptCo
             fw.WriteLine(indentLevel + 1, "}");
         }
 
-        fw.Write(indentLevel, "}");
-        fw.WriteLine(!isLast ? "," : string.Empty);
+        if (!onlyProperties)
+        {
+            fw.Write(indentLevel, "}");
+            fw.WriteLine(!isLast ? "," : string.Empty);
+        }
     }
 
     private void WriteSubModule(FileWriter fw, string lang, IEnumerable<IProperty> properties, bool isComment, int level)
@@ -177,13 +183,29 @@ public class JavascriptResourceGenerator : TranslationGeneratorBase<JavascriptCo
         var modules = classes
             .GroupBy(c => c.Key.Namespace.Module.Split('.').Skip(level).ElementAtOrDefault(0));
         var u = 1;
+
+        var mainModuleClasses = modules.Where(c => c.Key == null).SelectMany(c => c.Select(p => p.Key.NameCamel)).ToHashSet();
+        var extraSubModuleProperties = new Dictionary<string, IGrouping<IPropertyContainer, IProperty>>();
+
+        if (mainModuleClasses.Count > 0)
+        {
+            var keys = modules.Select(m => m.Key!).Where(m => m != null).ToList();
+            foreach (var key in keys)
+            {
+                if (mainModuleClasses.Contains(key))
+                {
+                    extraSubModuleProperties.Add(key, modules.Where(m => m.Key == null).SelectMany(p => p.Where(c => c.Key.NameCamel == key)).Single());
+                }
+            }
+        }
+
         foreach (var submodule in modules.OrderBy(m => m.Key, StringComparer.Ordinal))
         {
             var isLast = u++ == modules.Count();
             if (submodule.Key == null)
             {
                 var i = 1;
-                foreach (var container in submodule.OrderBy(c => c.Key.NameCamel))
+                foreach (var container in submodule.Where(c => !extraSubModuleProperties.ContainsKey(c.Key.NameCamel)).OrderBy(c => c.Key.NameCamel))
                 {
                     WriteClasseNode(fw, container, isComment, classes.Count() == i++ && isLast, lang, level);
                 }
@@ -191,6 +213,12 @@ public class JavascriptResourceGenerator : TranslationGeneratorBase<JavascriptCo
             else
             {
                 fw.WriteLine(level, $@"{Quote(submodule.Key.Split('.').First().ToCamelCase())}: {{");
+
+                if (extraSubModuleProperties.TryGetValue(submodule.Key, out var container))
+                {
+                    WriteClasseNode(fw, container, isComment, false, lang, level, onlyProperties: true);
+                }
+
                 WriteSubModule(fw, lang, submodule.SelectMany(m => m), isComment, level + 1);
                 if (isLast)
                 {
