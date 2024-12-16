@@ -2,7 +2,7 @@
 # ATTENTION CE FICHIER EST GENERE AUTOMATIQUEMENT !
 #
 
-version: 1.8.0
+version: 1.8.2
 generatedFiles:
   - ./Petstore/Model.tmd
   - ./Petstore/Pet.tmd
