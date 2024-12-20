@@ -286,6 +286,7 @@ public abstract class DatabaseTmdGenerator : ModelGenerator, IDisposable
                 if (mainClass.Value != null)
                 {
                     mainClass.Value.File!.Module = moduleName;
+                    mainClass.Value.File!.Tags = _config.Tags.Concat(module.Tags ?? []).ToList();
                 }
             }
         }
