@@ -1,3 +1,7 @@
+## 1.1.2
+
+- [`75ba587`](https://github.com/klee-contrib/topmodel/commit/75ba58725fcf8c3e0abb495bf60cc0d2c68ca3fa) - [C#] Ajout génération usings de converters dans les mappers
+
 ## 1.1.1
 
 - [`c1ec016`](https://github.com/klee-contrib/topmodel/commit/c1ec01639dccc17ece05136ffe85ce1618d925fb) - [C# Server API] Fix ? et = null en trop pour bodyparam: true

@@ -8,6 +8,10 @@ Changelogs des modules :
 - [`sql`](./TopModel.Generator.Sql/CHANGELOG.md)
 - [`translation`](./TopModel.Generator.Translation/CHANGELOG.md)
 
+## 2.3.3
+
+- [`75ba587`](https://github.com/klee-contrib/topmodel/commit/75ba58725fcf8c3e0abb495bf60cc0d2c68ca3fa) - Support pour évolution du générateur C#.
+
 ## 2.3.2
 
 - [`f647621`](https://github.com/klee-contrib/topmodel/commit/f64762148497a86e171fd641bdfb8bc7f2ca237d) - [Core] preservePropertyCasing sans impact sur SqlName
