@@ -114,6 +114,14 @@
                     "type": "string",
                     "description": "Nom d'une classe devant faire partie du module"
                   }
+                },
+                "tags": {
+                  "type": "array",
+                  "description": "Tags supplémentaires à ajouter aux classes de ce module.",
+                  "items": {
+                    "type": "string",
+                    "description": "Nom du tag."
+                  }
                 }
               }
             }
