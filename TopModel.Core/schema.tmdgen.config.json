@@ -91,6 +91,14 @@
               "description": "Tag à ajouter aux fichiers générés"
             }
           },
+          "classNameOverrides": {
+            "type": "object",
+            "description": "Surcharge de nom de classes à générer. N'a pas d'impact sur le nom SQL de la classe.",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Surcharge à utiliser."
+            }
+          },
           "modules": {
             "type": "array",
             "description": "Liste des modules et des classes qui devront en faire partie",
@@ -157,7 +165,7 @@
             "type": "object",
             "description": "Informations de connexion à la base de données",
             "additionalProperties": false,
-            "required": ["dbType"],
+            "required": [ "dbType" ],
             "properties": {
               "host": {
                 "type": "string",
