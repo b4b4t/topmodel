@@ -497,7 +497,7 @@ public abstract class DatabaseTmdGenerator : ModelGenerator, IDisposable
             {
                 var mainClass = file.Classes.OrderByDescending(cl => cl.Dependencies.Count + _classes.SelectMany(c => c.Value.Dependencies).Where(c => c == cl).Count()).First();
                 file.Name = (indice < 10 ? "0" : string.Empty) + indice++ + "_" + mainClass.Name;
-                file.Path = Path.Combine(file.Module!, file.Name);
+                file.Path = Path.Combine(_config.OutputDirectory, file.Module!, file.Name);
             }
         }
     }
@@ -519,8 +519,7 @@ public abstract class DatabaseTmdGenerator : ModelGenerator, IDisposable
     {
         foreach (var file in Files)
         {
-            var rootPath = Path.Combine(ModelRoot, _config.OutputDirectory);
-            var fileName = Path.Combine(rootPath, file.Module!, file.Name + ".tmd");
+            var fileName = Path.Combine(ModelRoot, $"{file.Path}.tmd");
             yield return fileName;
 
             using var tmdFileWriter = new TmdWriter(fileName, file!, _logger, ModelRoot);
