@@ -81,6 +81,16 @@ public class MapperGenerator : MapperGeneratorBase<CsharpConfig>
             }
         }
 
+        foreach (var mapping in fromMappers.SelectMany(fm => fm.Mapper.ClassParams.Select(c => c.Mappings)))
+        {
+            usings.AddRange(mapping.SelectMany(m => Config.GetConverterImports(m.Value.Domain, m.Key.Domain)));
+        }
+
+        foreach (var mapping in toMappers.Select(fm => fm.Mapper.Mappings))
+        {
+            usings.AddRange(mapping.SelectMany(m => Config.GetConverterImports(m.Key.Domain, m.Value.Domain)));
+        }
+
         if (usings.Any(@using => !ns.Contains(@using)))
         {
             w.WriteUsings(usings.Where(@using => !ns.Contains(@using)).Distinct().ToArray());

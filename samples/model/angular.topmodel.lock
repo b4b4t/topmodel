@@ -4,7 +4,7 @@
 
 version: 2.3.2
 custom:
-  ../../../TopModel.Generator.Javascript: 2532588a5ca4f3312ebc30f105cc84fc
+  ../../../TopModel.Generator.Javascript: f8985584a4f97c1abc53c5f662cff859
 generatedFiles:
   - ../generators/angular/src/appgenerated/api/securite/profil/profil.service.ts
   - ../generators/angular/src/appgenerated/api/securite/utilisateur/utilisateur.service.ts
