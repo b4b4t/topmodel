@@ -217,6 +217,25 @@ public abstract class GeneratorConfigBase
         }
     }
 
+    public IEnumerable<string> GetConverterImports(Domain? fromDomain, Domain? toDomain)
+    {
+        if (fromDomain != null && toDomain != null && fromDomain != toDomain)
+        {
+            var converter = GetConverter(fromDomain, toDomain);
+            if (converter != null)
+            {
+                var imports = GetImplementation(converter)?.Imports;
+                if (imports != null)
+                {
+                    foreach (var import in imports)
+                    {
+                        yield return import;
+                    }
+                }
+            }
+        }
+    }
+
     public string GetEnumType(IProperty fp, bool isPrimaryKeyDef = false)
     {
         var op = fp switch
