@@ -14,6 +14,8 @@ public class DatabaseConfig
 
     public List<string> ExtractValues { get; set; } = [];
 
+    public Dictionary<string, string> ClassNameOverrides { get; set; } = [];
+
     public List<ModuleConfig> Modules { get; set; } = [];
 
     public string ConnectionString => Source.DbType switch

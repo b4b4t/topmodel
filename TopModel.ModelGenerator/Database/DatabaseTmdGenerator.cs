@@ -397,6 +397,11 @@ public abstract class DatabaseTmdGenerator : ModelGenerator, IDisposable
                 className = group.Key;
             }
 
+            if (_config.ClassNameOverrides.TryGetValue(className, out var classNameOverride))
+            {
+                className = classNameOverride;
+            }
+
             _classes.Add(group.Key, new TmdClass() { Name = className, SqlName = group.Key });
         }
     }
