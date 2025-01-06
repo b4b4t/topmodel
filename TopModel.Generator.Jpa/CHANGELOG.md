@@ -1,3 +1,7 @@
+## 1.2.2
+
+- [90a2c](https://github.com/klee-contrib/topmodel/commit/90a2c757fd7580dddd0bce938374db702db853a2) [JPA] Fix génération séquence
+
 ## 1.2.0
 
 - [4e3b6b](https://github.com/klee-contrib/topmodel/commit/4e3b6b7072937a40aa0717b585c0bf231908d5e7) [JPA] Le spring client doit retourner un ResponseEntity (pour gérer les différents codes Http)
