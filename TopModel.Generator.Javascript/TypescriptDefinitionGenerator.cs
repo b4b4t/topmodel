@@ -38,7 +38,7 @@ public class TypescriptDefinitionGenerator : ClassGeneratorBase<JavascriptConfig
 
         if (Config.EntityMode == EntityMode.TYPED)
         {
-            fw.WriteLine($"import {{{string.Join(", ", GetFocusStoresImports(fileName, classe, tag).OrderBy(x => x))}}} from \"{Config.EntityTypesPath}\";");
+            fw.WriteLine($"import {{{string.Join(", ", GetFocusStoresImports(fileName, classe, tag).OrderBy(x => x))}}} from \"{Config.GetRelativePath(Config.EntityTypesPath, fileName)}\";");
         }
 
         if ((Config.EntityMode == EntityMode.TYPED || Config.EntityMode == EntityMode.UNTYPED) && classe.Properties.Any(c => c.Domain is not null && !Config.IsListComposition(c)))
