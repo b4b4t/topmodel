@@ -24,6 +24,8 @@ public class JpaModelPropertyGenerator
 
     protected JavaAnnotation NotNullAnnotation => new JavaAnnotation("NotNull", $"{JavaxOrJakarta}.validation.constraints.NotNull");
 
+    protected JavaAnnotation ValidAnnotation => new JavaAnnotation("Valid", $"{JavaxOrJakarta}.validation.Valid");
+
     private JavaAnnotation EnumAnnotation =>
         new JavaAnnotation("Enumerated", $"{JavaxOrJakarta}.persistence.Enumerated")
             .AddAttribute("value", "EnumType.STRING", $"{JavaxOrJakarta}.persistence.EnumType");
@@ -199,6 +201,14 @@ public class JpaModelPropertyGenerator
             yield return GetConvertAnnotation(property, tag);
             yield return GetColumnAnnotation(property);
         }
+        else
+        {
+            yield return ValidAnnotation;
+            if (property.Required && !property.PrimaryKey)
+            {
+                yield return NotNullAnnotation;
+            }
+        }
 
         foreach (var a in GetDomainAnnotations(property, tag))
         {
@@ -231,7 +241,10 @@ public class JpaModelPropertyGenerator
 
         if (property.Property is CompositionProperty cp)
         {
-            GetAnnotations(cp, tag);
+            foreach (var a in GetAnnotations(cp, tag))
+            {
+                yield return a;
+            }
         }
 
         if (property.Required && !property.PrimaryKey && !property.Class.IsPersistent)

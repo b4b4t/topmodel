@@ -10,6 +10,7 @@ import java.util.List;
 
 import jakarta.annotation.Generated;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Valid;
 
 import topmodel.jpa.sample.demo.dtos.securite.utilisateur.UtilisateurItem;
 import topmodel.jpa.sample.demo.entities.securite.profil.Profil;
@@ -60,6 +61,8 @@ public class ProfilRead implements Serializable {
 	/**
 	 * Utilisateurs ayant ce profil.
 	 */
+	@Valid
+	@NotNull
 	private List<UtilisateurItem> utilisateurs;
 
 	/**
