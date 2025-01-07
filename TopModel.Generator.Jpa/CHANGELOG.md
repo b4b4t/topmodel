@@ -1,3 +1,8 @@
+## 1.2.3
+
+- [deeed](https://github.com/klee-contrib/topmodel/commit/deeed8d1703ee0009d642b681469f01a65abcabb) [JPA] annotation @NotNull non générée Fix #428
+
+
 ## 1.2.2
 
 - [90a2c](https://github.com/klee-contrib/topmodel/commit/90a2c757fd7580dddd0bce938374db702db853a2) [JPA] Fix génération séquence
