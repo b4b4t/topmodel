@@ -135,19 +135,22 @@ public class JpaModelPropertyGenerator
         fw.WriteReturns(indentLevel, $"value of {{@link {property.Class.GetImport(_config, tag)}#{propertyName} {propertyName}}}");
         fw.WriteDocEnd(indentLevel);
         string getterName = GetGetterName(property);
-
-        fw.WriteLine(indentLevel, @$"public {propertyType} {getterName}() {{");
+        var method = new JavaMethod(propertyType, getterName)
+        {
+            Visibility = "public"
+        };
         var genericType = propertyType.Split('<').First();
         if (_newableTypes.TryGetValue(genericType, out var newableType) && property.Class.IsPersistent)
         {
-            fw.WriteLine(indentLevel + 1, $"if(this.{propertyName} == null) {{");
             fw.AddImport($"java.util.{newableType}");
-            fw.WriteLine(indentLevel + 2, $"this.{propertyName} = new {newableType}<>();");
-            fw.WriteLine(indentLevel + 1, $"}}");
+            method
+                .AddBodyLine($"if(this.{propertyName} == null) {{")
+                .AddBodyLine(1, $"this.{propertyName} = new {newableType}<>();")
+                .AddBodyLine($"}}");
         }
 
-        fw.WriteLine(indentLevel + 1, @$"return this.{propertyName};");
-        fw.WriteLine(indentLevel, "}");
+        method.AddBodyLine(@$"return this.{propertyName};");
+        fw.Write(indentLevel, method);
     }
 
     public virtual void WriteProperties(JavaWriter fw, Class classe, string tag)
@@ -189,9 +192,10 @@ public class JpaModelPropertyGenerator
         fw.WriteDocStart(indentLevel, $"Set the value of {{@link {property.Class.GetImport(_config, tag)}#{propertyName} {propertyName}}}");
         fw.WriteLine(indentLevel, $" * @param {propertyName} value to set");
         fw.WriteDocEnd(indentLevel);
-        fw.WriteLine(indentLevel, @$"public void {GetSetterName(property)}({GetPropertyType(property)} {propertyName}) {{");
-        fw.WriteLine(indentLevel + 1, @$"this.{propertyName} = {propertyName};");
-        fw.WriteLine(indentLevel, "}");
+        var method = new JavaMethod("void", GetSetterName(property)) { Visibility = "public" }
+            .AddParameter(new JavaMethodParameter(GetPropertyType(property), propertyName))
+            .AddBodyLine(@$"this.{propertyName} = {propertyName};");
+        fw.Write(indentLevel, method);
     }
 
     protected virtual IEnumerable<JavaAnnotation> GetAnnotations(CompositionProperty property, string tag)

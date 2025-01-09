@@ -103,7 +103,13 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
             returnType = Config.GetType(endpoint.Returns);
         }
 
+        var method = new JavaMethod("org.springframework.http.ResponseEntity", @$"ResponseEntity<{returnType}>", endpoint.NameCamel);
         {
+            foreach (var annotation in Config.GetDecoratorAnnotations(endpoint, tag))
+            {
+                fw.WriteLine(1, $"{(annotation.StartsWith("@") ? string.Empty : "@")}{annotation}");
+            }
+
             var accept = string.Empty;
             var exchangeAnnotation = new JavaAnnotation($"{endpoint.Method.ToPascalCase(true)}Exchange", $"org.springframework.web.service.annotation.{endpoint.Method.ToPascalCase(true)}Exchange")
                 .AddAttribute("value", $@"""{endpoint.Route}""");
@@ -118,15 +124,9 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
                 exchangeAnnotation.AddAttribute("contentType", string.Join(", ", endpoint.Params.Where(p => p.Domain?.MediaType != null).Select(p => $@"""{p.Domain.MediaType}""").First()));
             }
 
-            foreach (var annotation in Config.GetDecoratorAnnotations(endpoint, tag))
-            {
-                fw.WriteLine(1, $"{(annotation.StartsWith("@") ? string.Empty : "@")}{annotation}");
-            }
-
-            fw.WriteLine(1, exchangeAnnotation);
+            method.AddAnnotation(exchangeAnnotation);
         }
 
-        var signature = new JavaMethodSignature("org.springframework.http.ResponseEntity", @$"ResponseEntity<{returnType}>", endpoint.NameCamel);
         foreach (var param in endpoint.GetRouteParams())
         {
             var pathParamAnnotation = new JavaAnnotation("PathVariable", "org.springframework.web.bind.annotation.PathVariable")
@@ -135,7 +135,7 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
             var parameter = new JavaMethodParameter(Config.GetType(param), param.GetParamName())
                 .AddAnnotation(pathParamAnnotation)
                 .AddAnnotations(Config.GetDomainJavaAnnotations(param, tag));
-            signature.AddParameter(parameter);
+            method.AddParameter(parameter);
         }
 
         foreach (var param in endpoint.GetQueryParams())
@@ -146,7 +146,7 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
             var parameter = new JavaMethodParameter(Config.GetType(param), param.GetParamName())
                 .AddAnnotation(requestParamAnnotation)
                 .AddAnnotations(Config.GetDomainJavaAnnotations(param, tag));
-            signature.AddParameter(parameter);
+            method.AddParameter(parameter);
         }
 
         if (endpoint.IsMultipart)
@@ -162,7 +162,7 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
                     var parameter = new JavaMethodParameter("org.springframework.util.MultiValueMap", "MultiValueMap<K, V>", param.GetParamName())
                         .AddAnnotation(requestPartAnnotation)
                         .AddAnnotations(Config.GetDomainJavaAnnotations(param, tag));
-                    signature.AddParameter(parameter)
+                    method.AddParameter(parameter)
                         .AddGenericType("K")
                         .AddGenericType("V");
                 }
@@ -174,7 +174,7 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
 
                     var parameter = new JavaMethodParameter(Config.GetType(param), param.GetParamName())
                         .AddAnnotation(requestPartAnnotation);
-                    signature.AddParameter(parameter);
+                    method.AddParameter(parameter);
                 }
             }
         }
@@ -188,11 +188,11 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
                 var parameter = new JavaMethodParameter(Config.GetType(bodyParam), bodyParam.GetParamName())
                     .AddAnnotation(requestBodyAnnotation)
                     .AddAnnotation(validAnnotation);
-                signature.AddParameter(parameter);
+                method.AddParameter(parameter);
             }
         }
 
-        fw.WriteLine(1, signature, false);
+        fw.Write(1, method);
     }
 
     private void WriteImports(IEnumerable<Endpoint> endpoints, JavaWriter fw, string tag)
