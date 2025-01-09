@@ -65,12 +65,23 @@ public class JavaWriter : IDisposable
     /// Ecrit la signature de méthode avec le niveau indenté.
     /// </summary>
     /// <param name="indentationLevel">Niveau d'indentation.</param>
-    /// <param name="javaMethodSignature">Valeur à écrire dans le flux.</param>
-    /// <param name="hasBody">Si la méthode déclarée a un body.</param>
-    public void WriteLine(int indentationLevel, JavaMethodSignature javaMethodSignature, bool hasBody)
+    /// <param name="javaMethod">Valeur à écrire dans le flux.</param>
+    public void Write(int indentationLevel, JavaMethod javaMethod)
     {
-        AddImports(javaMethodSignature.Imports);
-        _toWrite.Add(new WriterLine() { Line = @$"{javaMethodSignature}{(hasBody ? " {" : ";")}", Indent = indentationLevel });
+        AddImports(javaMethod.Imports);
+        WriteAnnotations(indentationLevel, javaMethod.Annotations);
+
+        var hasBody = javaMethod.Body.Count() > 0;
+        _toWrite.Add(new WriterLine() { Line = @$"{javaMethod.Signature}{(hasBody ? " {" : ";")}", Indent = indentationLevel });
+        foreach (var bodyLine in javaMethod.Body)
+        {
+            _toWrite.Add(new WriterLine() { Line = bodyLine.Line, Indent = bodyLine.Indent + indentationLevel + 1 });
+        }
+
+        if (hasBody)
+        {
+            _toWrite.Add(new WriterLine() { Line = "}", Indent = indentationLevel });
+        }
     }
 
     /// <summary>
