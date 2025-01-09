@@ -51,7 +51,7 @@ public abstract class JavaClassGeneratorBase : ClassGeneratorBase<JpaConfig>
         fw.WriteDocEnd(0);
         if (Config.GeneratedHint)
         {
-            fw.WriteAnnotation(0, Config.GeneratedAnnotation);
+            fw.WriteLine(0, Config.GeneratedAnnotation);
         }
 
         fw.AddImports(Config.GetDecoratorImports(classe, tag).ToList());

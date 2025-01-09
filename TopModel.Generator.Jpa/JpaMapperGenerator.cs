@@ -62,7 +62,7 @@ public class JpaMapperGenerator : MapperGeneratorBase<JpaConfig>
         fw.WriteLine();
         if (Config.GeneratedHint)
         {
-            fw.WriteAnnotation(0, Config.GeneratedAnnotation);
+            fw.WriteLine(0, Config.GeneratedAnnotation);
         }
 
         fw.WriteLine($@"public class {Config.GetMapperName(mapperNs, modelPath)} {{");

@@ -319,6 +319,14 @@ public class JpaConfig : GeneratorConfigBase
         return ResolveVariables(modelPath, tag, module: ns.Module).ToPackageName();
     }
 
+    public IEnumerable<JavaAnnotation> GetDomainJavaAnnotations(IProperty property, string tag)
+    {
+        return GetDomainAnnotationsAndImports(property, tag).Select(a =>
+        {
+            return new JavaAnnotation(a.Annotation, a.Imports);
+        });
+    }
+
     protected override string GetConstEnumName(string className, string refName)
     {
         return $"{className.ToPascalCase()}.Values.{refName}";

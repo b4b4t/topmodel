@@ -308,7 +308,7 @@ public class SpringDataFlowGenerator : GeneratorBase<JpaConfig>
         var javaxOrJakarta = Config.PersistenceMode.ToString().ToLower();
         if (Config.GeneratedHint)
         {
-            fw.WriteAnnotation(0, Config.GeneratedAnnotation);
+            fw.WriteLine(0, Config.GeneratedAnnotation);
         }
 
         fw.WriteClassDeclaration($"{dataFlow.Name}Flow", null);
@@ -358,7 +358,7 @@ public class SpringDataFlowGenerator : GeneratorBase<JpaConfig>
         var javaxOrJakarta = Config.PersistenceMode.ToString().ToLower();
         if (Config.GeneratedHint)
         {
-            fw.WriteAnnotation(0, Config.GeneratedAnnotation);
+            fw.WriteLine(0, Config.GeneratedAnnotation);
         }
 
         fw.WriteLine(@$"@Import({{{string.Join(", ", flows.Select(f => $@"{f.Name.ToPascalCase()}Flow.class"))}}})");
