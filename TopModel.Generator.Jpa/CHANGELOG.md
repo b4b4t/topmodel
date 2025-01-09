@@ -1,3 +1,7 @@
+## 1.2.4
+
+- [afbcb](https://github.com/klee-contrib/topmodel/commit/afbcbd1801f334cf660dfceba430ec0090eb8bbd) [JPA] Amélioration typage méthode, annotation et paramètre Fix #429, #430
+
 ## 1.2.3
 
 - [deeed](https://github.com/klee-contrib/topmodel/commit/deeed8d1703ee0009d642b681469f01a65abcabb) [JPA] annotation @NotNull non générée Fix #428
