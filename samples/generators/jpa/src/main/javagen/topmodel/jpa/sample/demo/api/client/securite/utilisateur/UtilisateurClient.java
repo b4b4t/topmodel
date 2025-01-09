@@ -37,7 +37,7 @@ public interface UtilisateurClient {
 	 * @return Utilisateur sauvegardé
 	 */
 	@PreAuthorize("hasRole('CREATE')")
-	@PostExchange(value = "/")
+	@PostExchange("/")
 	ResponseEntity<UtilisateurRead> addUtilisateur(@RequestBody @Valid UtilisateurWrite utilisateur);
 
 	/**
@@ -45,7 +45,7 @@ public interface UtilisateurClient {
 	 * @param utiId Id de l'utilisateur
 	 */
 	@PreAuthorize("hasRole('DELETE')")
-	@DeleteExchange(value = "/{utiId}")
+	@DeleteExchange("/{utiId}")
 	ResponseEntity<Void> deleteUtilisateur(@PathVariable("utiId") Integer utiId);
 
 	/**
@@ -54,7 +54,7 @@ public interface UtilisateurClient {
 	 * @return Le détail de l'utilisateur
 	 */
 	@PreAuthorize("hasRole('READ')")
-	@GetExchange(value = "/{utiId}")
+	@GetExchange("/{utiId}")
 	ResponseEntity<UtilisateurRead> getUtilisateur(@PathVariable("utiId") Integer utiId);
 
 	/**
@@ -70,7 +70,7 @@ public interface UtilisateurClient {
 	 * @return Utilisateurs matchant les critères
 	 */
 	@PreAuthorize("hasRole('READ')")
-	@GetExchange(value = "/")
+	@GetExchange("/")
 	ResponseEntity<List<UtilisateurItem>> searchUtilisateur(@RequestParam(value = "nom", required = true) String nom, @RequestParam(value = "prenom", required = true) String prenom, @RequestParam(value = "email", required = true) String email, @RequestParam(value = "dateNaissance", required = false) LocalDate dateNaissance, @RequestParam(value = "adresse", required = false) String adresse, @RequestParam(value = "actif", required = true) Boolean actif, @RequestParam(value = "profilId", required = true) Integer profilId, @RequestParam(value = "typeUtilisateurCode", required = true) TypeUtilisateurCode typeUtilisateurCode);
 
 	/**
@@ -80,6 +80,6 @@ public interface UtilisateurClient {
 	 * @return Utilisateur sauvegardé
 	 */
 	@PreAuthorize("hasRole('UPDATE')")
-	@PutExchange(value = "/{utiId}")
+	@PutExchange("/{utiId}")
 	ResponseEntity<UtilisateurRead> updateUtilisateur(@PathVariable("utiId") Integer utiId, @RequestBody @Valid UtilisateurWrite utilisateur);
 }

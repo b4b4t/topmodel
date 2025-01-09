@@ -43,7 +43,7 @@ public class JpaModelInterfaceGenerator : ClassGeneratorBase<JpaConfig>
 
         if (Config.GeneratedHint)
         {
-            fw.WriteAnnotation(0, Config.GeneratedAnnotation);
+            fw.WriteLine(0, Config.GeneratedAnnotation);
         }
 
         fw.WriteLine($"public interface {classe.NamePascal} {{");

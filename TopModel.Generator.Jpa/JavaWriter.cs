@@ -55,10 +55,22 @@ public class JavaWriter : IDisposable
     /// </summary>
     /// <param name="indentationLevel">Niveau d'indentation.</param>
     /// <param name="javaAnnotation">Valeur à écrire dans le flux.</param>
-    public void WriteAnnotation(int indentationLevel, JavaAnnotation javaAnnotation)
+    public void WriteLine(int indentationLevel, JavaAnnotation javaAnnotation)
     {
         AddImports(javaAnnotation.Imports);
         _toWrite.Add(new WriterLine() { Line = javaAnnotation.ToString(), Indent = indentationLevel });
+    }
+
+    /// <summary>
+    /// Ecrit la signature de méthode avec le niveau indenté.
+    /// </summary>
+    /// <param name="indentationLevel">Niveau d'indentation.</param>
+    /// <param name="javaMethodSignature">Valeur à écrire dans le flux.</param>
+    /// <param name="hasBody">Si la méthode déclarée a un body.</param>
+    public void WriteLine(int indentationLevel, JavaMethodSignature javaMethodSignature, bool hasBody)
+    {
+        AddImports(javaMethodSignature.Imports);
+        _toWrite.Add(new WriterLine() { Line = @$"{javaMethodSignature}{(hasBody ? " {" : ";")}", Indent = indentationLevel });
     }
 
     /// <summary>
@@ -70,26 +82,8 @@ public class JavaWriter : IDisposable
     {
         foreach (var annotation in javaAnnotations.DistinctBy(e => e.Name.Split('(').First()))
         {
-            WriteAnnotation(indentationLevel, annotation);
+            WriteLine(indentationLevel, annotation);
         }
-    }
-
-    /// <summary>
-    /// Ecrit un attribut de décoration.
-    /// </summary>
-    /// <param name="indentLevel">Indentation.</param>
-    /// <param name="attributeName">Nom de l'attribut.</param>
-    /// <param name="attributeParams">Paramètres.</param>
-    public void WriteAttribute(int indentLevel, string attributeName, params string[] attributeParams)
-    {
-        var aParams = string.Empty;
-
-        if (attributeParams.Any())
-        {
-            aParams = $@"({string.Join(", ", attributeParams)})";
-        }
-
-        WriteLine(indentLevel, $@"@{attributeName}{aParams}");
     }
 
     /// <summary>

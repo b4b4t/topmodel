@@ -41,14 +41,15 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
         fw.WriteLine();
         if (endpoints.First().ModelFile.Options.Endpoints.Prefix != null)
         {
-            fw.WriteLine($@"@HttpExchange(""{endpoints.First().ModelFile.Options.Endpoints.Prefix}"")");
-            fw.AddImport("org.springframework.web.service.annotation.HttpExchange");
+            var exchangeAnnotation = new JavaAnnotation("HttpExchange", "org.springframework.web.service.annotation.HttpExchange")
+                .AddAttribute($@"""{endpoints.First().ModelFile.Options.Endpoints.Prefix}""");
+            fw.WriteLine(0, exchangeAnnotation);
         }
 
         var javaxOrJakarta = Config.PersistenceMode.ToString().ToLower();
         if (Config.GeneratedHint)
         {
-            fw.WriteAnnotation(0, Config.GeneratedAnnotation);
+            fw.WriteLine(0, Config.GeneratedAnnotation);
         }
 
         fw.WriteLine($"public interface {className} {{");
@@ -104,15 +105,17 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
 
         {
             var accept = string.Empty;
+            var exchangeAnnotation = new JavaAnnotation($"{endpoint.Method.ToPascalCase(true)}Exchange", $"org.springframework.web.service.annotation.{endpoint.Method.ToPascalCase(true)}Exchange")
+                .AddAttribute("value", $@"""{endpoint.Route}""");
             if (endpoint.Returns != null && endpoint.Returns.Domain?.MediaType != null)
             {
-                accept = @$", accept = {{ ""{endpoint.Returns.Domain.MediaType}"" }}";
+                exchangeAnnotation.AddAttribute("accept", $@"{{ ""{endpoint.Returns.Domain.MediaType}"" }}");
             }
 
             var contentType = string.Empty;
             if (endpoint.Params.Any(p => p.Domain?.MediaType != null))
             {
-                contentType = @$", contentType = {string.Join(", ", endpoint.Params.Where(p => p.Domain?.MediaType != null).Select(p => $@"""{p.Domain.MediaType}""")).First()} ";
+                exchangeAnnotation.AddAttribute("contentType", string.Join(", ", endpoint.Params.Where(p => p.Domain?.MediaType != null).Select(p => $@"""{p.Domain.MediaType}""").First()));
             }
 
             foreach (var annotation in Config.GetDecoratorAnnotations(endpoint, tag))
@@ -120,48 +123,58 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
                 fw.WriteLine(1, $"{(annotation.StartsWith("@") ? string.Empty : "@")}{annotation}");
             }
 
-            fw.WriteLine(1, @$"@{endpoint.Method.ToPascalCase(true)}Exchange(value = ""{endpoint.Route}""{contentType}{accept})");
+            fw.WriteLine(1, exchangeAnnotation);
         }
 
-        var methodParams = new List<string>();
+        var signature = new JavaMethodSignature("org.springframework.http.ResponseEntity", @$"ResponseEntity<{returnType}>", endpoint.NameCamel);
         foreach (var param in endpoint.GetRouteParams())
         {
-            var pathParamAnnotation = @$"@PathVariable(""{param.GetParamName()}"")";
-
-            fw.AddImport("org.springframework.web.bind.annotation.PathVariable");
+            var pathParamAnnotation = new JavaAnnotation("PathVariable", "org.springframework.web.bind.annotation.PathVariable")
+                .AddAttribute("value", @$"""{param.GetParamName()}""");
             fw.AddImports(Config.GetDomainImports(param, tag));
-            var decoratorAnnotations = string.Join(' ', Config.GetDomainAnnotations(param, tag).Select(a => a.StartsWith("@") ? a : "@" + a));
-            methodParams.Add($"{pathParamAnnotation}{(decoratorAnnotations.Length > 0 ? $" {decoratorAnnotations}" : string.Empty)} {Config.GetType(param)} {param.GetParamName()}");
+            var parameter = new JavaMethodParameter(Config.GetType(param), param.GetParamName())
+                .AddAnnotation(pathParamAnnotation)
+                .AddAnnotations(Config.GetDomainJavaAnnotations(param, tag));
+            signature.AddParameter(parameter);
         }
 
         foreach (var param in endpoint.GetQueryParams())
         {
-            var ann = string.Empty;
-            ann += @$"@RequestParam(value = ""{param.GetParamName()}"", required = {param.Required.ToString().ToFirstLower()}) ";
-            fw.AddImport("org.springframework.web.bind.annotation.RequestParam");
-            fw.AddImports(Config.GetDomainImports(param, tag));
-            var decoratorAnnotations = string.Join(' ', Config.GetDomainAnnotations(param, tag).Select(a => a.StartsWith("@") ? a : "@" + a));
-            methodParams.Add($"{ann}{(decoratorAnnotations.Length > 0 ? $" {decoratorAnnotations}" : string.Empty)}{Config.GetType(param)} {param.GetParamName()}");
+            var requestParamAnnotation = new JavaAnnotation("RequestParam", "org.springframework.web.bind.annotation.RequestParam")
+                .AddAttribute("value", @$"""{param.GetParamName()}""")
+                .AddAttribute("required", param.Required.ToString().ToFirstLower());
+            var parameter = new JavaMethodParameter(Config.GetType(param), param.GetParamName())
+                .AddAnnotation(requestParamAnnotation)
+                .AddAnnotations(Config.GetDomainJavaAnnotations(param, tag));
+            signature.AddParameter(parameter);
         }
 
         if (endpoint.IsMultipart)
         {
             foreach (var param in endpoint.Params.Where(param => param is CompositionProperty || (param.Domain?.BodyParam ?? false) || (param.Domain?.IsMultipart ?? false)))
             {
-                var ann = string.Empty;
-
                 if (param is CompositionProperty cp)
                 {
-                    fw.AddImport("org.springframework.web.bind.annotation.RequestPart");
-                    fw.AddImport("org.springframework.util.MultiValueMap");
-                    ann += @$"@RequestPart ";
-                    methodParams.Add($"{ann}MultiValueMap<K, V> {param.GetParamName()}");
+                    var requestPartAnnotation = new JavaAnnotation("RequestPart", "org.springframework.web.bind.annotation.RequestPart")
+                        .AddAttribute("value", @$"""{param.GetParamName()}""")
+                        .AddAttribute("required", param.Required.ToString().ToFirstLower());
+
+                    var parameter = new JavaMethodParameter("org.springframework.util.MultiValueMap", "MultiValueMap<K, V>", param.GetParamName())
+                        .AddAnnotation(requestPartAnnotation)
+                        .AddAnnotations(Config.GetDomainJavaAnnotations(param, tag));
+                    signature.AddParameter(parameter)
+                        .AddGenericType("K")
+                        .AddGenericType("V");
                 }
                 else
                 {
-                    ann += @$"@RequestPart(value = ""{param.GetParamName()}"", required = {param.Required.ToString().ToFirstLower()}) ";
-                    fw.AddImport("org.springframework.web.bind.annotation.RequestPart");
-                    methodParams.Add($"{ann}{Config.GetType(param)} {param.GetParamName()}");
+                    var requestPartAnnotation = new JavaAnnotation("RequestPart", "org.springframework.web.bind.annotation.RequestPart")
+                        .AddAttribute("value", @$"""{param.Name}""")
+                        .AddAttribute("required", param.Required.ToString().ToFirstLower());
+
+                    var parameter = new JavaMethodParameter(Config.GetType(param), param.GetParamName())
+                        .AddAnnotation(requestPartAnnotation);
+                    signature.AddParameter(parameter);
                 }
             }
         }
@@ -170,21 +183,20 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
             var bodyParam = endpoint.GetJsonBodyParam();
             if (bodyParam != null)
             {
-                var ann = string.Empty;
-                ann += @$"@RequestBody @Valid ";
-                fw.AddImport("org.springframework.web.bind.annotation.RequestBody");
-                fw.AddImport(Config.PersistenceMode.ToString().ToLower() + ".validation.Valid");
-                methodParams.Add($"{ann}{Config.GetType(bodyParam)} {bodyParam.GetParamName()}");
+                var validAnnotation = new JavaAnnotation("Valid", $"{Config.JavaxOrJakarta}.validation.Valid");
+                var requestBodyAnnotation = new JavaAnnotation("RequestBody", "org.springframework.web.bind.annotation.RequestBody");
+                var parameter = new JavaMethodParameter(Config.GetType(bodyParam), bodyParam.GetParamName())
+                    .AddAnnotation(requestBodyAnnotation)
+                    .AddAnnotation(validAnnotation);
+                signature.AddParameter(parameter);
             }
         }
 
-        fw.AddImport("org.springframework.http.ResponseEntity");
-        fw.WriteLine(1, $"{(endpoint.IsMultipart ? "<K, V> " : string.Empty)}ResponseEntity<{returnType}> {endpoint.NameCamel}({string.Join(", ", methodParams)});");
+        fw.WriteLine(1, signature, false);
     }
 
     private void WriteImports(IEnumerable<Endpoint> endpoints, JavaWriter fw, string tag)
     {
-        fw.AddImports(endpoints.Select(e => $"org.springframework.web.service.annotation.{e.Method.ToPascalCase(true)}Exchange"));
         fw.AddImports(GetTypeImports(endpoints, tag));
         fw.AddImports(endpoints.SelectMany(e => Config.GetDecoratorImports(e, tag)));
     }
