@@ -52,6 +52,6 @@ public class JavaMethodSignature
 
     public override string ToString()
     {
-        return $@"{Visibility}{(GenericTypes.Count() > 0 ? $"{string.Join(", ", GenericTypes)}" : string.Empty)}{ReturnType} {Name}({string.Join(", ", Parameters)})";
+        return $@"{Visibility}{(GenericTypes.Count() > 0 ? $"<{string.Join(", ", GenericTypes)}> " : string.Empty)}{ReturnType} {Name}({string.Join(", ", Parameters)})";
     }
 }
