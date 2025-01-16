@@ -1,4 +1,5 @@
-﻿using TopModel.Core.FileModel;
+﻿using NuGet.Packaging;
+using TopModel.Core.FileModel;
 using TopModel.Utils;
 
 namespace TopModel.Core;
@@ -35,7 +36,7 @@ public class RegularProperty : IProperty
 
     public string Comment { get; set; }
 
-    public Dictionary<string, string> CustomProperties { get; } = [];
+    public Dictionary<string, string> CustomProperties { get; private set; } = [];
 
     public Class Class { get; set; }
 
@@ -74,7 +75,11 @@ public class RegularProperty : IProperty
             Location = Location,
             Name = Name,
             PrimaryKey = PrimaryKey,
-            Required = Required
+            Required = Required,
+            Readonly = Readonly,
+            Trigram = Trigram,
+            UseLegacyRoleName = UseLegacyRoleName,
+            CustomProperties = CustomProperties
         };
     }
 

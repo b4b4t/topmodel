@@ -66,7 +66,7 @@ public class AssociationProperty : IProperty
 
     public string? DefaultValue { get; set; }
 
-    public Dictionary<string, string> CustomProperties { get; } = [];
+    public Dictionary<string, string> CustomProperties { get; private set; } = [];
 
     public string Name
     {
@@ -194,7 +194,11 @@ public class AssociationProperty : IProperty
             Location = Location,
             Required = Required,
             Role = Role,
-            Type = Type
+            Type = Type,
+            Readonly = Readonly,
+            Trigram = Trigram,
+            UseLegacyRoleName = UseLegacyRoleName,
+            CustomProperties = CustomProperties
         };
     }
 
