@@ -110,7 +110,7 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
         }
 
         {
-            var mappingAnnotation = new JavaAnnotation($@"@{endpoint.Method.ToPascalCase(true)}Mapping(", imports: $"org.springframework.web.bind.annotation.{endpoint.Method.ToPascalCase(true)}Mapping")
+            var mappingAnnotation = new JavaAnnotation($@"@{endpoint.Method.ToPascalCase(true)}Mapping", imports: $"org.springframework.web.bind.annotation.{endpoint.Method.ToPascalCase(true)}Mapping")
                 .AddAttribute("path", $@"""{endpoint.Route}""");
             if (endpoint.Returns != null && endpoint.Returns.Domain?.MediaType != null)
             {
