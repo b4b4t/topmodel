@@ -2,9 +2,9 @@
 # ATTENTION CE FICHIER EST GENERE AUTOMATIQUEMENT !
 #
 
-version: 2.3.4
+version: 2.3.5
 custom:
-  ../../../TopModel.Generator.Jpa: f9f87829be3248f755298ebefbdf9701
+  ../../../TopModel.Generator.Jpa: c60dc7414a12c709cc5c73ae3c66ecbe
 generatedFiles:
   - ../generators/jpa/src/main/javagen/topmodel/jpa/sample/demo/api/client/securite/profil/ProfilClient.java
   - ../generators/jpa/src/main/javagen/topmodel/jpa/sample/demo/api/client/securite/utilisateur/UtilisateurClient.java
