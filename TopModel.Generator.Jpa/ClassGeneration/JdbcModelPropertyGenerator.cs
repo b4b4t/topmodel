@@ -10,11 +10,11 @@ public class JdbcModelPropertyGenerator(JpaConfig config, IEnumerable<Class> cla
     private readonly IEnumerable<Class> _classes = classes;
     private readonly JpaConfig _config = config;
 
-    private JavaAnnotation IdAnnotation => new JavaAnnotation("Id", "org.springframework.data.annotation.Id");
+    private JavaAnnotation IdAnnotation => new JavaAnnotation("Id", imports: "org.springframework.data.annotation.Id");
 
     public override JavaAnnotation GetColumnAnnotation(IProperty property)
     {
-        return new JavaAnnotation("Column", "org.springframework.data.relational.core.mapping.Column").AddAttribute("value", $@"""{property.SqlName.ToLower()}""");
+        return new JavaAnnotation("Column", imports: "org.springframework.data.relational.core.mapping.Column").AddAttribute("value", $@"""{property.SqlName.ToLower()}""");
     }
 
     public override string GetPropertyName(IProperty property)

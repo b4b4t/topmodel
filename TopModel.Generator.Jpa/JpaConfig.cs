@@ -68,7 +68,7 @@ public class JpaConfig : GeneratorConfigBase
 
     public string JavaxOrJakarta => PersistenceMode.ToString().ToLower();
 
-    public JavaAnnotation GeneratedAnnotation => new JavaAnnotation("Generated", $"{JavaxOrJakarta}.annotation.Generated")
+    public JavaAnnotation GeneratedAnnotation => new JavaAnnotation("Generated", imports: $"{JavaxOrJakarta}.annotation.Generated")
                 .AddAttribute("value", "\"TopModel : https://github.com/klee-contrib/topmodel\"");
 
     public override Dictionary<string, List<string>> TemplateAttributes => new()
@@ -323,7 +323,7 @@ public class JpaConfig : GeneratorConfigBase
     {
         return GetDomainAnnotationsAndImports(property, tag).Select(a =>
         {
-            return new JavaAnnotation(a.Annotation, a.Imports);
+            return new JavaAnnotation(name: a.Annotation, imports: a.Imports.ToArray());
         });
     }
 
