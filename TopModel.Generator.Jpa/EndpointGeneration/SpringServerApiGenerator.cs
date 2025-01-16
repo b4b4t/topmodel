@@ -32,6 +32,11 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
         {
             yield return Config.GeneratedAnnotation;
         }
+
+        if (file.Options.Endpoints.Prefix != null)
+        {
+            yield return new JavaAnnotation("RequestMapping", $@"""{file.Options.Endpoints.Prefix}""", "org.springframework.web.bind.annotation.RequestMapping");
+        }
     }
 
     protected virtual string GetClassName(string fileName)
@@ -52,12 +57,6 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
 
         AddImports(endpoints, fw, tag);
         fw.WriteLine();
-        if (endpoints.First().ModelFile.Options.Endpoints.Prefix != null)
-        {
-            fw.WriteLine($@"@RequestMapping(""{endpoints.First().ModelFile.Options.Endpoints.Prefix}"")");
-            fw.AddImport("org.springframework.web.bind.annotation.RequestMapping");
-        }
-
         var javaxOrJakarta = Config.PersistenceMode.ToString().ToLower();
         fw.WriteAnnotations(0, GetClassAnnotations(endpoints.First().ModelFile));
         fw.WriteLine($"public interface {className} {{");
@@ -72,7 +71,6 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
 
     private void AddImports(IEnumerable<Endpoint> endpoints, JavaWriter fw, string tag)
     {
-        fw.AddImports(endpoints.Select(e => $"org.springframework.web.bind.annotation.{e.Method.ToPascalCase(true)}Mapping"));
         fw.AddImports(GetTypeImports(endpoints, tag));
         fw.AddImports(endpoints.SelectMany(e => Config.GetDecoratorImports(e, tag)));
     }
@@ -112,16 +110,17 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
         }
 
         {
-            var produces = string.Empty;
+            var mappingAnnotation = new JavaAnnotation($@"@{endpoint.Method.ToPascalCase(true)}Mapping(", imports: $"org.springframework.web.bind.annotation.{endpoint.Method.ToPascalCase(true)}Mapping")
+                .AddAttribute("path", $@"""{endpoint.Route}""");
             if (endpoint.Returns != null && endpoint.Returns.Domain?.MediaType != null)
             {
-                produces = @$", produces = {{ ""{endpoint.Returns.Domain.MediaType}"" }}";
+                mappingAnnotation.AddAttribute("produces", @$"""{endpoint.Returns.Domain.MediaType}""");
             }
 
             var consumes = string.Empty;
             if (endpoint.Params.Any(p => p.Domain?.MediaType != null))
             {
-                consumes = @$", consumes = {{ {string.Join(", ", endpoint.Params.Where(p => p.Domain?.MediaType != null).Select(p => $@"""{p.Domain.MediaType}"""))} }}";
+                mappingAnnotation.AddAttribute("consumes", @$"{{ {string.Join(", ", endpoint.Params.Where(p => p.Domain?.MediaType != null).Select(p => $@"""{p.Domain.MediaType}"""))} }}");
             }
 
             foreach (var annotation in Config.GetDecoratorAnnotations(endpoint, tag))
@@ -129,14 +128,14 @@ public class SpringServerApiGenerator : EndpointsGeneratorBase<JpaConfig>
                 fw.WriteLine(1, $"{(annotation.StartsWith('@') ? string.Empty : "@")}{annotation}");
             }
 
-            fw.WriteLine(1, @$"@{endpoint.Method.ToPascalCase(true)}Mapping(path = ""{endpoint.Route}""{consumes}{produces})");
+            fw.WriteLine(1, mappingAnnotation);
         }
 
         var methodParams = new List<string>();
+        var method = new JavaMethod(returnType, endpoint.NameCamel);
         foreach (var param in endpoint.GetRouteParams())
         {
             var pathParamAnnotation = @$"@PathVariable(""{param.GetParamName()}"")";
-
             fw.AddImport("org.springframework.web.bind.annotation.PathVariable");
             fw.AddImports(Config.GetDomainImports(param, tag));
             var decoratorAnnotations = string.Join(' ', Config.GetDomainAnnotations(param, tag).Select(a => a.StartsWith('@') ? a : "@" + a));
