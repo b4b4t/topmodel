@@ -25,8 +25,8 @@ import topmodel.jpa.sample.demo.dtos.securite.utilisateur.UtilisateurRead;
 import topmodel.jpa.sample.demo.dtos.securite.utilisateur.UtilisateurWrite;
 import topmodel.jpa.sample.demo.enums.securite.utilisateur.TypeUtilisateurCode;
 
-@RequestMapping("api/utilisateurs")
 @Generated("TopModel : https://github.com/klee-contrib/topmodel")
+@RequestMapping("api/utilisateurs")
 public interface UtilisateurController {
 
 	/**
@@ -35,7 +35,7 @@ public interface UtilisateurController {
 	 * @return Utilisateur sauvegardé
 	 */
 	@PreAuthorize("hasRole('CREATE')")
-	@PostMapping(path = "/")
+	@PostMapping((path = "/")
 	UtilisateurRead addUtilisateur(@RequestBody @Valid UtilisateurWrite utilisateur);
 
 	/**
@@ -43,7 +43,7 @@ public interface UtilisateurController {
 	 * @param utiId Id de l'utilisateur
 	 */
 	@PreAuthorize("hasRole('DELETE')")
-	@DeleteMapping(path = "/{utiId}")
+	@DeleteMapping((path = "/{utiId}")
 	void deleteUtilisateur(@PathVariable("utiId") Integer utiId);
 
 	/**
@@ -52,7 +52,7 @@ public interface UtilisateurController {
 	 * @return Le détail de l'utilisateur
 	 */
 	@PreAuthorize("hasRole('READ')")
-	@GetMapping(path = "/{utiId}")
+	@GetMapping((path = "/{utiId}")
 	UtilisateurRead getUtilisateur(@PathVariable("utiId") Integer utiId);
 
 	/**
@@ -68,7 +68,7 @@ public interface UtilisateurController {
 	 * @return Utilisateurs matchant les critères
 	 */
 	@PreAuthorize("hasRole('READ')")
-	@GetMapping(path = "/")
+	@GetMapping((path = "/")
 	List<UtilisateurItem> searchUtilisateur(@RequestParam(value = "nom", required = true) String nom, @RequestParam(value = "prenom", required = true) String prenom, @RequestParam(value = "email", required = true) String email, @RequestParam(value = "dateNaissance", required = false) LocalDate dateNaissance, @RequestParam(value = "adresse", required = false) String adresse, @RequestParam(value = "actif", required = true) Boolean actif, @RequestParam(value = "profilId", required = true) Integer profilId, @RequestParam(value = "typeUtilisateurCode", required = true) TypeUtilisateurCode typeUtilisateurCode);
 
 	/**
@@ -78,6 +78,6 @@ public interface UtilisateurController {
 	 * @return Utilisateur sauvegardé
 	 */
 	@PreAuthorize("hasRole('UPDATE')")
-	@PutMapping(path = "/{utiId}")
+	@PutMapping((path = "/{utiId}")
 	UtilisateurRead updateUtilisateur(@PathVariable("utiId") Integer utiId, @RequestBody @Valid UtilisateurWrite utilisateur);
 }

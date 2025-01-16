@@ -21,8 +21,8 @@ import topmodel.jpa.sample.demo.dtos.securite.profil.ProfilItem;
 import topmodel.jpa.sample.demo.dtos.securite.profil.ProfilRead;
 import topmodel.jpa.sample.demo.dtos.securite.profil.ProfilWrite;
 
-@RequestMapping("api/profils")
 @Generated("TopModel : https://github.com/klee-contrib/topmodel")
+@RequestMapping("api/profils")
 public interface ProfilController {
 
 	/**
@@ -31,7 +31,7 @@ public interface ProfilController {
 	 * @return Profil sauvegardé
 	 */
 	@PreAuthorize("hasRole('CREATE')")
-	@PostMapping(path = "/")
+	@PostMapping((path = "/")
 	ProfilRead addProfil(@RequestBody @Valid ProfilWrite profil);
 
 	/**
@@ -40,7 +40,7 @@ public interface ProfilController {
 	 * @return Le détail de l'Profil
 	 */
 	@PreAuthorize("hasRole('READ')")
-	@GetMapping(path = "/{proId}")
+	@GetMapping((path = "/{proId}")
 	ProfilRead getProfil(@PathVariable("proId") Integer proId);
 
 	/**
@@ -48,7 +48,7 @@ public interface ProfilController {
 	 * @return Profils matchant les critères
 	 */
 	@PreAuthorize("hasRole('READ')")
-	@GetMapping(path = "/")
+	@GetMapping((path = "/")
 	List<ProfilItem> getProfils();
 
 	/**
@@ -58,6 +58,6 @@ public interface ProfilController {
 	 * @return Profil sauvegardé
 	 */
 	@PreAuthorize("hasRole('UPDATE')")
-	@PutMapping(path = "/{proId}")
+	@PutMapping((path = "/{proId}")
 	ProfilRead updateProfil(@PathVariable("proId") Integer proId, @RequestBody @Valid ProfilWrite profil);
 }

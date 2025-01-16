@@ -62,6 +62,16 @@ public class JavaWriter : IDisposable
     }
 
     /// <summary>
+    /// Ecrit l'annotation avec le niveau indenté.
+    /// </summary>
+    /// <param name="javaAnnotation">Valeur à écrire dans le flux.</param>
+    public void WriteLine(JavaAnnotation javaAnnotation)
+    {
+        AddImports(javaAnnotation.Imports);
+        _toWrite.Add(new WriterLine() { Line = javaAnnotation.ToString(), Indent = 0 });
+    }
+
+    /// <summary>
     /// Ecrit la signature de méthode avec le niveau indenté.
     /// </summary>
     /// <param name="indentationLevel">Niveau d'indentation.</param>
