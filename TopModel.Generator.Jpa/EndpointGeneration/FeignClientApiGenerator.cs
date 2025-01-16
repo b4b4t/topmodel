@@ -34,7 +34,7 @@ public class FeignClientApiGenerator : SpringServerApiGenerator
             yield return a;
         }
 
-        yield return new JavaAnnotation("FeignClient", "org.springframework.cloud.openfeign.FeignClient")
+        yield return new JavaAnnotation("FeignClient", imports: "org.springframework.cloud.openfeign.FeignClient")
                         .AddAttribute("name", $@"""{file.Namespace.RootModule}""")
                         .AddAttribute("contextId", $@"""{GetClassName(fileName)}""");
     }

@@ -2,53 +2,47 @@
 
 public class JavaAnnotation
 {
-    public JavaAnnotation(string name, string import)
-    {
-        Name = name.Trim('@');
-        Imports = [import];
-    }
-
-    public JavaAnnotation(string name, IEnumerable<string> imports)
+    public JavaAnnotation(string name, params string[] imports)
     {
         Name = name.Trim('@');
         Imports.AddRange(imports);
     }
 
-    public JavaAnnotation(string name, string value, string import)
+    public JavaAnnotation(string name, string value, params string[] imports)
     {
         Name = name.Trim('@');
-        Imports = [import];
-        Attributes.Add(("value", value));
+        Imports.AddRange(imports);
+        Attributes["value"] = value;
     }
 
     public string Name { get; set; }
 
     public List<string> Imports { get; set; } = new();
 
-    private List<(string Name, object Value)> Attributes { get; } = new();
+    private Dictionary<string, object> Attributes { get; } = new();
 
-    public JavaAnnotation AddAttribute(string name, string value, string import)
+    public JavaAnnotation AddAttribute(string name, string value, params string[] import)
     {
-        Attributes.Add((name, value));
-        Imports.Add(import);
+        Attributes[name] = value;
+        Imports.AddRange(import);
         return this;
     }
 
     public JavaAnnotation AddAttribute(string name, string value)
     {
-        Attributes.Add((name, value));
+        Attributes[name] = value;
         return this;
     }
 
     public JavaAnnotation AddAttribute(string value)
     {
-        Attributes.Add(("value", value));
+        Attributes["value"] = value;
         return this;
     }
 
     public JavaAnnotation AddAttribute(string name, JavaAnnotation value)
     {
-        Attributes.Add((name, value));
+        Attributes[name] = value;
         Imports.AddRange(value.Imports);
         return this;
     }
@@ -60,13 +54,13 @@ public class JavaAnnotation
         {
             return name;
         }
-        else if (Attributes.Count() == 1 && Attributes.Any(a => a.Name == "value"))
+        else if (Attributes.Count() == 1 && Attributes.Any(a => a.Key == "value"))
         {
             return $"{name}({Attributes.First().Value})";
         }
         else
         {
-            var attributes = string.Join(", ", Attributes.Select(a => $"{a.Name} = {a.Value}"));
+            var attributes = string.Join(", ", Attributes.Select(a => $"{a.Key} = {a.Value}"));
             return $"{name}({attributes})";
         }
     }

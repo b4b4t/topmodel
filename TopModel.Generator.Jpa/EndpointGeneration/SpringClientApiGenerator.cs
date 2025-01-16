@@ -41,7 +41,7 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
         fw.WriteLine();
         if (endpoints.First().ModelFile.Options.Endpoints.Prefix != null)
         {
-            var exchangeAnnotation = new JavaAnnotation("HttpExchange", "org.springframework.web.service.annotation.HttpExchange")
+            var exchangeAnnotation = new JavaAnnotation("HttpExchange", imports: "org.springframework.web.service.annotation.HttpExchange")
                 .AddAttribute($@"""{endpoints.First().ModelFile.Options.Endpoints.Prefix}""");
             fw.WriteLine(0, exchangeAnnotation);
         }
@@ -111,8 +111,8 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
             }
 
             var accept = string.Empty;
-            var exchangeAnnotation = new JavaAnnotation($"{endpoint.Method.ToPascalCase(true)}Exchange", $"org.springframework.web.service.annotation.{endpoint.Method.ToPascalCase(true)}Exchange")
-                .AddAttribute("value", $@"""{endpoint.Route}""");
+            var exchangeAnnotation = new JavaAnnotation($"{endpoint.Method.ToPascalCase(true)}Exchange", imports: $"org.springframework.web.service.annotation.{endpoint.Method.ToPascalCase(true)}Exchange")
+                .AddAttribute($@"""{endpoint.Route}""");
             if (endpoint.Returns != null && endpoint.Returns.Domain?.MediaType != null)
             {
                 exchangeAnnotation.AddAttribute("accept", $@"{{ ""{endpoint.Returns.Domain.MediaType}"" }}");
@@ -129,19 +129,19 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
 
         foreach (var param in endpoint.GetRouteParams())
         {
-            var pathParamAnnotation = new JavaAnnotation("PathVariable", "org.springframework.web.bind.annotation.PathVariable")
-                .AddAttribute("value", @$"""{param.GetParamName()}""");
-            fw.AddImports(Config.GetDomainImports(param, tag));
+            var pathParamAnnotation = new JavaAnnotation("PathVariable", imports: "org.springframework.web.bind.annotation.PathVariable")
+                .AddAttribute(@$"""{param.GetParamName()}""");
             var parameter = new JavaMethodParameter(Config.GetType(param), param.GetParamName())
                 .AddAnnotation(pathParamAnnotation)
                 .AddAnnotations(Config.GetDomainJavaAnnotations(param, tag));
+            parameter.Imports.AddRange(Config.GetDomainImports(param, tag));
             method.AddParameter(parameter);
         }
 
         foreach (var param in endpoint.GetQueryParams())
         {
-            var requestParamAnnotation = new JavaAnnotation("RequestParam", "org.springframework.web.bind.annotation.RequestParam")
-                .AddAttribute("value", @$"""{param.GetParamName()}""")
+            var requestParamAnnotation = new JavaAnnotation("RequestParam", imports: "org.springframework.web.bind.annotation.RequestParam")
+                .AddAttribute(@$"""{param.GetParamName()}""")
                 .AddAttribute("required", param.Required.ToString().ToFirstLower());
             var parameter = new JavaMethodParameter(Config.GetType(param), param.GetParamName())
                 .AddAnnotation(requestParamAnnotation)
@@ -155,8 +155,8 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
             {
                 if (param is CompositionProperty cp)
                 {
-                    var requestPartAnnotation = new JavaAnnotation("RequestPart", "org.springframework.web.bind.annotation.RequestPart")
-                        .AddAttribute("value", @$"""{param.GetParamName()}""")
+                    var requestPartAnnotation = new JavaAnnotation("RequestPart", imports: "org.springframework.web.bind.annotation.RequestPart")
+                        .AddAttribute(@$"""{param.GetParamName()}""")
                         .AddAttribute("required", param.Required.ToString().ToFirstLower());
 
                     var parameter = new JavaMethodParameter("org.springframework.util.MultiValueMap", "MultiValueMap<K, V>", param.GetParamName())
@@ -168,8 +168,8 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
                 }
                 else
                 {
-                    var requestPartAnnotation = new JavaAnnotation("RequestPart", "org.springframework.web.bind.annotation.RequestPart")
-                        .AddAttribute("value", @$"""{param.Name}""")
+                    var requestPartAnnotation = new JavaAnnotation("RequestPart", imports: "org.springframework.web.bind.annotation.RequestPart")
+                        .AddAttribute(@$"""{param.Name}""")
                         .AddAttribute("required", param.Required.ToString().ToFirstLower());
 
                     var parameter = new JavaMethodParameter(Config.GetType(param), param.GetParamName())
@@ -183,8 +183,8 @@ public class SpringClientApiGenerator : EndpointsGeneratorBase<JpaConfig>
             var bodyParam = endpoint.GetJsonBodyParam();
             if (bodyParam != null)
             {
-                var validAnnotation = new JavaAnnotation("Valid", $"{Config.JavaxOrJakarta}.validation.Valid");
-                var requestBodyAnnotation = new JavaAnnotation("RequestBody", "org.springframework.web.bind.annotation.RequestBody");
+                var validAnnotation = new JavaAnnotation("Valid", imports: $"{Config.JavaxOrJakarta}.validation.Valid");
+                var requestBodyAnnotation = new JavaAnnotation("RequestBody", imports: "org.springframework.web.bind.annotation.RequestBody");
                 var parameter = new JavaMethodParameter(Config.GetType(bodyParam), bodyParam.GetParamName())
                     .AddAnnotation(requestBodyAnnotation)
                     .AddAnnotation(validAnnotation);
