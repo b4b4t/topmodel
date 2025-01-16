@@ -8,6 +8,11 @@ Changelogs des modules :
 - [`sql`](./TopModel.Generator.Sql/CHANGELOG.md)
 - [`translation`](./TopModel.Generator.Translation/CHANGELOG.md)
 
+## 2.3.4
+
+- [`60efcc60efcc60fe4bb8e9f743e5577f5b0f0848392594'](https://github.com/klee-contrib/topmodel/commit/60efcc60fe4bb8e9f743e5577f5b0f0848392594) [Core] Correction recopie `domainParameters`
+
+
 ## 2.3.3
 
 - [`75ba587`](https://github.com/klee-contrib/topmodel/commit/75ba58725fcf8c3e0abb495bf60cc0d2c68ca3fa) - Support pour évolution du générateur C#.
