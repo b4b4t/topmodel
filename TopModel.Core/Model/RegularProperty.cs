@@ -68,6 +68,7 @@ public class RegularProperty : IProperty
             Decorator = Decorator,
             DefaultValue = DefaultValue,
             Domain = Domain,
+            DomainParameters = DomainParameters,
             Endpoint = endpoint,
             Label = Label,
             Location = Location,

@@ -84,6 +84,7 @@ public class CompositionProperty : IProperty
             Composition = Composition,
             Decorator = Decorator,
             Domain = Domain,
+            DomainParameters = DomainParameters,
             Endpoint = endpoint,
             Location = Location,
             Name = Name
