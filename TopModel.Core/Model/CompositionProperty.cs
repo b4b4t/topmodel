@@ -48,7 +48,7 @@ public class CompositionProperty : IProperty
 
     public LocatedString? Trigram { get; set; }
 
-    public Dictionary<string, string> CustomProperties { get; } = [];
+    public Dictionary<string, string> CustomProperties { get; private set; } = [];
 
     public IProperty? CompositionPrimaryKey
     {
@@ -87,7 +87,12 @@ public class CompositionProperty : IProperty
             DomainParameters = DomainParameters,
             Endpoint = endpoint,
             Location = Location,
-            Name = Name
+            Name = Name,
+            Required = Required,
+            CustomProperties = CustomProperties,
+            Readonly = Readonly,
+            Trigram = Trigram,
+            UseLegacyRoleName = UseLegacyRoleName,
         };
     }
 
