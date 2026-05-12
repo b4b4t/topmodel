@@ -10,7 +10,7 @@ custom:
   ../../TopModel.Generator.Sql: bdc0e49e9a9aa3b3abd9c69fbbe5f0d4
   ../../TopModel.Generator.Translation: 37bcf602b3079fdf3556fff547655e8f
   ../../TopModel.Generator.Documentation: 950cd4b8b59bcf41532329bb1556984d
-  ../../TopModel.Generator.Rust: a7d2e4556e5c89955566a4100f486a76
+  ../../TopModel.Generator.Rust: b0fb5d1325063f3b74b0a8993804a1b6
 generatedFiles:
   - ../output/angular/src/appgenerated/api/restaurant/commande.service.ts
   - ../output/angular/src/appgenerated/api/restaurant/menu.service.ts
