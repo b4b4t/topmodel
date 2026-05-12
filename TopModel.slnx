@@ -10,6 +10,7 @@
   <Project Path="TopModel.Generator.Csharp/TopModel.Generator.Csharp.csproj" />
   <Project Path="TopModel.Generator.Javascript/TopModel.Generator.Javascript.csproj" />
   <Project Path="TopModel.Generator.Jpa/TopModel.Generator.Jpa.csproj" />
+  <Project Path="TopModel.Generator.Rust/TopModel.Generator.Rust.csproj" />
   <Project Path="TopModel.Generator.Sql/TopModel.Generator.Sql.csproj" />
   <Project Path="TopModel.Generator.Translation/TopModel.Generator.Translation.csproj" />
   <Project Path="TopModel.Generator/TopModel.Generator.csproj" />

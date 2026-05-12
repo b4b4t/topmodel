@@ -15,6 +15,8 @@ domain:
     type: int
   java:
     type: Integer
+  rust:
+    type: i32
   sql:
     type: int
 ---
@@ -29,6 +31,8 @@ domain:
   csharp:
     type: string
   java:
+    type: String
+  rust:
     type: String
   sql:
     type: varchar
@@ -49,6 +53,10 @@ domain:
       - java.math.BigDecimal
     values:
       template: new BigDecimal({value})
+  rust:
+    type: Decimal
+    imports:
+      - rust_decimal::Decimal
   sql:
     type: decimal
 ---
@@ -63,6 +71,8 @@ domain:
     type: int
   java:
     type: Integer
+  rust:
+    type: i32
   sql:
     type: int
 ---
@@ -79,6 +89,10 @@ domain:
     type: LocalDateTime
     imports:
       - java.time.LocalDateTime
+  rust:
+    type: NaiveDateTime
+    imports:
+      - chrono::NaiveDateTime
   sql:
     type: timestamp
 ---
@@ -93,6 +107,8 @@ domain:
   csharp:
     type: string
   java:
+    type: String
+  rust:
     type: String
   sql:
     type: varchar
@@ -109,6 +125,8 @@ domain:
     type: string
   java:
     type: String
+  rust:
+    type: String
   sql:
     type: varchar
 ---
@@ -123,6 +141,8 @@ domain:
     type: bool
   java:
     type: Boolean
+  rust:
+    type: bool
   sql:
     type: boolean
 ---
@@ -141,6 +161,8 @@ domain:
       - java.util.List
   ts:
     genericType: "{T}[]"
+  rust:
+    genericType: Vec<{T}>
   sql:
     genericType: jsonb
 ---
@@ -154,5 +176,7 @@ domain:
     type: byte[]
   java:
     type: byte[]
+  rust:
+    type: Vec<u8>
   sql:
     type: blob

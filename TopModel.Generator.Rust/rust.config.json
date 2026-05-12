@@ -1,0 +1,155 @@
+{
+  "type": "object",
+  "description": "Config pour la génération de Rust.",
+  "additionalProperties": false,
+  "required": [
+    "outputDirectory",
+    "tags"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nom de cette configuration."
+    },
+    "language": {
+      "oneOf": [
+        {
+          "type": "string",
+          "description": "Langage du générateur, utilisé pour choisir l'implémentation correspondante des domaines, décorateurs et convertisseurs",
+          "default": "rust"
+        },
+        {
+          "type": "array",
+          "description": "Langages du générateur, utilisés pour choisir l'implémentation correspondante des domaines, décorateurs et convertisseurs. Les différentes options sont testées dans l'ordre de définition, la première pour laquelle il existe une implémentation est sélectionnée",
+          "default": "rust",
+          "items": {
+            "type": "string",
+            "description": "Langage du générateur, utilisé pour choisir l'implémentation correspondante des domaines, décorateurs et convertisseurs. Par défaut : 'rust'.",
+            "default": "rust"
+          }
+        }
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "description": "Précise les tags de fichier que le générateur doit lire",
+      "items": {
+        "type": "string",
+        "description": "Catégorie de fichier que le générateur doit lire."
+      }
+    },
+    "referencedTags": {
+      "type": "object",
+      "description": "Tags d'autres configs dont les classes peuvent être référencées dans le code généré par les générateurs de ce module.",
+      "additionalProperties": {
+        "type": "string",
+        "description": "Le nom de la config dans laquelle aller chercher le tag."
+      }
+    },
+    "variables": {
+      "type": "object",
+      "description": "Définitions de variables à utiliser dans les différents paramètres du générateur.",
+      "patternProperties": {
+        ".+": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "boolean" }
+          ]
+        }
+      }
+    },
+    "tagVariables": {
+      "type": "object",
+      "description": "Définitions de variables par tag à utiliser dans les différents paramètres du générateur.",
+      "patternProperties": {
+        ".*": {
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "oneOf": [
+                { "type": "string" },
+                { "type": "boolean" }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "disable": {
+      "type": "array",
+      "description": "Désactive les générateurs demandés",
+      "items": {
+        "type": "string",
+        "enum": [
+          "RustClassGen"
+        ]
+      }
+    },
+    "outputDirectory": {
+      "type": "string",
+      "description": "Racine du répertoire de génération."
+    },
+    "translateReferences": {
+      "type": "boolean",
+      "description": "Si les libellés des listes de références doivent être traduits.",
+      "default": "true"
+    },
+    "translateProperties": {
+      "type": "boolean",
+      "description": "Si les libellés des propriétés doivent être traduits.",
+      "default": "true"
+    },
+    "ignoreDefaultValues": {
+      "type": "boolean",
+      "description": "Désactive la génération des valeurs par défaut des propriétés dans les classes générées avec cette configuration."
+    },
+    "uniqueValueGeneration": {
+      "type": "string",
+      "description": "Mode de génération des valeurs de propriétés avec clé d'unicité : `none`, `const-only`, `enum-only`, `enum-or-const`. Par défaut : `enum-or-const`.",
+      "enum": [
+        "none",
+        "const-only",
+        "enum-only",
+        "enum-or-const"
+      ]
+    },
+    "modelRootPath": {
+      "type": "string",
+      "description": "Localisation du modèle généré, relative au répertoire de génération. Par défaut : 'src/{module:snake}'."
+    },
+    "modFileName": {
+      "type": "string",
+      "description": "Nom du fichier `mod.rs` généré listant les sous-modules. Par défaut : 'mod'."
+    },
+    "generateModFiles": {
+      "type": "boolean",
+      "description": "Génère un fichier `mod.rs` par module qui réexporte chaque struct/enum générée. Par défaut : 'true'."
+    },
+    "structDerives": {
+      "type": "array",
+      "description": "Liste des derives appliqués par défaut sur les structs générées. Par défaut : ['Debug', 'Clone', 'Serialize', 'Deserialize'].",
+      "items": { "type": "string" }
+    },
+    "enumDerives": {
+      "type": "array",
+      "description": "Liste des derives appliqués par défaut sur les enums générées. Par défaut : ['Debug', 'Clone', 'Copy', 'PartialEq', 'Eq', 'Serialize', 'Deserialize'].",
+      "items": { "type": "string" }
+    },
+    "enumSerdeRenameAll": {
+      "type": "string",
+      "description": "Attribut `#[serde(rename_all = \"...\")]` appliqué sur les enums. Par défaut : 'snake_case'. Mettre à vide pour ne rien générer."
+    },
+    "structSerdeRenameAll": {
+      "type": "string",
+      "description": "Attribut `#[serde(rename_all = \"...\")]` à appliquer sur chaque struct générée (ex: 'camelCase')."
+    },
+    "useSqlx": {
+      "type": "boolean",
+      "description": "Ajoute les derives nécessaires pour `sqlx` (`sqlx::FromRow` sur les structs, `sqlx::Type` sur les enums) et un attribut `#[sqlx(type_name = \"...\")]` sur les enums pour cibler un type SQL custom. Par défaut : 'false'."
+    },
+    "sqlxEnumRenameAll": {
+      "type": "string",
+      "description": "Valeur de l'attribut `rename_all` ajouté dans `#[sqlx(...)]` sur les enums lorsque `useSqlx` est activé (ex: 'lowercase'). Vide par défaut."
+    }
+  }
+}

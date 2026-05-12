@@ -1,0 +1,13 @@
+<Project>
+  <Target Name="CopyConfigFile" BeforeTargets="BeforeBuild">
+    <ItemGroup>
+      <ConfigFileToCopy Include="$(MSBuildThisFileDirectory)../contentFiles/rust.config.json" />
+    </ItemGroup>
+    <Copy
+      SourceFiles="@(ConfigFileToCopy)"
+      DestinationFolder="$(OutputPath)"
+      SkipUnchangedFiles="true"
+      UseHardlinksIfPossible="false"
+    />
+  </Target>
+</Project>

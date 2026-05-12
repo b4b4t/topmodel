@@ -10,6 +10,7 @@ custom:
   ../../TopModel.Generator.Sql: bdc0e49e9a9aa3b3abd9c69fbbe5f0d4
   ../../TopModel.Generator.Translation: 37bcf602b3079fdf3556fff547655e8f
   ../../TopModel.Generator.Documentation: 950cd4b8b59bcf41532329bb1556984d
+  ../../TopModel.Generator.Rust: a7d2e4556e5c89955566a4100f486a76
 generatedFiles:
   - ../output/angular/src/appgenerated/api/restaurant/commande.service.ts
   - ../output/angular/src/appgenerated/api/restaurant/menu.service.ts
@@ -455,6 +456,102 @@ generatedFiles:
   - ../output/pg/src/03_values.sql
   - ../output/pg/src/04_resources.sql
   - ../output/pg/src/05_comments.sql
+  - ../output/rust-camel/src/common/translation.rs
+  - ../output/rust-camel/src/restaurant/avis_client_read.rs
+  - ../output/rust-camel/src/restaurant/avis_client_write.rs
+  - ../output/rust-camel/src/restaurant/avis_client.rs
+  - ../output/rust-camel/src/restaurant/categorie_plat_region.rs
+  - ../output/rust-camel/src/restaurant/categorie_plat.rs
+  - ../output/rust-camel/src/restaurant/client_avec_commandes.rs
+  - ../output/rust-camel/src/restaurant/client_item.rs
+  - ../output/rust-camel/src/restaurant/client_read.rs
+  - ../output/rust-camel/src/restaurant/client_write.rs
+  - ../output/rust-camel/src/restaurant/client.rs
+  - ../output/rust-camel/src/restaurant/commande_historique.rs
+  - ../output/rust-camel/src/restaurant/commande_read.rs
+  - ../output/rust-camel/src/restaurant/commande_write.rs
+  - ../output/rust-camel/src/restaurant/commande.rs
+  - ../output/rust-camel/src/restaurant/departement.rs
+  - ../output/rust-camel/src/restaurant/employe_read.rs
+  - ../output/rust-camel/src/restaurant/employe_write.rs
+  - ../output/rust-camel/src/restaurant/employe.rs
+  - ../output/rust-camel/src/restaurant/ligne_commande_historique.rs
+  - ../output/rust-camel/src/restaurant/ligne_commande_read.rs
+  - ../output/rust-camel/src/restaurant/ligne_commande_write.rs
+  - ../output/rust-camel/src/restaurant/ligne_commande.rs
+  - ../output/rust-camel/src/restaurant/menu_plat.rs
+  - ../output/rust-camel/src/restaurant/menu_read.rs
+  - ../output/rust-camel/src/restaurant/menu_write.rs
+  - ../output/rust-camel/src/restaurant/menu.rs
+  - ../output/rust-camel/src/restaurant/personne.rs
+  - ../output/rust-camel/src/restaurant/plat_read.rs
+  - ../output/rust-camel/src/restaurant/plat_write.rs
+  - ../output/rust-camel/src/restaurant/plat.rs
+  - ../output/rust-camel/src/restaurant/promotion_read.rs
+  - ../output/rust-camel/src/restaurant/promotion_write.rs
+  - ../output/rust-camel/src/restaurant/promotion.rs
+  - ../output/rust-camel/src/restaurant/region.rs
+  - ../output/rust-camel/src/restaurant/reservation_read.rs
+  - ../output/rust-camel/src/restaurant/reservation_write.rs
+  - ../output/rust-camel/src/restaurant/reservation.rs
+  - ../output/rust-camel/src/restaurant/restaurant_avec_statistiques.rs
+  - ../output/rust-camel/src/restaurant/restaurant_read.rs
+  - ../output/rust-camel/src/restaurant/restaurant_write.rs
+  - ../output/rust-camel/src/restaurant/restaurant.rs
+  - ../output/rust-camel/src/restaurant/statistiques_restaurant.rs
+  - ../output/rust-camel/src/restaurant/statut_commande.rs
+  - ../output/rust-camel/src/restaurant/table_read.rs
+  - ../output/rust-camel/src/restaurant/table_restaurant.rs
+  - ../output/rust-camel/src/restaurant/table_write.rs
+  - ../output/rust-camel/src/restaurant/type_terrasse.rs
+  - ../output/rust/src/common/translation.rs
+  - ../output/rust/src/restaurant/avis_client_read.rs
+  - ../output/rust/src/restaurant/avis_client_write.rs
+  - ../output/rust/src/restaurant/avis_client.rs
+  - ../output/rust/src/restaurant/categorie_plat_region.rs
+  - ../output/rust/src/restaurant/categorie_plat.rs
+  - ../output/rust/src/restaurant/client_avec_commandes.rs
+  - ../output/rust/src/restaurant/client_item.rs
+  - ../output/rust/src/restaurant/client_read.rs
+  - ../output/rust/src/restaurant/client_write.rs
+  - ../output/rust/src/restaurant/client.rs
+  - ../output/rust/src/restaurant/commande_historique.rs
+  - ../output/rust/src/restaurant/commande_read.rs
+  - ../output/rust/src/restaurant/commande_write.rs
+  - ../output/rust/src/restaurant/commande.rs
+  - ../output/rust/src/restaurant/departement.rs
+  - ../output/rust/src/restaurant/employe_read.rs
+  - ../output/rust/src/restaurant/employe_write.rs
+  - ../output/rust/src/restaurant/employe.rs
+  - ../output/rust/src/restaurant/ligne_commande_historique.rs
+  - ../output/rust/src/restaurant/ligne_commande_read.rs
+  - ../output/rust/src/restaurant/ligne_commande_write.rs
+  - ../output/rust/src/restaurant/ligne_commande.rs
+  - ../output/rust/src/restaurant/menu_plat.rs
+  - ../output/rust/src/restaurant/menu_read.rs
+  - ../output/rust/src/restaurant/menu_write.rs
+  - ../output/rust/src/restaurant/menu.rs
+  - ../output/rust/src/restaurant/personne.rs
+  - ../output/rust/src/restaurant/plat_read.rs
+  - ../output/rust/src/restaurant/plat_write.rs
+  - ../output/rust/src/restaurant/plat.rs
+  - ../output/rust/src/restaurant/promotion_read.rs
+  - ../output/rust/src/restaurant/promotion_write.rs
+  - ../output/rust/src/restaurant/promotion.rs
+  - ../output/rust/src/restaurant/region.rs
+  - ../output/rust/src/restaurant/reservation_read.rs
+  - ../output/rust/src/restaurant/reservation_write.rs
+  - ../output/rust/src/restaurant/reservation.rs
+  - ../output/rust/src/restaurant/restaurant_avec_statistiques.rs
+  - ../output/rust/src/restaurant/restaurant_read.rs
+  - ../output/rust/src/restaurant/restaurant_write.rs
+  - ../output/rust/src/restaurant/restaurant.rs
+  - ../output/rust/src/restaurant/statistiques_restaurant.rs
+  - ../output/rust/src/restaurant/statut_commande.rs
+  - ../output/rust/src/restaurant/table_read.rs
+  - ../output/rust/src/restaurant/table_restaurant.rs
+  - ../output/rust/src/restaurant/table_write.rs
+  - ../output/rust/src/restaurant/type_terrasse.rs
   - ../output/ssdt/src/init/CATEGORIE_PLAT_REGION.insert.sql
   - ../output/ssdt/src/init/CATEGORIE_PLAT.insert.sql
   - ../output/ssdt/src/init/DEPARTEMENT.insert.sql
