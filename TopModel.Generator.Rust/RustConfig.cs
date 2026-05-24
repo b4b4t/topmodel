@@ -80,6 +80,21 @@ public class RustConfig : GeneratorConfigBase
     }
 
     /// <summary>
+    /// Calcule le chemin `use` (de la forme `crate::module::sous_module::nom_fichier::NomType`)
+    /// permettant d'importer la struct/enum d'une autre classe générée du modèle.
+    /// </summary>
+    public virtual string GetClassNamespace(Class classe, string tag)
+    {
+        string modulePath = Path.Combine(
+                ResolveVariables(ModelRootPath, tag, classe.Namespace.Module.ToSnakeCase())
+            )
+            .Replace("\\", "::").Replace("/", "::");
+        string fileName = classe.Name.Value.ToSnakeCase();
+
+        return $"crate::{string.Join("::", modulePath)}::{fileName}::{classe.NamePascal}";
+    }
+
+    /// <summary>
     /// Récupère le chemin du fichier `mod.rs` pour un module donné.
     /// </summary>
     public virtual string GetModFileName(Namespace ns, string tag)

@@ -55,7 +55,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
                 && cpc != classe
             )
             {
-                uses.Add(GetClassUsePath(cpc));
+                uses.Add(Config.GetClassNamespace(cpc, tag));
             }
             else if (
                 property is { Association: Class assoc, UseClassForAssociation: true }
@@ -63,7 +63,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
                 && assoc != classe
             )
             {
-                uses.Add(GetClassUsePath(assoc));
+                uses.Add(Config.GetClassNamespace(assoc, tag));
             }
             else if (
                 property.EnumProperty is IProperty ep
@@ -72,7 +72,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
                 && ep.Class.Enum == EnumMode.Enum
             )
             {
-                uses.Add(GetClassUsePath(ep.Class));
+                uses.Add(Config.GetClassNamespace(ep.Class, tag));
             }
         }
 
@@ -228,20 +228,6 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         }
 
         w.WriteLine(0, "}");
-    }
-
-    /// <summary>
-    /// Calcule le chemin `use` (de la forme `crate::module::sous_module::nom_fichier::NomType`)
-    /// permettant d'importer la struct/enum d'une autre classe générée du modèle.
-    /// </summary>
-    private static string GetClassUsePath(Class classe)
-    {
-        IEnumerable<string> modulePath = classe
-            .Namespace.Module.Replace('/', '.')
-            .Split('.', StringSplitOptions.RemoveEmptyEntries)
-            .Select(s => s.ToSnakeCase());
-        string fileName = classe.Name.Value.ToSnakeCase();
-        return $"crate::{string.Join("::", modulePath)}::{fileName}::{classe.NamePascal}";
     }
 
     /// <summary>
