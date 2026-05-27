@@ -13,7 +13,9 @@ public class GeneratorRegistration : IGeneratorRegistration<RustConfig>
     public void Register(IServiceCollection services, RustConfig config, int number)
     {
         TrimSlashes(config, c => c.ModelRootPath);
+        TrimSlashes(config, c => c.MapperRootPath);
 
         services.AddGenerator<RustClassGenerator, RustConfig>(config, number);
+        services.AddGenerator<RustMapperGenerator, RustConfig>(config, number);
     }
 }

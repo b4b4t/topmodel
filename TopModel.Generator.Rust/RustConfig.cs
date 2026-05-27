@@ -58,9 +58,14 @@ public class RustConfig : GeneratorConfigBase
 
     public override string? DefaultLanguage => "rust";
 
-    public override string[] PropertiesWithModuleVariableSupport => [nameof(ModelRootPath)];
+    /// <summary>
+    /// Localisation des mappers générés, relative au répertoire de génération. Par défaut : "src/{module:snake}/mapper".
+    /// </summary>
+    public virtual string MapperRootPath { get; set; } = "src/{module:snake}/mapper";
 
-    public override string[] PropertiesWithTagVariableSupport => [nameof(ModelRootPath)];
+    public override string[] PropertiesWithModuleVariableSupport => [nameof(ModelRootPath), nameof(MapperRootPath)];
+
+    public override string[] PropertiesWithTagVariableSupport => [nameof(ModelRootPath), nameof(MapperRootPath)];
 
     protected override bool UseValueNameForValues => true;
 
@@ -103,6 +108,34 @@ public class RustConfig : GeneratorConfigBase
                 OutputDirectory,
                 ResolveVariables(ModelRootPath, tag, ns.Module.ToSnakeCase()),
                 $"{ModFileName}.rs"
+            )
+            .Replace('\\', '/');
+    }
+
+    /// <summary>
+    /// Récupère le chemin du fichier mapper pour un fromMapper.
+    /// </summary>
+    public virtual string GetMapperFilePath((Class Classe, FromMapper Mapper) mapper, string tag)
+    {
+        var module = mapper.Classe.Namespace.Module.ToSnakeCase();
+        return Path.Combine(
+                OutputDirectory,
+                ResolveVariables(MapperRootPath, tag, module),
+                $"{mapper.Classe.Name.Value.ToSnakeCase()}_mapper.rs"
+            )
+            .Replace('\\', '/');
+    }
+
+    /// <summary>
+    /// Récupère le chemin du fichier mapper pour un toMapper.
+    /// </summary>
+    public virtual string GetMapperFilePath((Class Classe, ClassMappings Mapper) mapper, string tag)
+    {
+        var module = mapper.Classe.Namespace.Module.ToSnakeCase();
+        return Path.Combine(
+                OutputDirectory,
+                ResolveVariables(MapperRootPath, tag, module),
+                $"{mapper.Classe.Name.Value.ToSnakeCase()}_mapper.rs"
             )
             .Replace('\\', '/');
     }
