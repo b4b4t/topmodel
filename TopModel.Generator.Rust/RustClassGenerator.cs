@@ -117,7 +117,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
 
         if (classe.Enum == EnumMode.Enum)
         {
-            WriteEnum(w, classe);
+            WriteEnum(w, classe, tag);
         }
         else
         {
@@ -128,11 +128,11 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
     /// <summary>
     /// Écrit un enum Rust à partir d'une classe ayant `enum: enum`.
     /// </summary>
-    protected virtual void WriteEnum(RustWriter w, Class classe)
+    protected virtual void WriteEnum(RustWriter w, Class classe, string tag)
     {
         w.WriteDoc(0, classe.Comment);
 
-        var enumDerives = Config.UseSqlx
+        var enumDerives = Config.UseSqlx && Config.IsPersistent(classe, tag)
             ? [.. Config.EnumDerives, "sqlx::Type"]
             : Config.EnumDerives;
 
@@ -146,7 +146,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
             w.WriteAttribute(0, $@"serde(rename_all = ""{Config.EnumSerdeRenameAll}"")");
         }
 
-        if (Config.UseSqlx)
+        if (Config.UseSqlx && Config.IsPersistent(classe, tag))
         {
             var sqlxArgs = new List<string>
             {
@@ -193,7 +193,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
     {
         w.WriteDoc(0, classe.Comment);
 
-        var structDerives = Config.UseSqlx
+        var structDerives = Config.UseSqlx && Config.IsPersistent(classe, tag)
             ? [.. Config.StructDerives, "sqlx::FromRow"]
             : Config.StructDerives;
 

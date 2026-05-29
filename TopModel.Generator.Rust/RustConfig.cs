@@ -2,6 +2,7 @@ using TopModel.Core.FileModel;
 using TopModel.Core.Model;
 using TopModel.Generator.Core;
 using TopModel.Utils;
+using YamlDotNet.Serialization;
 
 namespace TopModel.Generator.Rust;
 
@@ -56,6 +57,12 @@ public class RustConfig : GeneratorConfigBase
     /// </summary>
     public virtual string? SqlxEnumRenameAll { get; set; }
 
+    /// <summary>
+    /// Considère toutes les classes comme étant non-persistantes (= pas d'attribut SQL).
+    /// </summary>
+    [YamlMember(Alias = "noPersistence")]
+    public virtual string? NoPersistenceParam { get; set; }
+
     public override string? DefaultLanguage => "rust";
 
     /// <summary>
@@ -65,9 +72,23 @@ public class RustConfig : GeneratorConfigBase
 
     public override string[] PropertiesWithModuleVariableSupport => [nameof(ModelRootPath), nameof(MapperRootPath)];
 
-    public override string[] PropertiesWithTagVariableSupport => [nameof(ModelRootPath), nameof(MapperRootPath)];
+    public override string[] PropertiesWithTagVariableSupport => [nameof(ModelRootPath), nameof(MapperRootPath), nameof(NoPersistenceParam)];
 
     protected override bool UseValueNameForValues => true;
+
+    /// <summary>
+    /// Détermine si la persistence est désactivée pour le tag donné.
+    /// </summary>
+    public virtual bool NoPersistence(string tag)
+    {
+        return ResolveVariables(NoPersistenceParam ?? string.Empty, tag) == true.ToString();
+    }
+
+    /// <inheritdoc />
+    public override bool IsPersistent(Class classe, string tag)
+    {
+        return base.IsPersistent(classe, tag) && !NoPersistence(tag);
+    }
 
     protected override string NullValue => "None";
 
