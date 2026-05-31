@@ -209,7 +209,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
 
         w.WriteLine(0, $"pub struct {classe.NamePascal} {{");
 
-        List<IProperty> props = classe.Properties.ToList();
+        List<IProperty> props = classe.ExtendedProperties.ToList();
         for (var i = 0; i < props.Count; i++)
         {
             var property = props[i];
