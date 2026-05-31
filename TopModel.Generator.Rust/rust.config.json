@@ -52,8 +52,12 @@
       "patternProperties": {
         ".+": {
           "oneOf": [
-            { "type": "string" },
-            { "type": "boolean" }
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            }
           ]
         }
       }
@@ -67,13 +71,30 @@
           "patternProperties": {
             ".*": {
               "oneOf": [
-                { "type": "string" },
-                { "type": "boolean" }
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "boolean"
+                }
               ]
             }
           }
         }
       }
+    },
+    "noPersistence": {
+      "oneOf": [
+        {
+          "type": "boolean",
+          "description": "Considère tous les classes comme étant non-persistantes (= pas d'attribut SQL)."
+        },
+        {
+          "type": "string",
+          "description": "Considère tous les classes comme étant non-persistantes (= pas d'attribut SQL).",
+          "pattern": "^\\{[^\\}]+\\}$"
+        }
+      ]
     },
     "disable": {
       "type": "array",
@@ -113,6 +134,18 @@
         "enum-or-const"
       ]
     },
+    "persistentModelPath": {
+      "type": "string",
+      "description": "Localisation du modèle persisté, relative au répertoire de génération. Par défaut : {app}.{module}.Models."
+    },
+    "referencesModelPath": {
+      "type": "string",
+      "description": "Localisation des classes de références, relative au répertoire de génération. Si non renseigné, ces classes seront générées comme les autres (selon si elles sont persistantes ou non)."
+    },
+    "nonPersistentModelPath": {
+      "type": "string",
+      "description": "Localisation du modèle non persisté, relative au répertoire de génération. Par défaut : {app}.{module}.Models/Dto."
+    },
     "modelRootPath": {
       "type": "string",
       "description": "Localisation du modèle généré, relative au répertoire de génération. Par défaut : 'src/{module:snake}'."
@@ -128,12 +161,16 @@
     "structDerives": {
       "type": "array",
       "description": "Liste des derives appliqués par défaut sur les structs générées. Par défaut : ['Debug', 'Clone', 'Serialize', 'Deserialize'].",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "enumDerives": {
       "type": "array",
       "description": "Liste des derives appliqués par défaut sur les enums générées. Par défaut : ['Debug', 'Clone', 'Copy', 'PartialEq', 'Eq', 'Serialize', 'Deserialize'].",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "enumSerdeRenameAll": {
       "type": "string",

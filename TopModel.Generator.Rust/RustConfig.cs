@@ -12,9 +12,20 @@ namespace TopModel.Generator.Rust;
 public class RustConfig : GeneratorConfigBase
 {
     /// <summary>
-    /// Localisation du modèle généré, relative au répertoire de génération. Par défaut : "src/{module:snake}".
+    /// Localisation du modèle persisté, relative au répertoire de génération. Par défaut : {app}.{module}.Models.
     /// </summary>
-    public virtual string ModelRootPath { get; set; } = "src/{module:snake}";
+    public virtual string PersistentModelPath { get; set; } = "{app}.{module}.Models";
+
+    /// <summary>
+    /// Localisation des classes de références, relative au répertoire de génération.
+    /// Si non renseigné, ces classes seront générées comme les autres (selon si elles sont persistantes ou non).
+    /// </summary>
+    public virtual string? ReferencesModelPath { get; set; }
+
+    /// <summary>
+    /// Localisation du modèle non persisté, relative au répertoire de génération. Par défaut : {app}.{module}.Models/Dto.
+    /// </summary>
+    public virtual string NonPersistentModelPath { get; set; } = "{app}.{module}.Models/Dto";
 
     /// <summary>
     /// Nom du fichier `mod.rs` généré listant les sous-modules. Par défaut : `mod`.
@@ -70,9 +81,9 @@ public class RustConfig : GeneratorConfigBase
     /// </summary>
     public virtual string MapperRootPath { get; set; } = "src/{module:snake}/mapper";
 
-    public override string[] PropertiesWithModuleVariableSupport => [nameof(ModelRootPath), nameof(MapperRootPath)];
+    public override string[] PropertiesWithModuleVariableSupport => [nameof(NonPersistentModelPath), nameof(PersistentModelPath), nameof(ReferencesModelPath), nameof(MapperRootPath)];
 
-    public override string[] PropertiesWithTagVariableSupport => [nameof(ModelRootPath), nameof(MapperRootPath), nameof(NoPersistenceParam)];
+    public override string[] PropertiesWithTagVariableSupport => [nameof(NonPersistentModelPath), nameof(PersistentModelPath), nameof(ReferencesModelPath), nameof(MapperRootPath), nameof(NoPersistenceParam)];
 
     protected override bool UseValueNameForValues => true;
 
@@ -93,13 +104,32 @@ public class RustConfig : GeneratorConfigBase
     protected override string NullValue => "None";
 
     /// <summary>
+    /// Localisation du modèle généré, relative au répertoire de génération. Par défaut : "src/{module:snake}".
+    /// </summary>
+    public virtual string GetModelRootPath(Class classe, string tag)
+    {
+        if (classe.Reference)
+        {
+            return ReferencesModelPath ?? PersistentModelPath;
+        }
+        else if (IsPersistent(classe, tag))
+        {
+            return PersistentModelPath;
+        }
+        else
+        {
+            return NonPersistentModelPath;
+        }
+    }
+
+    /// <summary>
     /// Récupère le chemin absolu vers le fichier d'une classe.
     /// </summary>
     public virtual string GetClassFileName(Class classe, string tag)
     {
         return Path.Combine(
                 OutputDirectory,
-                ResolveVariables(ModelRootPath, tag, classe.Namespace.Module.ToSnakeCase()),
+                ResolveVariables(GetModelRootPath(classe, tag), tag, classe.Namespace.Module.ToSnakeCase()),
                 $"{classe.Name.Value.ToSnakeCase()}.rs"
             )
             .Replace('\\', '/');
@@ -112,7 +142,7 @@ public class RustConfig : GeneratorConfigBase
     public virtual string GetClassNamespace(Class classe, string tag)
     {
         string modulePath = Path.Combine(
-                ResolveVariables(ModelRootPath, tag, classe.Namespace.Module.ToSnakeCase())
+                ResolveVariables(GetModelRootPath(classe, tag), tag, classe.Namespace.Module.ToSnakeCase())
             )
             .Replace("\\", "::").Replace("/", "::");
         string fileName = classe.Name.Value.ToSnakeCase();
@@ -120,18 +150,18 @@ public class RustConfig : GeneratorConfigBase
         return $"crate::{string.Join("::", modulePath)}::{fileName}::{classe.NamePascal}";
     }
 
-    /// <summary>
-    /// Récupère le chemin du fichier `mod.rs` pour un module donné.
-    /// </summary>
-    public virtual string GetModFileName(Namespace ns, string tag)
-    {
-        return Path.Combine(
-                OutputDirectory,
-                ResolveVariables(ModelRootPath, tag, ns.Module.ToSnakeCase()),
-                $"{ModFileName}.rs"
-            )
-            .Replace('\\', '/');
-    }
+    // /// <summary>
+    // /// Récupère le chemin du fichier `mod.rs` pour un module donné.
+    // /// </summary>
+    // public virtual string GetModFileName(Namespace ns, string tag)
+    // {
+    //     return Path.Combine(
+    //             OutputDirectory,
+    //             ResolveVariables(GetModelRootPath(ns., tag), tag, ns.Module.ToSnakeCase()),
+    //             $"{ModFileName}.rs"
+    //         )
+    //         .Replace('\\', '/');
+    // }
 
     /// <summary>
     /// Récupère le chemin du fichier mapper pour un fromMapper.
