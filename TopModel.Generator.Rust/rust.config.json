@@ -150,6 +150,10 @@
       "type": "string",
       "description": "Localisation du modèle généré, relative au répertoire de génération. Par défaut : 'src/{module:snake}'."
     },
+    "mapperRootPath": {
+      "type": "string",
+      "description": "Localisation des mappers générés, relative au répertoire de génération. Par défaut : 'src/{module:snake}/mapper'."
+    },
     "modFileName": {
       "type": "string",
       "description": "Nom du fichier `mod.rs` généré listant les sous-modules. Par défaut : 'mod'."
