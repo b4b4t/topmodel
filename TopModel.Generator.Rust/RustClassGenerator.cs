@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using TopModel.Core.Model;
 using TopModel.Generator.Core;
@@ -115,13 +116,19 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
 
         GenerateUses(w, classe, tag);
 
-        if (classe.Enum == EnumMode.Enum)
-        {
-            WriteEnum(w, classe, tag);
-        }
-        else
+        if (classe.Enum != EnumMode.Enum)
         {
             WriteStruct(w, classe, tag);
+        }
+
+        if (classe.Enum == EnumMode.Enum || classe.Reference)
+        {
+            WriteEnum(w, classe, tag);
+
+            w.WriteLine();
+            w.WriteLine();
+
+            WriteParseError(w, classe);
         }
     }
 
@@ -161,7 +168,14 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
             w.WriteAttribute(0, $"sqlx({string.Join(", ", sqlxArgs)})");
         }
 
-        w.WriteLine(0, $"pub enum {classe.NamePascal} {{");
+        if (classe.Enum == EnumMode.Enum)
+        {
+            w.WriteLine(0, $"pub enum {classe.NamePascal} {{");
+        }
+        else
+        {
+            w.WriteLine(0, $"pub enum {classe.NamePascal}Enum {{");
+        }
 
         var values = Config.GetAllValues(classe).OrderBy(v => v.Name, StringComparer.Ordinal).ToList();
 
@@ -183,6 +197,57 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
             w.WriteLine(1, $"{refValue.Name.ToPascalCase(strictIfUppercase: true)},");
         }
 
+        w.WriteLine(0, "}");
+    }
+
+    /// <summary>
+    /// Écrit un enum Rust à partir d'une classe ayant `enum: enum`.
+    /// </summary>
+    protected virtual void WriteParseError(RustWriter w, Class classe)
+    {
+        ICollection<IProperty> primaryKeyFields = classe.ExtendedProperties.Where(p => p.PrimaryKey).ToList();
+
+        // Si l'enum est basé sur une seule valeur de type string, on peut implémenter `FromStr` pour permettre la conversion directe depuis une chaîne de caractères.
+        if (primaryKeyFields.Count != 1 || !string.Equals(GetRustType(primaryKeyFields.First()), "string", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        IProperty primaryKeyField = primaryKeyFields.First();
+        string parseErrorType = $"{classe.NamePascal}ParseError";
+        string enumType = classe.Enum == EnumMode.Enum ? classe.NamePascal : $"{classe.NamePascal}Enum";
+
+        w.AddUses(["std::convert::TryFrom", "std::error::Error", "std::fmt"]);
+        w.WriteLine();
+
+        w.WriteAttribute(0, "derive(Debug)");
+        w.WriteLine(0, $"pub struct {parseErrorType};");
+        w.WriteLine();
+
+        w.WriteLine(0, $"impl fmt::Display for {parseErrorType} {{");
+        w.WriteLine(1, "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {"); 
+        w.WriteLine(2, $"write!(f, \"Failed to parse {classe.NamePascal}\")");
+        w.WriteLine(1, "}");
+        w.WriteLine(0, "}");
+
+        w.WriteLine(0, $"impl Error for {parseErrorType} {{}}");
+        w.WriteLine();
+
+        w.WriteLine(0, $"impl TryFrom<&str> for {enumType} {{");
+        w.WriteLine(1, $"fn try_from(value: &str) -> Result<Self, {parseErrorType}> {{");
+        w.WriteLine(2, "match value {");
+
+        List<ClassValue> values = Config.GetAllValues(classe).OrderBy(v => v.Name, StringComparer.Ordinal).ToList();
+
+        for (int i = 0; i < values.Count; i++)
+        {
+            ClassValue refValue = values[i];
+
+            w.WriteLine(3, $"\"{refValue.Value[primaryKeyField]}\" => Ok({enumType}::{refValue.Name.ToPascalCase(strictIfUppercase: true)}),");       
+        }
+        w.WriteLine(3, $"_ => Err({parseErrorType}),");
+        w.WriteLine(2, "}");
+        w.WriteLine(1, "}");
         w.WriteLine(0, "}");
     }
 
