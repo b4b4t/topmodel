@@ -150,18 +150,18 @@ public class RustConfig : GeneratorConfigBase
         return $"crate::{string.Join("::", modulePath)}::{fileName}::{classe.NamePascal}";
     }
 
-    // /// <summary>
-    // /// Récupère le chemin du fichier `mod.rs` pour un module donné.
-    // /// </summary>
-    // public virtual string GetModFileName(Namespace ns, string tag)
-    // {
-    //     return Path.Combine(
-    //             OutputDirectory,
-    //             ResolveVariables(GetModelRootPath(ns., tag), tag, ns.Module.ToSnakeCase()),
-    //             $"{ModFileName}.rs"
-    //         )
-    //         .Replace('\\', '/');
-    // }
+    /// <summary>
+    /// Récupère le chemin du fichier `mod.rs` pour un module donné.
+    /// </summary>
+    public virtual string GetModFileName(Namespace ns, string tag)
+    {
+        return Path.Combine(
+                OutputDirectory,
+                ResolveVariables(GetModelRootPath(ns., tag), tag, ns.Module.ToSnakeCase()),
+                $"{ModFileName}.rs"
+            )
+            .Replace('\\', '/');
+    }
 
     /// <summary>
     /// Récupère le chemin du fichier mapper pour un fromMapper.

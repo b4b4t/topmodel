@@ -1,5 +1,7 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using TopModel.Core.FileModel;
 using TopModel.Core.Model;
 using TopModel.Generator.Core;
 using TopModel.Utils;
@@ -104,6 +106,42 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         }
 
         return type;
+    }
+
+    /// <inheritdoc />
+    protected override void HandleFiles(IEnumerable<ModelFile> files)
+    {
+        // Génération des classes en parallèle par fichier, puis par classe,
+        // puis par tag (généralement un tag = un module de destination différent)
+        base.HandleFiles(files);
+
+        // Génération des mod.rs pour chaque module en parallèle
+        var classesByModule = files.SelectMany(f => f.Classes.Where(FilterClass)).GroupBy(c => c.Namespace.Module);
+
+        Parallel.ForEach(
+            classesByModule,
+            moduleGroup =>
+            {
+                var module = moduleGroup.Key;
+                var classes = moduleGroup.ToList();
+                var fileName = Config.GetModFileName(moduleGroup.First().Namespace, module);
+                GenerateModuleModRs(fileName, classes);
+            }
+        );
+    }
+
+    /// <summary>
+    /// Génère un fichier `mod.rs` pour le module donné, listant tous les sous-modules correspondant aux classes du module.
+    /// </summary>
+    /// <param name="fileName">Le chemin du fichier `mod.rs` à générer.</param>
+    /// <param name="classes">La liste des classes du module.</param>
+    private void GenerateModuleModRs(string fileName, List<Class> classes)
+    {
+        using var w = this.OpenRustWriter(fileName);
+        foreach (var classe in classes.OrderBy(c => c.NamePascal))
+        {
+            w.WriteLine($"pub mod {classe.NamePascal};");
+        }
     }
 
     /// <summary>
