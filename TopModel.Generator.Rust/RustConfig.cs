@@ -160,7 +160,7 @@ public class RustConfig : GeneratorConfigBase
                 ResolveVariables(GetModelRootPath(classe, tag), tag, classe.Namespace.Module.ToSnakeCase()),
                 $"{ModFileName}.rs"
             )
-            .Replace("\\", "::").Replace("/", "::");
+            .Replace('\\', '/');
     }
 
     /// <summary>

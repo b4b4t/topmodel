@@ -155,7 +155,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         using var w = this.OpenRustWriter(fileName);
         foreach (var classe in classes.OrderBy(c => c.NamePascal))
         {
-            w.WriteLine($"pub mod {classe.NamePascal};");
+            w.WriteLine($"pub mod {classe.NamePascal.ToSnakeCase()};");
         }
     }
 
@@ -278,7 +278,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         w.WriteLine();
 
         w.WriteLine(0, $"impl fmt::Display for {parseErrorType} {{");
-        w.WriteLine(1, "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {"); 
+        w.WriteLine(1, "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {");
         w.WriteLine(2, $"write!(f, \"Failed to parse {classe.NamePascal}\")");
         w.WriteLine(1, "}");
         w.WriteLine(0, "}");
@@ -296,7 +296,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         {
             ClassValue refValue = values[i];
 
-            w.WriteLine(3, $"\"{refValue.Value[primaryKeyField]}\" => Ok({enumType}::{refValue.Name.ToPascalCase(strictIfUppercase: true)}),");       
+            w.WriteLine(3, $"\"{refValue.Value[primaryKeyField]}\" => Ok({enumType}::{refValue.Name.ToPascalCase(strictIfUppercase: true)}),");
         }
         w.WriteLine(3, $"_ => Err({parseErrorType}),");
         w.WriteLine(2, "}");
