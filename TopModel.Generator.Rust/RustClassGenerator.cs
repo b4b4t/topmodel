@@ -116,16 +116,31 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         base.HandleFiles(files);
 
         // Génération des mod.rs pour chaque module en parallèle
-        var classesByModule = files.SelectMany(f => f.Classes.Where(FilterClass)).GroupBy(c => c.Namespace.Module);
+        Dictionary<string, List<Class>> classesByModule = [];
+        foreach (Class classe in files.SelectMany(f => f.Classes.Where(FilterClass)))
+        {
+            List<string> modFiles = Config
+                                .Tags.Intersect(classe.Tags)
+                                .Select(tag => Config.GetModFileName(classe, tag)).ToList();
+            foreach (string modFile in modFiles)
+            {
+                if (!classesByModule.TryGetValue(modFile, out List<Class>? value))
+                {
+                    value = [];
+                    classesByModule[modFile] = value;
+                }
+
+                value.Add(classe);
+            }
+        }
 
         Parallel.ForEach(
             classesByModule,
             moduleGroup =>
             {
-                var module = moduleGroup.Key;
-                var classes = moduleGroup.ToList();
-                var fileName = Config.GetModFileName(moduleGroup.First().Namespace, module);
-                GenerateModuleModRs(fileName, classes);
+                string modFile = moduleGroup.Key;
+                List<Class> classes = moduleGroup.Value.ToList();
+                GenerateModuleModRs(modFile, classes);
             }
         );
     }

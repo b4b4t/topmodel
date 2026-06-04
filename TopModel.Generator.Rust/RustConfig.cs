@@ -153,14 +153,14 @@ public class RustConfig : GeneratorConfigBase
     /// <summary>
     /// Récupère le chemin du fichier `mod.rs` pour un module donné.
     /// </summary>
-    public virtual string GetModFileName(Namespace ns, string tag)
+    public virtual string GetModFileName(Class classe, string tag)
     {
         return Path.Combine(
                 OutputDirectory,
-                ResolveVariables(GetModelRootPath(ns., tag), tag, ns.Module.ToSnakeCase()),
+                ResolveVariables(GetModelRootPath(classe, tag), tag, classe.Namespace.Module.ToSnakeCase()),
                 $"{ModFileName}.rs"
             )
-            .Replace('\\', '/');
+            .Replace("\\", "::").Replace("/", "::");
     }
 
     /// <summary>
