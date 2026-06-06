@@ -172,25 +172,39 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         if (classe.Enum != EnumMode.Enum)
         {
             WriteStruct(w, classe, tag);
+
+            foreach (var prop in classe.ExtendedProperties.Where(p => p.EnumProperty == p))
+            {
+                w.WriteLine();
+                WriteEnum(w, prop, tag);
+                w.WriteLine();
+                WriteParseError(w, prop);
+            }
         }
-
-        if (classe.Enum == EnumMode.Enum || classe.Reference)
+        else
         {
-            WriteEnum(w, classe, tag);
-
             w.WriteLine();
+            WriteEnum(w, classe.EnumKey!, tag);
             w.WriteLine();
-
-            WriteParseError(w, classe);
+            WriteParseError(w, classe.EnumKey!);
         }
     }
 
     /// <summary>
     /// Écrit un enum Rust à partir d'une classe ayant `enum: enum`.
     /// </summary>
-    protected virtual void WriteEnum(RustWriter w, Class classe, string tag)
+    protected virtual void WriteEnum(RustWriter w, IProperty prop, string tag)
     {
-        w.WriteDoc(0, classe.Comment);
+        if (prop.UniqueValuedProperty == null)
+        {
+            return;
+        }
+
+        Class classe = prop.UniqueValuedProperty!.Class;
+
+        w.WriteDoc(0, prop.Class.Comment);
+
+        string enumName = Config.GetEnumType(prop, internalReference: true);
 
         var enumDerives = Config.UseSqlx && Config.IsPersistent(classe, tag)
             ? [.. Config.EnumDerives, "sqlx::Type"]
@@ -210,7 +224,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         {
             var sqlxArgs = new List<string>
             {
-                $@"type_name = ""{classe.Name.Value.ToSnakeCase()}""",
+                $@"type_name = ""{enumName.ToSnakeCase()}""",
             };
 
             if (!string.IsNullOrEmpty(Config.SqlxEnumRenameAll))
@@ -221,14 +235,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
             w.WriteAttribute(0, $"sqlx({string.Join(", ", sqlxArgs)})");
         }
 
-        if (classe.Enum == EnumMode.Enum)
-        {
-            w.WriteLine(0, $"pub enum {classe.NamePascal} {{");
-        }
-        else
-        {
-            w.WriteLine(0, $"pub enum {classe.NamePascal}Enum {{");
-        }
+        w.WriteLine(0, $"pub enum {enumName} {{");
 
         var values = Config.GetAllValues(classe).OrderBy(v => v.Name, StringComparer.Ordinal).ToList();
 
@@ -256,36 +263,38 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
     /// <summary>
     /// Écrit un enum Rust à partir d'une classe ayant `enum: enum`.
     /// </summary>
-    protected virtual void WriteParseError(RustWriter w, Class classe)
+    protected virtual void WriteParseError(RustWriter w, IProperty prop)
     {
-        ICollection<IProperty> primaryKeyFields = classe.ExtendedProperties.Where(p => p.PrimaryKey).ToList();
-
-        // Si l'enum est basé sur une seule valeur de type string, on peut implémenter `FromStr` pour permettre la conversion directe depuis une chaîne de caractères.
-        if (primaryKeyFields.Count != 1 || !string.Equals(GetRustType(primaryKeyFields.First()), "string", StringComparison.OrdinalIgnoreCase))
+        if (prop.UniqueValuedProperty == null)
         {
             return;
         }
 
-        IProperty primaryKeyField = primaryKeyFields.First();
-        string parseErrorType = $"{classe.NamePascal}ParseError";
-        string enumType = classe.Enum == EnumMode.Enum ? classe.NamePascal : $"{classe.NamePascal}Enum";
+        Class classe = prop.UniqueValuedProperty!.Class;
+
+        string enumType = classe.Enum == EnumMode.Enum ?
+            classe.NamePascal : Config.GetEnumType(prop, internalReference: true);
+        string parseErrorType = $"{enumType}ParseError";
 
         w.AddUses(["std::convert::TryFrom", "std::error::Error", "std::fmt"]);
-        w.WriteLine();
 
+        w.WriteDoc(0, "Error parsing type");
         w.WriteAttribute(0, "derive(Debug)");
         w.WriteLine(0, $"pub struct {parseErrorType};");
         w.WriteLine();
 
+        w.WriteDoc(0, "Display support");
         w.WriteLine(0, $"impl fmt::Display for {parseErrorType} {{");
         w.WriteLine(1, "fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {");
         w.WriteLine(2, $"write!(f, \"Failed to parse {classe.NamePascal}\")");
         w.WriteLine(1, "}");
         w.WriteLine(0, "}");
+        w.WriteLine();
 
         w.WriteLine(0, $"impl Error for {parseErrorType} {{}}");
         w.WriteLine();
 
+        w.WriteDoc(0, "Convert string to enum");
         w.WriteLine(0, $"impl TryFrom<&str> for {enumType} {{");
         w.WriteLine(1, $"fn try_from(value: &str) -> Result<Self, {parseErrorType}> {{");
         w.WriteLine(2, "match value {");
@@ -296,7 +305,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         {
             ClassValue refValue = values[i];
 
-            w.WriteLine(3, $"\"{refValue.Value[primaryKeyField]}\" => Ok({enumType}::{refValue.Name.ToPascalCase(strictIfUppercase: true)}),");
+            w.WriteLine(3, $"\"{refValue.Value[prop]}\" => Ok({enumType}::{refValue.Name.ToPascalCase(strictIfUppercase: true)}),");
         }
         w.WriteLine(3, $"_ => Err({parseErrorType}),");
         w.WriteLine(2, "}");
