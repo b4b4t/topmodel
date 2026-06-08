@@ -101,7 +101,7 @@ public class JsonTranslationGenerator(
             }
         }
 
-        // Génère le Json
+        // Génère les objets Json
         Dictionary<string, object> root = [];
         foreach (var translation in translations.OrderBy(t => t.Key, StringComparer.Ordinal))
         {
@@ -126,5 +126,8 @@ public class JsonTranslationGenerator(
                 }
             }
         }
+
+        // Ecris le Json dans le fichier
+        fw.Write(System.Text.Json.JsonSerializer.Serialize(root, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
     }
 }
