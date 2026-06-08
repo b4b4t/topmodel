@@ -14,6 +14,11 @@ public class TranslationConfig : GeneratorConfigBase
     /// </summary>
     public virtual string RootPath { get; set; } = "{lang}";
 
+    /// <summary>
+    /// Type de traduction à générer : js (objets de traduction javascripts) ou json
+    /// </summary>
+    public virtual string TranslationType { get; set; } = "js";
+
     public override string[] PropertiesWithTagVariableSupport => [nameof(RootPath)];
 
     public override string[] PropertiesWithLangVariableSupport => [nameof(RootPath)];

@@ -8,6 +8,13 @@ public class GeneratorRegistration : IGeneratorRegistration<TranslationConfig>
     /// <inheritdoc cref="IGeneratorRegistration{T}.Register" />
     public void Register(IServiceCollection services, TranslationConfig config, int number)
     {
-        services.AddGenerator<TranslationOutGenerator, TranslationConfig>(config, number);
+        if(config.TranslationType == "json") 
+        {
+            services.AddGenerator<JsonTranslationGenerator, TranslationConfig>(config, number);
+        }
+        else
+        {
+            services.AddGenerator<TranslationOutGenerator, TranslationConfig>(config, number);
+        }
     }
 }

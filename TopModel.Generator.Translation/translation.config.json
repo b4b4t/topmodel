@@ -41,7 +41,8 @@
       "items": {
         "type": "string",
         "enum": [
-          "JTranslationOutGen"
+          "JTranslationOutGen",
+          "JsonTranslationGen"
         ]
       }
     },
@@ -58,6 +59,11 @@
       "type": "boolean",
       "description": "Si les libellés des propriétés doivent être traduits.",
       "default": "true"
+    },
+    "translationType": {
+      "type": "string",
+      "description": "Type de traduction à générer : js (objets de traduction javascripts) ou json",
+      "default": "js"
     },
     "ignoreDefaultValues": {
       "type": "boolean",
