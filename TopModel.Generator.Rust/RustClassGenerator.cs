@@ -296,6 +296,8 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
 
         w.WriteDoc(0, $"Convert &str to {enumType}");
         w.WriteLine(0, $"impl TryFrom<&str> for {enumType} {{");
+        w.WriteLine(1, $"type Error = {parseErrorType};");
+        w.WriteLine();
         w.WriteLine(1, $"fn try_from(value: &str) -> Result<Self, {parseErrorType}> {{");
         w.WriteLine(2, "match value {");
 
