@@ -231,4 +231,24 @@ public class RustConfig : GeneratorConfigBase
 
         return type;
     }
+
+    /// <summary>
+    /// Remplace le nom du crate par crate si le nom est le même. 
+    /// </summary>
+    public IEnumerable<string> SetCurrentCrate(IEnumerable<string> uses, string currentCrateName)
+    {
+        foreach (string use in uses)
+        {
+            string[] parts = use.Split("::");
+
+            if (parts.Length > 0 && parts[0] == currentCrateName)
+            {
+                yield return string.Join("::", ["crate", .. parts[1..]]);
+            }
+            else
+            {
+                yield return use;
+            }
+        }
+    }
 }

@@ -50,7 +50,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
             uses.AddRange(Config.GetDomainImports(property, tag));
         }
 
-        foreach (IProperty property in classe.Properties)
+        foreach (IProperty property in classe.ExtendedProperties)
         {
             if (
                 property is { Composition: Class cpc }
@@ -79,7 +79,9 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
             }
         }
 
-        w.AddUses(uses);
+        string currentCrateName = Config.GetCrateName(Config.GetModelRootPath(classe, tag));
+
+        w.AddUses(Config.SetCurrentCrate(uses, currentCrateName));
     }
 
     /// <inheritdoc />

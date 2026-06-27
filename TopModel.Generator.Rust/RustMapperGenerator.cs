@@ -53,11 +53,9 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
             uses.Add(Config.GetClassNamespace(mapper.Class, Config.GetBestClassTag(mapper.Class, tag)));
         }
 
-        uses.Add("crate::mapper::Converter");
-
         string currentCrateName = Config.GetCrateName(Config.MapperRootPath);
 
-        w.AddUses(SetCurrentCrate(uses, currentCrateName));
+        w.AddUses(Config.SetCurrentCrate(uses, currentCrateName));
 
         // Generate fromMappers: creates target class from source class params (to_dao direction).
         foreach (var (classe, mapper) in fromMappers)
@@ -76,6 +74,8 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
             }
         }
 
+        w.WriteLine();
+
         // Generate toMappers: maps source class to target class (to_dto direction).
         foreach (var (classe, mapper) in toMappers)
         {
@@ -88,20 +88,6 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
             {
                 w.WriteLine();
             }
-        }
-    }
-
-    private static IEnumerable<string> SetCurrentCrate(IEnumerable<string> uses, string currentCrateName)
-    {
-        foreach (string use in uses)
-        {
-            string[] parts = use.Split("::");
-
-            if (parts.Length > 0 && parts[0] == currentCrateName)
-            {
-                yield return string.Join("::", ["crate", .. parts[1..]]);
-            }
-            yield return use;
         }
     }
 
@@ -121,7 +107,7 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
 
         w.WriteLine($"pub struct {mapperStructName};");
         w.WriteLine();
-        w.WriteLine($"impl Converter<{daoName}, {dtoName}> for {mapperStructName} {{");
+        w.WriteLine($"impl {mapperStructName} {{");
 
         // Search all (dao) fields that does not exist in the source (dao)
         List<IProperty> properties = mappings.Select(p => p.Value).ToList();
@@ -132,13 +118,16 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
             daoMissingProperties.Select(p => $"{p.NameCamel.ToSnakeCase().EscapeKeyword()}: {Config.GetRustType(p)} "));
 
         // to_dao: converts from DTO to DAO
+        string snakeDaoName = daoClass.NameCamel.ToSnakeCase();
+        string snakeDtoName = dtoClass.NameCamel.ToSnakeCase();
+
         if (daoMissingProperties.Count > 0)
         {
-            w.WriteLine(1, $"fn to_dao(dto: &{dtoName}, {daoMissingParamters}) -> {daoName} {{");
+            w.WriteLine(1, $"fn to_{snakeDaoName}({snakeDtoName}: &{dtoName}, {daoMissingParamters}) -> {daoName} {{");
         }
         else
         {
-            w.WriteLine(1, $"fn to_dao(dto: &{dtoName}) -> {daoName} {{");
+            w.WriteLine(1, $"fn to_{snakeDaoName}({snakeDtoName}: &{dtoName}) -> {daoName} {{");
         }
 
         w.WriteLine(2, $"{daoName} {{");
@@ -150,7 +139,7 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
 
             var targetField = targetProp.NameCamel.ToSnakeCase().EscapeKeyword();
             var sourceField = sourceProp.NameCamel.ToSnakeCase().EscapeKeyword();
-            var value = GetFieldValue($"dto.{sourceField}", sourceProp, targetProp);
+            var value = GetFieldValue($"{snakeDtoName}.{sourceField}", sourceProp, targetProp);
 
             w.WriteLine(3, $"{targetField}: {value},");
         }
@@ -173,11 +162,11 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
 
         if (dtoMissingProperties.Count > 0)
         {
-            w.WriteLine(1, $"fn to_dto(dao: &{daoName}, {missingParamters}) -> {dtoName} {{");
+            w.WriteLine(1, $"fn to_{snakeDtoName}({snakeDaoName}: &{daoName}, {missingParamters}) -> {dtoName} {{");
         }
         else
         {
-            w.WriteLine(1, $"fn to_dto(dao: &{daoName}) -> {dtoName} {{");
+            w.WriteLine(1, $"fn to_{snakeDtoName}({snakeDaoName}: &{daoName}) -> {dtoName} {{");
         }
         w.WriteLine(2, $"{dtoName} {{");
 
@@ -189,7 +178,7 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
             // Inverse direction: DAO -> DTO
             var daoField = targetProp.NameCamel.ToSnakeCase().EscapeKeyword();
             var dtoField = sourceProp.NameCamel.ToSnakeCase().EscapeKeyword();
-            var value = GetFieldValue($"dao.{daoField}", targetProp, sourceProp);
+            var value = GetFieldValue($"{snakeDaoName}.{daoField}", targetProp, sourceProp);
 
             w.WriteLine(3, $"{dtoField}: {value},");
         }
@@ -247,7 +236,7 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
             "isize", "usize"
         };
 
-        var baseType = rustType.StartsWith("Option<") && rustType.EndsWith(">")
+        var baseType = rustType.StartsWith("Option<") && rustType.EndsWith('>')
             ? rustType[7..^1]
             : rustType;
 
