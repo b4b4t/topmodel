@@ -54,7 +54,10 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
         }
 
         uses.Add("crate::mapper::Converter");
-        w.AddUses(uses);
+
+        string currentCrateName = Config.GetCrateName(Config.MapperRootPath);
+
+        w.AddUses(SetCurrentCrate(uses, currentCrateName));
 
         // Generate fromMappers: creates target class from source class params (to_dao direction).
         foreach (var (classe, mapper) in fromMappers)
@@ -88,6 +91,20 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
         }
     }
 
+    private static IEnumerable<string> SetCurrentCrate(IEnumerable<string> uses, string currentCrateName)
+    {
+        foreach (string use in uses)
+        {
+            string[] parts = use.Split("::");
+
+            if (parts.Length > 0 && parts[0] == currentCrateName)
+            {
+                yield return string.Join("::", ["crate", .. parts[1..]]);
+            }
+            yield return use;
+        }
+    }
+
     /// <summary>
     /// Écrit une implémentation du trait `Converter` entre deux classes.
     /// </summary>
@@ -106,8 +123,24 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
         w.WriteLine();
         w.WriteLine($"impl Converter<{daoName}, {dtoName}> for {mapperStructName} {{");
 
+        // Search all (dao) fields that does not exist in the source (dao)
+        List<IProperty> properties = mappings.Select(p => p.Value).ToList();
+        List<IProperty> daoMissingProperties = daoClass.ExtendedProperties.Where(p => !properties.Contains(p)).ToList();
+
+        // to_dto: converts from DAO to DTO
+        string daoMissingParamters = string.Join(", ",
+            daoMissingProperties.Select(p => $"{p.NameCamel.ToSnakeCase().EscapeKeyword()}: {Config.GetRustType(p)} "));
+
         // to_dao: converts from DTO to DAO
-        w.WriteLine(1, $"fn to_dao(dto: &{dtoName}) -> {daoName} {{");
+        if (daoMissingProperties.Count > 0)
+        {
+            w.WriteLine(1, $"fn to_dao(dto: &{dtoName}, {daoMissingParamters}) -> {daoName} {{");
+        }
+        else
+        {
+            w.WriteLine(1, $"fn to_dao(dto: &{dtoName}) -> {daoName} {{");
+        }
+
         w.WriteLine(2, $"{daoName} {{");
 
         foreach (var mapping in mappings)
@@ -122,12 +155,30 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
             w.WriteLine(3, $"{targetField}: {value},");
         }
 
+        foreach (IProperty parameter in daoMissingProperties)
+        {
+            w.WriteLine(3, $"{parameter.NameCamel.ToSnakeCase().EscapeKeyword()},");
+        }
+
         w.WriteLine(2, "}");
         w.WriteLine(1, "}");
         w.WriteLine();
 
+        // Search all (dto) fields that does not exist in the source (dao)
+        List<IProperty> dtoMissingProperties = dtoClass.ExtendedProperties.Where(p => !properties.Contains(p)).ToList();
+
         // to_dto: converts from DAO to DTO
-        w.WriteLine(1, $"fn to_dto(dao: &{daoName}) -> {dtoName} {{");
+        string missingParamters = string.Join(", ",
+            dtoMissingProperties.Select(p => $"{p.NameCamel.ToSnakeCase().EscapeKeyword()}: {Config.GetRustType(p)} "));
+
+        if (dtoMissingProperties.Count > 0)
+        {
+            w.WriteLine(1, $"fn to_dto(dao: &{daoName}, {missingParamters}) -> {dtoName} {{");
+        }
+        else
+        {
+            w.WriteLine(1, $"fn to_dto(dao: &{daoName}) -> {dtoName} {{");
+        }
         w.WriteLine(2, $"{dtoName} {{");
 
         foreach (var mapping in mappings)
@@ -142,6 +193,10 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
 
             w.WriteLine(3, $"{dtoField}: {value},");
         }
+        foreach (IProperty parameter in dtoMissingProperties)
+        {
+            w.WriteLine(3, $"{parameter.NameCamel.ToSnakeCase().EscapeKeyword()},");
+        }
 
         w.WriteLine(2, "}");
         w.WriteLine(1, "}");
@@ -154,7 +209,7 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
     private string GetFieldValue(string sourceExpr, IProperty source, IProperty target)
     {
         var sourceType = Config.GetType(source);
-        var targetType = Config.GetType(target);
+        // var targetType = Config.GetType(target);
 
         // If source is Option but target is not, unwrap with unwrap_or_default()
         if (!source.Required && target.Required)

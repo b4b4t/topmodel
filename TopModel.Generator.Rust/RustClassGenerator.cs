@@ -88,26 +88,6 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         return Config.GetClassFileName(classe, tag);
     }
 
-    /// <summary>
-    /// Récupère le type Rust à utiliser pour une propriété (wrappe avec `Option` si non requise).
-    /// </summary>
-    protected virtual string GetRustType(IProperty property)
-    {
-        var type = Config.GetType(property);
-
-        if (string.IsNullOrEmpty(type))
-        {
-            type = "()";
-        }
-
-        if (!property.Required)
-        {
-            type = $"Option<{type}>";
-        }
-
-        return type;
-    }
-
     /// <inheritdoc />
     protected override void HandleFiles(IEnumerable<ModelFile> files)
     {
@@ -369,7 +349,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
             w.WriteDoc(1, property.Comment);
 
             var fieldName = property.NameCamel.ToSnakeCase().EscapeKeyword();
-            var fieldType = GetRustType(property);
+            var fieldType = Config.GetRustType(property);
 
             w.WriteLine(1, $"pub {fieldName}: {fieldType},");
         }

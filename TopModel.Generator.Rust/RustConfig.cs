@@ -144,10 +144,10 @@ public class RustConfig : GeneratorConfigBase
         string modulePath = Path.Combine(
                 ResolveVariables(GetModelRootPath(classe, tag), tag, classe.Namespace.Module.ToSnakeCase())
             )
-            .Replace("\\", "::").Replace("/", "::");
+            .Replace("\\", "::").Replace("/", "::").Replace('-', '_').Replace("src::", string.Empty);
         string fileName = classe.Name.Value.ToSnakeCase();
 
-        return $"crate::{string.Join("::", modulePath)}::{fileName}::{classe.NamePascal}";
+        return $"{string.Join("::", modulePath)}::{fileName}::{classe.NamePascal}";
     }
 
     /// <summary>
@@ -189,5 +189,46 @@ public class RustConfig : GeneratorConfigBase
                 $"{mapper.Classe.Name.Value.ToSnakeCase()}_mapper.rs"
             )
             .Replace('\\', '/');
+    }
+
+    /// <summary>
+    /// Récupère le nom du crate à partir du chemin du fichier   
+    /// </summary>
+    /// <param name="path">Chemin du fichier</param>
+    /// <returns>Nom du crate</returns>
+    public virtual string GetCrateName(string path)
+    {
+        string[] parts = path.Replace("\\", "/").Replace('-', '_').Split('/');
+        string crateName = string.Empty;
+        foreach (string part in parts)
+        {
+            if (part == "src")
+            {
+                return crateName;
+            }
+            crateName = part;
+        }
+
+        throw new NotSupportedException("Cannot find the crate name.");
+    }
+
+    /// <summary>
+    /// Récupère le type Rust à utiliser pour une propriété (wrappe avec `Option` si non requise).
+    /// </summary>
+    public virtual string GetRustType(IProperty property)
+    {
+        var type = GetType(property);
+
+        if (string.IsNullOrEmpty(type))
+        {
+            type = "()";
+        }
+
+        if (!property.Required)
+        {
+            type = $"Option<{type}>";
+        }
+
+        return type;
     }
 }
