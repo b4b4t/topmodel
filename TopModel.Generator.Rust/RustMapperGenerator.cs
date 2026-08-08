@@ -123,11 +123,11 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
 
         if (daoMissingProperties.Count > 0)
         {
-            w.WriteLine(1, $"fn to_{snakeDaoName}({snakeDtoName}: &{dtoName}, {daoMissingParamters}) -> {daoName} {{");
+            w.WriteLine(1, $"pub fn to_{snakeDaoName}({snakeDtoName}: &{dtoName}, {daoMissingParamters}) -> {daoName} {{");
         }
         else
         {
-            w.WriteLine(1, $"fn to_{snakeDaoName}({snakeDtoName}: &{dtoName}) -> {daoName} {{");
+            w.WriteLine(1, $"pub fn to_{snakeDaoName}({snakeDtoName}: &{dtoName}) -> {daoName} {{");
         }
 
         w.WriteLine(2, $"{daoName} {{");
@@ -162,11 +162,11 @@ public class RustMapperGenerator(ILogger<RustMapperGenerator> logger, IFileWrite
 
         if (dtoMissingProperties.Count > 0)
         {
-            w.WriteLine(1, $"fn to_{snakeDtoName}({snakeDaoName}: &{daoName}, {missingParamters}) -> {dtoName} {{");
+            w.WriteLine(1, $"pub fn to_{snakeDtoName}({snakeDaoName}: &{daoName}, {missingParamters}) -> {dtoName} {{");
         }
         else
         {
-            w.WriteLine(1, $"fn to_{snakeDtoName}({snakeDaoName}: &{daoName}) -> {dtoName} {{");
+            w.WriteLine(1, $"pub fn to_{snakeDtoName}({snakeDaoName}: &{daoName}) -> {dtoName} {{");
         }
         w.WriteLine(2, $"{dtoName} {{");
 
