@@ -276,12 +276,12 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         w.WriteLine(0, $"impl Error for {parseErrorType} {{}}");
         w.WriteLine();
 
-        w.WriteDoc(0, $"Convert &str to {enumType}");
-        w.WriteLine(0, $"impl TryFrom<&str> for {enumType} {{");
+        w.WriteDoc(0, $"Convert String to {enumType}");
+        w.WriteLine(0, $"impl TryFrom<String> for {enumType} {{");
         w.WriteLine(1, $"type Error = {parseErrorType};");
         w.WriteLine();
-        w.WriteLine(1, $"fn try_from(value: &str) -> Result<Self, {parseErrorType}> {{");
-        w.WriteLine(2, "match value {");
+        w.WriteLine(1, $"fn try_from(value: String) -> Result<Self, {parseErrorType}> {{");
+        w.WriteLine(2, "match value.as_ref() {");
 
         List<ClassValue> values = Config.GetAllValues(classe).OrderBy(v => v.Name, StringComparer.Ordinal).ToList();
 
@@ -298,8 +298,8 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
 
         w.WriteLine();
 
-        w.WriteDoc(0, $"Convert {enumType} to &str");
-        w.WriteLine(0, $"impl From<{enumType}> for &str {{");
+        w.WriteDoc(0, $"Convert {enumType} to String");
+        w.WriteLine(0, $"impl From<{enumType}> for String {{");
         w.WriteLine(1, $"fn from(val: {enumType}) -> Self {{");
         w.WriteLine(2, "match val {");
 
@@ -307,7 +307,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         {
             ClassValue refValue = values[i];
 
-            w.WriteLine(3, $"{enumType}::{refValue.Name.ToPascalCase(strictIfUppercase: true)} => \"{refValue.Value[prop]}\",");
+            w.WriteLine(3, $"{enumType}::{refValue.Name.ToPascalCase(strictIfUppercase: true)} => \"{refValue.Value[prop]}\".to_string(),");
         }
 
         w.WriteLine(2, "}");

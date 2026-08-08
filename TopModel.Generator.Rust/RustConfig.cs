@@ -223,6 +223,11 @@ public class RustConfig : GeneratorConfigBase
         {
             type = "()";
         }
+        // Si l'association est une enum alors on utilise le type String
+        else if (property.Association != null && property.Association.Reference) 
+        {
+            type = "String";
+        }
 
         if (!property.Required)
         {
