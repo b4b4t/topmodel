@@ -350,6 +350,16 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
 
             w.WriteDoc(1, property.Comment);
 
+            if (
+                property.PersistentClass != null
+                && !Config.NoPersistence(tag)
+                && !property.AssociationMultiple
+                && !property.UseClassForAssociation
+            )
+            {
+                w.WriteAttribute(1, $@"sqlx(rename = ""{property.SqlName}"")");
+            }
+
             var fieldName = property.NameCamel.ToSnakeCase().EscapeKeyword();
             var fieldType = Config.GetRustType(property);
 
