@@ -357,7 +357,7 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
                 && !property.UseClassForAssociation
             )
             {
-                w.WriteAttribute(1, $@"sqlx(rename = ""{property.SqlName}"")");
+                w.WriteAttribute(1, $@"sqlx(rename = ""{property.SqlName.ToLowerInvariant()}"")");
             }
 
             var fieldName = property.NameCamel.ToSnakeCase().EscapeKeyword();
