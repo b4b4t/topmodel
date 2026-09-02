@@ -188,9 +188,10 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
 
         string enumName = Config.GetEnumType(prop, internalReference: true);
 
-        var enumDerives = Config.UseSqlx && Config.IsPersistent(classe, tag)
-            ? [.. Config.EnumDerives, "sqlx::Type"]
-            : Config.EnumDerives;
+        // var enumDerives = Config.UseSqlx && Config.IsPersistent(classe, tag)
+        //     ? [.. Config.EnumDerives, "sqlx::Type"]
+        //     : Config.EnumDerives;
+        var enumDerives = Config.EnumDerives;
 
         if (enumDerives.Length > 0)
         {
@@ -202,20 +203,20 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
             w.WriteAttribute(0, $@"serde(rename_all = ""{Config.EnumSerdeRenameAll}"")");
         }
 
-        if (Config.UseSqlx && Config.IsPersistent(classe, tag))
-        {
-            var sqlxArgs = new List<string>
-            {
-                $@"type_name = ""{enumName.ToSnakeCase()}""",
-            };
+        // if (Config.UseSqlx && Config.IsPersistent(classe, tag))
+        // {
+        //     var sqlxArgs = new List<string>
+        //     {
+        //         $@"type_name = ""{enumName.ToSnakeCase()}""",
+        //     };
 
-            if (!string.IsNullOrEmpty(Config.SqlxEnumRenameAll))
-            {
-                sqlxArgs.Add($@"rename_all = ""{Config.SqlxEnumRenameAll}""");
-            }
+        //     if (!string.IsNullOrEmpty(Config.SqlxEnumRenameAll))
+        //     {
+        //         sqlxArgs.Add($@"rename_all = ""{Config.SqlxEnumRenameAll}""");
+        //     }
 
-            w.WriteAttribute(0, $"sqlx({string.Join(", ", sqlxArgs)})");
-        }
+        //     w.WriteAttribute(0, $"sqlx({string.Join(", ", sqlxArgs)})");
+        // }
 
         w.WriteLine(0, $"pub enum {enumName} {{");
 
@@ -313,6 +314,25 @@ public class RustClassGenerator(ILogger<RustClassGenerator> logger, IFileWriterP
         w.WriteLine(2, "}");
         w.WriteLine(1, "}");
         w.WriteLine(0, "}");
+
+        w.WriteLine(0, $"impl sqlx::Type<sqlx::Postgres> for {enumType} {{");
+        w.WriteLine(1, "fn type_info() -> sqlx::postgres::PgTypeInfo {");
+        w.WriteLine(2, "<String as sqlx::Type<sqlx::Postgres>>::type_info()");
+        w.WriteLine(1, "}");
+        w.WriteLine(1, "fn compatible(ty: &sqlx::postgres::PgTypeInfo) -> bool {");
+        w.WriteLine(2, "<String as sqlx::Type<sqlx::Postgres>>::compatible(ty)");
+        w.WriteLine(1, "}");
+        w.WriteLine(0, "}");
+
+        w.WriteLine(0, $"impl<'r> sqlx::Decode<'r, sqlx::Postgres> for {enumType} {{");
+        w.WriteLine(1, "fn decode(");
+        w.WriteLine(2, "value: sqlx::postgres::PgValueRef<'r>,");
+        w.WriteLine(1, ") -> Result<Self, Box<dyn Error + Send + Sync>> {");
+        w.WriteLine(2, "let value = <String as sqlx::Decode<sqlx::Postgres>>::decode(value)?;");
+        w.WriteLine(2, $"{enumType}::try_from(value)");
+        w.WriteLine(3, ".map_err(|e| Box::new(e) as Box<dyn Error + Send + Sync>)");
+        w.WriteLine(1, "}");
+        w.WriteLine(0, "}"); 
     }
 
     /// <summary>
